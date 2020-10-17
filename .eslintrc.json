@@ -30,6 +30,7 @@
   ],
   "rules": {
     "no-use-before-define": "off",
+    "class-methods-use-this": "off",
     "camelcase": "off",
     "prettier/prettier": "error",
     "no-unused-expressions": "off",

@@ -9,6 +9,8 @@ import React, {
 import { TextInputProps } from 'react-native';
 import { useField } from '@unform/core';
 
+import { parseWidthPercentage } from '../../utils/screenPercentage';
+
 import { Container, TextInput, Icon } from './styles';
 
 interface InputProps extends TextInputProps {
@@ -72,7 +74,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
     <Container style={containerStyle} isFocused={isFocused} isErrored={!!error}>
       <Icon
         name={icon}
-        size={20}
+        size={parseWidthPercentage(20)}
         color={isFocused || isFilled ? '#6f7bae' : '#606060'}
       />
 

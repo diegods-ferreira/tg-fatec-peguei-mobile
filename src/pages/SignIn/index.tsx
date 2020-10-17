@@ -1,22 +1,26 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+import { useNavigation } from '@react-navigation/native';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 import {
   Container,
+  LogoImage,
   Title,
+  MiddleContainer,
+  ResetPasswordButton,
+  ResetPasswordButtonText,
   SocialLoginContainer,
   SocialLoginText,
   SocialLoginOption,
@@ -33,49 +37,62 @@ const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
 
+  const navigation = useNavigation();
+
+  const handleNavigateToSignUp = useCallback(() => {
+    navigation.navigate('SignUp');
+  }, [navigation]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       enabled
     >
-      <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
-        <ImageBackground source={backgroundImg} style={{ flex: 1 }}>
-          <Container>
-            <Image source={logoImg} />
+      <ImageBackground source={backgroundImg} style={{ flex: 1 }}>
+        <Container>
+          <LogoImage source={logoImg} />
 
-            <View>
-              <Title>Faça login</Title>
-            </View>
+          <View>
+            <Title>Faça login</Title>
+          </View>
 
-            <Form ref={formRef} onSubmit={() => {}}>
-              <Input
-                name="email"
-                icon="user"
-                placeholder="Usuário ou e-mail"
-                autoCorrect={false}
-                autoCapitalize="none"
-                returnKeyType="next"
-                onSubmitEditing={() => passwordInputRef.current?.focus()}
-              />
+          <Form ref={formRef} onSubmit={() => {}}>
+            <Input
+              name="email"
+              icon="mail"
+              placeholder="E-mail"
+              autoCorrect={false}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current?.focus()}
+            />
 
-              <Input
-                ref={passwordInputRef}
-                name="password"
-                icon="lock"
-                placeholder="Senha"
-                secureTextEntry
-                returnKeyType="send"
-                onSubmitEditing={() => formRef.current?.submitForm()}
-              />
+            <Input
+              ref={passwordInputRef}
+              name="password"
+              icon="lock"
+              placeholder="Senha"
+              secureTextEntry
+              returnKeyType="send"
+              onSubmitEditing={() => formRef.current?.submitForm()}
+            />
 
-              <Button onPress={() => formRef.current?.submitForm()}>
-                Entrar
-              </Button>
-            </Form>
+            <Button onPress={() => formRef.current?.submitForm()}>
+              Entrar
+            </Button>
+          </Form>
+
+          <MiddleContainer>
+            <ResetPasswordButton>
+              <ResetPasswordButtonText>
+                Esqueci minha senha
+              </ResetPasswordButtonText>
+            </ResetPasswordButton>
 
             <SocialLoginContainer>
-              <SocialLoginText>Fazer login com</SocialLoginText>
+              <SocialLoginText>Logar com</SocialLoginText>
               <SocialLoginOption>
                 <Image source={googleLogo} />
               </SocialLoginOption>
@@ -83,13 +100,13 @@ const SignIn: React.FC = () => {
                 <Image source={facebookLogo} />
               </SocialLoginOption>
             </SocialLoginContainer>
+          </MiddleContainer>
 
-            <SignUpButton>
-              <SignUpButtonText>Criar uma conta</SignUpButtonText>
-            </SignUpButton>
-          </Container>
-        </ImageBackground>
-      </ScrollView>
+          <SignUpButton onPress={handleNavigateToSignUp}>
+            <SignUpButtonText>Criar uma conta</SignUpButtonText>
+          </SignUpButton>
+        </Container>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 };
