@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import { RectButton } from 'react-native-gesture-handler';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
@@ -39,9 +40,15 @@ export const TextInput = styled.TextInput`
   flex: 1;
   color: #fff;
   font-size: ${parseWidthPercentage(16)}px;
-  font-family: sans-serif;
 `;
 
-export const Icon = styled(FeatherIcon)`
-  margin-right: ${parseWidthPercentage(16)}px;
+const toggleContentVisibilityButtonSize = parseWidthPercentage(20);
+
+export const ToggleContentVisibilityButton = styled.TouchableOpacity`
+  align-items: center;
+  justify-content: center;
+  width: ${toggleContentVisibilityButtonSize}px;
+  height: ${toggleContentVisibilityButtonSize}px;
+  border-radius: ${toggleContentVisibilityButtonSize / 2}px;
+  margin-left: ${parseWidthPercentage(16)}px;
 `;
