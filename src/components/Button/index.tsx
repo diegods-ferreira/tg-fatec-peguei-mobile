@@ -8,7 +8,7 @@ interface ButtonProps extends RectButtonProperties {
 }
 
 const Button: React.FC<ButtonProps> = ({ children, ...rest }) => (
-  <Container {...rest}>
+  <Container {...rest} rippleColor="#00000050">
     <ButtonText>{children}</ButtonText>
   </Container>
 );

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import CustomModal from '../../components/Modals/CustomModal';
 
 import {
   Container,
@@ -26,6 +27,13 @@ import {
   SocialLoginOption,
   SignUpButton,
   SignUpButtonText,
+  ModalTitle,
+  ModalSubtitle,
+  ModalButtonsContainer,
+  ModalCancelButton,
+  ModalCancelButtonText,
+  ModalSendButton,
+  ModalButtonText,
 } from './styles';
 
 import logoImg from '../../assets/Logo.png';
@@ -36,8 +44,18 @@ import facebookLogo from '../../assets/facebook.png';
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const resetPasswordFormRef = useRef<FormHandles>(null);
 
   const navigation = useNavigation();
+
+  const [
+    isResetPasswordModalVisible,
+    setIsResetPasswordModalVisible,
+  ] = useState(false);
+
+  const toggleResetPasswordModal = useCallback(() => {
+    setIsResetPasswordModalVisible(!isResetPasswordModalVisible);
+  }, [isResetPasswordModalVisible]);
 
   const handleNavigateToSignUp = useCallback(() => {
     navigation.navigate('SignUp');
@@ -86,7 +104,7 @@ const SignIn: React.FC = () => {
           </Form>
 
           <MiddleContainer>
-            <ResetPasswordButton>
+            <ResetPasswordButton onPress={toggleResetPasswordModal}>
               <ResetPasswordButtonText>
                 Esqueci minha senha
               </ResetPasswordButtonText>
@@ -107,6 +125,40 @@ const SignIn: React.FC = () => {
             <SignUpButtonText>Criar uma conta</SignUpButtonText>
           </SignUpButton>
         </Container>
+
+        <CustomModal
+          isVisible={isResetPasswordModalVisible}
+          setIsVisible={toggleResetPasswordModal}
+        >
+          <ModalTitle>Recuperar senha</ModalTitle>
+
+          <ModalSubtitle>
+            Enviaremos um e-mail de recuperação de senha para você.
+          </ModalSubtitle>
+
+          <Form ref={resetPasswordFormRef} onSubmit={() => {}}>
+            <Input
+              name="email"
+              icon="mail"
+              placeholder="E-mail"
+              autoCorrect={false}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordInputRef.current?.focus()}
+            />
+
+            <ModalButtonsContainer>
+              <ModalCancelButton onPress={toggleResetPasswordModal}>
+                <ModalCancelButtonText>Cancelar</ModalCancelButtonText>
+              </ModalCancelButton>
+
+              <ModalSendButton onPress={() => formRef.current?.submitForm()}>
+                <ModalButtonText>Enviar</ModalButtonText>
+              </ModalSendButton>
+            </ModalButtonsContainer>
+          </Form>
+        </CustomModal>
       </ImageBackground>
     </KeyboardAvoidingView>
   );
