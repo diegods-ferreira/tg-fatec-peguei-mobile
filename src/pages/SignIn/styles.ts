@@ -1,3 +1,4 @@
+import { RectButton } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import {
   parseHeightPercentage,
@@ -30,7 +31,7 @@ export const MiddleContainer = styled.View`
   width: 100%;
   margin-top: ${parseHeightPercentage(16)}px;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
 `;
 
 export const ResetPasswordButton = styled.TouchableOpacity`

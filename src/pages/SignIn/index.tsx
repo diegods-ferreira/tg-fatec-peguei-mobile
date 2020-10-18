@@ -74,7 +74,8 @@ const SignIn: React.FC = () => {
               name="password"
               icon="lock"
               placeholder="Senha"
-              secureTextEntry
+              toggleContentVisibilityButton
+              autoCapitalize="none"
               returnKeyType="send"
               onSubmitEditing={() => formRef.current?.submitForm()}
             />
