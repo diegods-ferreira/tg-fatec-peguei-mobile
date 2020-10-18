@@ -61,7 +61,6 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
       if (toggleContentVisibilityButton) {
         if (event.nativeEvent.text.length === 0) {
           setIsSecureTextEntry(false);
-          setIsContentVisible(true);
         } else {
           setIsSecureTextEntry(true);
           setIsContentVisible(false);
