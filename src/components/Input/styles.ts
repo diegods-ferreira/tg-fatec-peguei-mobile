@@ -1,6 +1,4 @@
 import styled, { css } from 'styled-components/native';
-import FeatherIcon from 'react-native-vector-icons/Feather';
-import { RectButton } from 'react-native-gesture-handler';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
@@ -39,7 +37,7 @@ export const Container = styled.View<ContainerProps>`
 export const TextInput = styled.TextInput`
   flex: 1;
   color: #fff;
-  font-size: ${parseWidthPercentage(16)}px;
+  font-size: ${parseHeightPercentage(16)}px;
 `;
 
 const toggleContentVisibilityButtonSize = parseWidthPercentage(20);

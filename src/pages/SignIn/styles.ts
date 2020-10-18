@@ -1,4 +1,3 @@
-import { RectButton } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 import {
   parseHeightPercentage,
@@ -23,7 +22,7 @@ export const Title = styled.Text`
   margin-top: ${parseHeightPercentage(16)}px;
   margin-bottom: ${parseHeightPercentage(32)}px;
   font-weight: bold;
-  font-size: ${parseWidthPercentage(24)}px;
+  font-size: ${parseHeightPercentage(24)}px;
   color: #ebebeb;
 `;
 
@@ -41,7 +40,7 @@ export const ResetPasswordButton = styled.TouchableOpacity`
 
 export const ResetPasswordButtonText = styled.Text`
   color: #f9c784;
-  font-size: ${parseWidthPercentage(16)}px;
+  font-size: ${parseHeightPercentage(16)}px;
 `;
 
 export const SocialLoginContainer = styled.View`
@@ -51,7 +50,7 @@ export const SocialLoginContainer = styled.View`
 `;
 
 export const SocialLoginText = styled.Text`
-  font-size: ${parseWidthPercentage(16)}px;
+  font-size: ${parseHeightPercentage(16)}px;
   color: #ebebeb;
 `;
 
@@ -74,20 +73,20 @@ export const SignUpButton = styled.TouchableOpacity`
 
 export const SignUpButtonText = styled.Text`
   color: #ededed;
-  font-size: ${parseWidthPercentage(18)}px;
+  font-size: ${parseHeightPercentage(18)}px;
   font-weight: bold;
 `;
 
 export const ModalTitle = styled.Text`
   margin-bottom: ${parseHeightPercentage(24)}px;
   font-weight: bold;
-  font-size: ${parseWidthPercentage(24)}px;
+  font-size: ${parseHeightPercentage(24)}px;
   color: #ebebeb;
 `;
 
 export const ModalSubtitle = styled.Text`
   margin-bottom: ${parseHeightPercentage(16)}px;
-  font-size: ${parseWidthPercentage(16)}px;
+  font-size: ${parseHeightPercentage(16)}px;
   text-align: center;
   color: #ebebeb;
 `;
@@ -111,7 +110,7 @@ export const ModalCancelButton = styled.TouchableOpacity`
 `;
 
 export const ModalCancelButtonText = styled.Text`
-  font-size: ${parseWidthPercentage(18)}px;
+  font-size: ${parseHeightPercentage(18)}px;
   font-weight: bold;
   color: #e74c3c;
 `;
@@ -127,6 +126,6 @@ export const ModalSendButton = styled.TouchableOpacity`
 
 export const ModalButtonText = styled.Text`
   color: #ededed;
-  font-size: ${parseWidthPercentage(18)}px;
+  font-size: ${parseHeightPercentage(18)}px;
   font-weight: bold;
 `;
