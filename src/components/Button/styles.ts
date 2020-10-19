@@ -1,6 +1,9 @@
 import styled from 'styled-components/native';
 import { RectButton } from 'react-native-gesture-handler';
-import { parseHeightPercentage } from '../../utils/screenPercentage';
+import {
+  parseHeightPercentage,
+  parseWidthPercentage,
+} from '../../utils/screenPercentage';
 
 export const Container = styled(RectButton)`
   height: ${parseHeightPercentage(56)}px;
@@ -13,6 +16,6 @@ export const Container = styled(RectButton)`
 
 export const ButtonText = styled.Text`
   color: #312e38;
-  font-size: ${parseHeightPercentage(18)}px;
+  font-size: ${parseWidthPercentage(18)}px;
   font-weight: bold;
 `;

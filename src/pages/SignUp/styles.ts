@@ -22,7 +22,7 @@ export const Title = styled.Text`
   margin-top: ${parseHeightPercentage(16)}px;
   margin-bottom: ${parseHeightPercentage(32)}px;
   font-weight: bold;
-  font-size: ${parseHeightPercentage(24)}px;
+  font-size: ${parseWidthPercentage(24)}px;
   color: #ebebeb;
 `;
 
@@ -30,10 +30,11 @@ export const SignInButton = styled.TouchableOpacity`
   margin-top: ${parseHeightPercentage(32)}px;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
 `;
 
 export const SignInButtonText = styled.Text`
   color: #f9c784;
-  font-size: ${parseHeightPercentage(18)}px;
+  font-size: ${parseWidthPercentage(18)}px;
   margin-left: ${parseWidthPercentage(8)}px;
 `;

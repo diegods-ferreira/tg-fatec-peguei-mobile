@@ -36,17 +36,17 @@ export const ModalTitleText = styled.View`
 export const ModalTitle = styled.Text`
   margin-bottom: ${parseHeightPercentage(8)}px;
   font-weight: bold;
-  font-size: ${parseHeightPercentage(24)}px;
+  font-size: ${parseWidthPercentage(24)}px;
   color: #ebebeb;
 `;
 
 export const ModalSubtitle = styled.Text`
-  font-size: ${parseHeightPercentage(20)}px;
+  font-size: ${parseWidthPercentage(20)}px;
   color: #ebebeb;
 `;
 
 export const ModalMessage = styled.Text`
-  font-size: ${parseHeightPercentage(16)}px;
+  font-size: ${parseWidthPercentage(16)}px;
   color: #ebebeb;
 `;
 
@@ -88,6 +88,6 @@ export const ModalDismissButton = styled.TouchableOpacity<
 
 export const ModalDismissButtonText = styled.Text`
   color: #312e38;
-  font-size: ${parseHeightPercentage(16)}px;
+  font-size: ${parseWidthPercentage(16)}px;
   font-weight: bold;
 `;

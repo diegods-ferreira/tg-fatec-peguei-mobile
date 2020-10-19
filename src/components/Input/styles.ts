@@ -37,7 +37,7 @@ export const Container = styled.View<ContainerProps>`
 export const TextInput = styled.TextInput`
   flex: 1;
   color: #fff;
-  font-size: ${parseHeightPercentage(16)}px;
+  font-size: ${parseWidthPercentage(16)}px;
 `;
 
 const toggleContentVisibilityButtonSize = parseWidthPercentage(20);
