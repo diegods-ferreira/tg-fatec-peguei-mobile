@@ -18,29 +18,19 @@ export const LogoImage = styled.Image`
   height: ${logoImageSize}px;
 `;
 
-export const Title = styled.Text`
+export const LoginContainer = styled.View`
+  width: 100%;
   margin-top: ${parseHeightPercentage(16)}px;
   margin-bottom: ${parseHeightPercentage(32)}px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Title = styled.Text`
   font-weight: bold;
   font-size: ${parseHeightPercentage(24)}px;
   color: #ebebeb;
-`;
-
-export const MiddleContainer = styled.View`
-  width: 100%;
-  margin-top: ${parseHeightPercentage(16)}px;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-export const ResetPasswordButton = styled.TouchableOpacity`
-  flex: 1;
-  justify-content: center;
-`;
-
-export const ResetPasswordButtonText = styled.Text`
-  color: #f9c784;
-  font-size: ${parseHeightPercentage(16)}px;
 `;
 
 export const SocialLoginContainer = styled.View`
@@ -58,6 +48,16 @@ export const SocialLoginOption = styled.TouchableOpacity`
   margin-left: ${parseWidthPercentage(8)}px;
   width: ${parseWidthPercentage(32)}px;
   height: ${parseHeightPercentage(32)}px;
+`;
+
+export const ResetPasswordButton = styled.TouchableOpacity`
+  align-self: flex-end;
+  margin-top: ${parseHeightPercentage(16)}px;
+`;
+
+export const ResetPasswordButtonText = styled.Text`
+  color: #f9c784;
+  font-size: ${parseHeightPercentage(16)}px;
 `;
 
 export const SignUpButton = styled.TouchableOpacity`

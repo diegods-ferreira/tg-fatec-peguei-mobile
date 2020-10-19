@@ -18,13 +18,13 @@ import CustomModal from '../../components/Modals/CustomModal';
 import {
   Container,
   LogoImage,
+  LoginContainer,
   Title,
-  MiddleContainer,
-  ResetPasswordButton,
-  ResetPasswordButtonText,
   SocialLoginContainer,
   SocialLoginText,
   SocialLoginOption,
+  ResetPasswordButton,
+  ResetPasswordButtonText,
   SignUpButton,
   SignUpButtonText,
   ModalTitle,
@@ -62,105 +62,107 @@ const SignIn: React.FC = () => {
   }, [navigation]);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      enabled
-    >
-      <ImageBackground source={backgroundImg} style={{ flex: 1 }}>
-        <Container>
-          <LogoImage source={logoImg} />
+    <>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        enabled
+      >
+        <ImageBackground source={backgroundImg} style={{ flex: 1 }}>
+          <Container>
+            <LogoImage source={logoImg} />
 
-          <View>
-            <Title>Faça login</Title>
-          </View>
+            <LoginContainer>
+              <View>
+                <Title>Faça login</Title>
+              </View>
 
-          <Form ref={formRef} onSubmit={() => {}}>
-            <Input
-              name="email"
-              icon="mail"
-              placeholder="E-mail"
-              autoCorrect={false}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              returnKeyType="next"
-              onSubmitEditing={() => passwordInputRef.current?.focus()}
-            />
+              <SocialLoginContainer>
+                <SocialLoginText>Usar</SocialLoginText>
+                <SocialLoginOption>
+                  <Image source={googleLogo} />
+                </SocialLoginOption>
+                <SocialLoginOption>
+                  <Image source={facebookLogo} />
+                </SocialLoginOption>
+              </SocialLoginContainer>
+            </LoginContainer>
 
-            <Input
-              ref={passwordInputRef}
-              name="password"
-              icon="lock"
-              placeholder="Senha"
-              toggleContentVisibilityButton
-              autoCapitalize="none"
-              returnKeyType="send"
-              onSubmitEditing={() => formRef.current?.submitForm()}
-            />
+            <Form ref={formRef} onSubmit={() => {}}>
+              <Input
+                name="email"
+                icon="mail"
+                placeholder="E-mail"
+                autoCorrect={false}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="next"
+                onSubmitEditing={() => passwordInputRef.current?.focus()}
+              />
 
-            <Button onPress={() => formRef.current?.submitForm()}>
-              Entrar
-            </Button>
-          </Form>
+              <Input
+                ref={passwordInputRef}
+                name="password"
+                icon="lock"
+                placeholder="Senha"
+                toggleContentVisibilityButton
+                autoCapitalize="none"
+                returnKeyType="send"
+                onSubmitEditing={() => formRef.current?.submitForm()}
+              />
 
-          <MiddleContainer>
+              <Button onPress={() => formRef.current?.submitForm()}>
+                Entrar
+              </Button>
+            </Form>
+
             <ResetPasswordButton onPress={toggleResetPasswordModal}>
               <ResetPasswordButtonText>
                 Esqueci minha senha
               </ResetPasswordButtonText>
             </ResetPasswordButton>
 
-            <SocialLoginContainer>
-              <SocialLoginText>Logar com</SocialLoginText>
-              <SocialLoginOption>
-                <Image source={googleLogo} />
-              </SocialLoginOption>
-              <SocialLoginOption>
-                <Image source={facebookLogo} />
-              </SocialLoginOption>
-            </SocialLoginContainer>
-          </MiddleContainer>
+            <SignUpButton onPress={handleNavigateToSignUp}>
+              <SignUpButtonText>Criar uma conta</SignUpButtonText>
+            </SignUpButton>
+          </Container>
+        </ImageBackground>
+      </KeyboardAvoidingView>
 
-          <SignUpButton onPress={handleNavigateToSignUp}>
-            <SignUpButtonText>Criar uma conta</SignUpButtonText>
-          </SignUpButton>
-        </Container>
+      <CustomModal
+        isVisible={isResetPasswordModalVisible}
+        setIsVisible={toggleResetPasswordModal}
+      >
+        <ModalTitle>Recuperar senha</ModalTitle>
 
-        <CustomModal
-          isVisible={isResetPasswordModalVisible}
-          setIsVisible={toggleResetPasswordModal}
-        >
-          <ModalTitle>Recuperar senha</ModalTitle>
+        <ModalSubtitle>
+          Enviaremos um e-mail de recuperação de senha para você.
+        </ModalSubtitle>
 
-          <ModalSubtitle>
-            Enviaremos um e-mail de recuperação de senha para você.
-          </ModalSubtitle>
+        <Form ref={resetPasswordFormRef} onSubmit={() => {}}>
+          <Input
+            name="email"
+            icon="mail"
+            placeholder="E-mail"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordInputRef.current?.focus()}
+          />
 
-          <Form ref={resetPasswordFormRef} onSubmit={() => {}}>
-            <Input
-              name="email"
-              icon="mail"
-              placeholder="E-mail"
-              autoCorrect={false}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              returnKeyType="next"
-              onSubmitEditing={() => passwordInputRef.current?.focus()}
-            />
+          <ModalButtonsContainer>
+            <ModalCancelButton onPress={toggleResetPasswordModal}>
+              <ModalCancelButtonText>Cancelar</ModalCancelButtonText>
+            </ModalCancelButton>
 
-            <ModalButtonsContainer>
-              <ModalCancelButton onPress={toggleResetPasswordModal}>
-                <ModalCancelButtonText>Cancelar</ModalCancelButtonText>
-              </ModalCancelButton>
-
-              <ModalSendButton onPress={() => formRef.current?.submitForm()}>
-                <ModalButtonText>Enviar</ModalButtonText>
-              </ModalSendButton>
-            </ModalButtonsContainer>
-          </Form>
-        </CustomModal>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+            <ModalSendButton onPress={() => formRef.current?.submitForm()}>
+              <ModalButtonText>Enviar</ModalButtonText>
+            </ModalSendButton>
+          </ModalButtonsContainer>
+        </Form>
+      </CustomModal>
+    </>
   );
 };
 
