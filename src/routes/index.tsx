@@ -1,12 +1,23 @@
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+
+import { useAuth } from '../hooks/auth';
 
 import AuthRoutes from './auth.routes';
 import AppRoutes from './app.routes';
 
 const Routes: React.FC = () => {
-  const userLogged = false;
+  const { user, loading } = useAuth();
 
-  return userLogged ? <AppRoutes /> : <AuthRoutes />;
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#999" />
+      </View>
+    );
+  }
+
+  return user ? <AppRoutes /> : <AuthRoutes />;
 };
 
 export default Routes;

@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
+  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -10,10 +11,17 @@ import {
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import { useNavigation } from '@react-navigation/native';
+import * as Yup from 'yup';
+
+import getValidationErrors from '../../utils/getValidationErrors';
+import { useAuth } from '../../hooks/auth';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import CustomModal from '../../components/Modals/CustomModal';
+import MessageModal, {
+  MessageModalProps,
+} from '../../components/Modals/MessageModal';
 
 import {
   Container,
@@ -41,6 +49,11 @@ import backgroundImg from '../../assets/bg-image.png';
 import googleLogo from '../../assets/google.png';
 import facebookLogo from '../../assets/facebook.png';
 
+interface SignInFormData {
+  email: string;
+  password: string;
+}
+
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const passwordInputRef = useRef<TextInput>(null);
@@ -48,18 +61,68 @@ const SignIn: React.FC = () => {
 
   const navigation = useNavigation();
 
+  const { signIn } = useAuth();
+
   const [
     isResetPasswordModalVisible,
     setIsResetPasswordModalVisible,
   ] = useState(false);
+  const [messageModalProps, setMessageModalProps] = useState<
+    Omit<MessageModalProps, 'setIsVisible'>
+  >({} as MessageModalProps);
 
   const toggleResetPasswordModal = useCallback(() => {
     setIsResetPasswordModalVisible(!isResetPasswordModalVisible);
   }, [isResetPasswordModalVisible]);
 
+  const toggleMessageModal = useCallback(() => {
+    setMessageModalProps({
+      ...messageModalProps,
+      isVisible: !messageModalProps.isVisible,
+    });
+  }, [messageModalProps]);
+
   const handleNavigateToSignUp = useCallback(() => {
     navigation.navigate('SignUp');
   }, [navigation]);
+
+  const handleSignIn = useCallback(
+    async (data: SignInFormData) => {
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um e-mail válido'),
+          password: Yup.string().required('Senha obrigatória'),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          formRef.current?.setErrors(errors);
+          return;
+        }
+
+        setMessageModalProps({
+          title: 'Erro na autenticação',
+          message: 'Ocorreu um erro ao fazer login, cheque as credenciais.',
+          type: 'error',
+          isVisible: true,
+        });
+      }
+    },
+    [signIn],
+  );
 
   return (
     <>
@@ -88,7 +151,7 @@ const SignIn: React.FC = () => {
               </SocialLoginContainer>
             </LoginContainer>
 
-            <Form ref={formRef} onSubmit={() => {}}>
+            <Form ref={formRef} onSubmit={handleSignIn}>
               <Input
                 name="email"
                 icon="mail"
@@ -162,6 +225,15 @@ const SignIn: React.FC = () => {
           </ModalButtonsContainer>
         </Form>
       </CustomModal>
+
+      <MessageModal
+        title={messageModalProps.title}
+        subtitle={messageModalProps.subtitle}
+        message={messageModalProps.message}
+        type={messageModalProps.type}
+        isVisible={messageModalProps.isVisible || false}
+        setIsVisible={toggleMessageModal}
+      />
     </>
   );
 };

@@ -15,7 +15,7 @@ import {
   ModalDismissButtonText,
 } from './styles';
 
-interface MessageModalProps {
+export interface MessageModalProps {
   title?: string;
   subtitle?: string;
   message: string;
