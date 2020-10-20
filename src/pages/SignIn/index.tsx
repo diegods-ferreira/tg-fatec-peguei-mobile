@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
-  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -169,6 +168,7 @@ const SignIn: React.FC = () => {
                 icon="lock"
                 placeholder="Senha"
                 toggleContentVisibilityButton
+                secureTextEntry
                 autoCapitalize="none"
                 returnKeyType="send"
                 onSubmitEditing={() => formRef.current?.submitForm()}

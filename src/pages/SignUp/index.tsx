@@ -137,6 +137,7 @@ const SignUp: React.FC = () => {
               icon="lock"
               placeholder="Senha"
               toggleContentVisibilityButton
+              secureTextEntry
               autoCapitalize="none"
               returnKeyType="send"
               onSubmitEditing={() => {
@@ -150,6 +151,7 @@ const SignUp: React.FC = () => {
               icon="key"
               placeholder="Confirmar senha"
               toggleContentVisibilityButton
+              secureTextEntry
               autoCapitalize="none"
               returnKeyType="send"
               onSubmitEditing={() => formRef.current?.submitForm()}

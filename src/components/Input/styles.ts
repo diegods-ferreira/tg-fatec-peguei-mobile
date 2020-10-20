@@ -22,15 +22,15 @@ export const Container = styled.View<ContainerProps>`
   align-items: center;
 
   ${props =>
-    props.isErrored &&
-    css`
-      border-color: #e74c3c;
-    `}
-
-  ${props =>
     props.isFocused &&
     css`
       border-color: #6f7bae;
+    `}
+
+  ${props =>
+    props.isErrored &&
+    css`
+      border-color: #e74c3c;
     `}
 `;
 
