@@ -31,6 +31,7 @@ export const Container = styled.View<ContainerProps>`
     props.isErrored &&
     css`
       border-color: #e74c3c;
+      margin-bottom: ${parseHeightPercentage(2)}px;
     `}
 `;
 
@@ -49,4 +50,16 @@ export const ToggleContentVisibilityButton = styled.TouchableOpacity`
   height: ${toggleContentVisibilityButtonSize}px;
   border-radius: ${toggleContentVisibilityButtonSize / 2}px;
   margin-left: ${parseWidthPercentage(16)}px;
+`;
+
+export const ErrorContainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-bottom: ${parseHeightPercentage(8)}px;
+`;
+
+export const ErrorLabel = styled.Text`
+  color: #e74c3c;
+  font-size: ${parseWidthPercentage(11)}px;
 `;

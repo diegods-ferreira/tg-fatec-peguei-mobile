@@ -12,7 +12,13 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import { parseWidthPercentage } from '../../utils/screenPercentage';
 
-import { Container, TextInput, ToggleContentVisibilityButton } from './styles';
+import {
+  Container,
+  TextInput,
+  ToggleContentVisibilityButton,
+  ErrorContainer,
+  ErrorLabel,
+} from './styles';
 
 interface InputProps extends TextInputProps {
   name: string;
@@ -87,39 +93,51 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
   }, [fieldName, registerField]);
 
   return (
-    <Container style={containerStyle} isFocused={isFocused} isErrored={!!error}>
-      <Feather
-        name={icon}
-        size={parseWidthPercentage(20)}
-        color={isFocused || isFilled ? '#6f7bae' : '#606060'}
-        style={{ marginRight: parseWidthPercentage(16) }}
-      />
+    <>
+      <Container
+        style={containerStyle}
+        isFocused={isFocused}
+        isErrored={!!error}
+      >
+        <Feather
+          name={icon}
+          size={parseWidthPercentage(20)}
+          color={isFocused || isFilled ? '#6f7bae' : '#606060'}
+          style={{ marginRight: parseWidthPercentage(16) }}
+        />
 
-      <TextInput
-        {...rest}
-        ref={inputElementRef}
-        keyboardAppearance="dark"
-        placeholderTextColor="#666360"
-        secureTextEntry={isSecureTextEntry}
-        defaultValue={defaultValue}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        onChangeText={value => {
-          inputValueRef.current.value = value;
-        }}
-      />
+        <TextInput
+          {...rest}
+          ref={inputElementRef}
+          keyboardAppearance="dark"
+          placeholderTextColor="#666360"
+          secureTextEntry={isSecureTextEntry}
+          defaultValue={defaultValue}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          onChangeText={value => {
+            inputValueRef.current.value = value;
+          }}
+        />
 
-      {toggleContentVisibilityButton && (
-        <ToggleContentVisibilityButton>
-          <Feather
-            name={isContentVisible ? 'eye-off' : 'eye'}
-            size={parseWidthPercentage(20)}
-            color={isFocused || isFilled ? '#6f7bae' : '#606060'}
-            onPress={handleToggleContentVisibility}
-          />
-        </ToggleContentVisibilityButton>
+        {toggleContentVisibilityButton && (
+          <ToggleContentVisibilityButton>
+            <Feather
+              name={isContentVisible ? 'eye-off' : 'eye'}
+              size={parseWidthPercentage(20)}
+              color={isFocused || isFilled ? '#6f7bae' : '#606060'}
+              onPress={handleToggleContentVisibility}
+            />
+          </ToggleContentVisibilityButton>
+        )}
+      </Container>
+
+      {!!error && (
+        <ErrorContainer>
+          <ErrorLabel>{error}</ErrorLabel>
+        </ErrorContainer>
       )}
-    </Container>
+    </>
   );
 };
 

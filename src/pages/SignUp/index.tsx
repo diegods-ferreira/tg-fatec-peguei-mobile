@@ -51,13 +51,21 @@ const SignUp: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          name: Yup.string().required(),
-          email: Yup.string().required().email(),
-          username: Yup.string().required().min(5).max(15),
-          password: Yup.string().min(6),
+          name: Yup.string().required('Nome é obrigatório'),
+          email: Yup.string()
+            .required('E-mail é obrigatório')
+            .email('Entre com um e-mail válido'),
+          username: Yup.string()
+            .min(5, 'Mínimo de 5 caracteres')
+            .max(15, 'Máximo de 15 caracteres')
+            .matches(
+              /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s]*)$/g,
+              'Não utilize acentos ou caracteres especiais',
+            ),
+          password: Yup.string().min(6, 'Mínimo de 6 caracteres'),
           password_confirmation: Yup.string()
-            .required()
-            .oneOf([Yup.ref('password')]),
+            .required('É necessário confirmar a senha')
+            .oneOf([Yup.ref('password')], 'As senhas não coincidem'),
         });
 
         await schema.validate(data, {
