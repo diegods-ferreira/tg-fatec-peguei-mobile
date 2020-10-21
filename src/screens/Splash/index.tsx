@@ -1,8 +1,8 @@
 import React from 'react';
 import { ImageBackground } from 'react-native';
 
-import backgroundImg from '../../assets/bg-image.png';
-import splashLogo from '../../assets/splash.png';
+import backgroundImg from '@assets/bg-image.png';
+import splashLogo from '@assets/splash.png';
 
 import { Container, LogoImage } from './styles';
 

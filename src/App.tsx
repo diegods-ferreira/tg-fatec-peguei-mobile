@@ -5,9 +5,8 @@ import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import AppProvider from './hooks';
-
 import Routes from './routes';
+import AppProvider from './hooks';
 
 const App: React.FC = () => (
   <NavigationContainer>

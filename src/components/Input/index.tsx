@@ -10,7 +10,7 @@ import { TextInputProps } from 'react-native';
 import { useField } from '@unform/core';
 import Feather from 'react-native-vector-icons/Feather';
 
-import { parseWidthPercentage } from '../../utils/screenPercentage';
+import { parseWidthPercentage } from '@utils/screenPercentage';
 
 import {
   Container,

@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
-} from '../../utils/screenPercentage';
+} from '@utils/screenPercentage';
 
 export const Container = styled.View`
   flex: 1;

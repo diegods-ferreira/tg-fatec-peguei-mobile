@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Trips from '../pages/Trips';
+import Trips from '@screens/Trips';
 
 export const Stack = createStackNavigator();
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Button } from 'react-native';
-import { useAuth } from '../../hooks/auth';
+import { useAuth } from '@hooks/auth';
 
 // import { Container } from './styles';
 

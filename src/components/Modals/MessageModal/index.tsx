@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import Feather from 'react-native-vector-icons/Feather';
-import { parseWidthPercentage } from '../../../utils/screenPercentage';
+import { parseWidthPercentage } from '@utils/screenPercentage';
 
 import {
   Container,

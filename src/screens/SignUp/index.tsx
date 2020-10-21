@@ -13,16 +13,16 @@ import { useNavigation } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import * as Yup from 'yup';
 
-import api from '../../services/api';
-import getValidationErrors from '../../utils/getValidationErrors';
-import { parseWidthPercentage } from '../../utils/screenPercentage';
+import api from '@services/api';
+import getValidationErrors from '@utils/getValidationErrors';
+import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import Input from '@components/Input';
+import Button from '@components/Button';
+
+import backgroundImg from '@assets/bg-image.png';
 
 import { Container, Title, SignInButton, SignInButtonText } from './styles';
-
-import backgroundImg from '../../assets/bg-image.png';
 
 interface SignUpFormData {
   name: string;

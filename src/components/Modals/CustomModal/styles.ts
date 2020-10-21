@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { parseHeightPercentage } from '../../../utils/screenPercentage';
+import { parseHeightPercentage } from '@utils/screenPercentage';
 
 export const Container = styled.View`
   width: 100%;

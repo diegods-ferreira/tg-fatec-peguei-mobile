@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components/native';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
-} from '../../utils/screenPercentage';
+} from '@utils/screenPercentage';
 
 interface ContainerProps {
   isFocused: boolean;

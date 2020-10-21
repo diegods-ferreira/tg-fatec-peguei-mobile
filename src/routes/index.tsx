@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { useAuth } from '../hooks/auth';
+import { useAuth } from '@hooks/auth';
+
+import Splash from '@screens/Splash';
 
 import AuthRoutes from './auth.routes';
 import AppRoutes from './app.routes';
-
-import Splash from '../pages/Splash';
 
 const Routes: React.FC = () => {
   const { user, loading } = useAuth();

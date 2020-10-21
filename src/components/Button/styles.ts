@@ -3,7 +3,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
-} from '../../utils/screenPercentage';
+} from '@utils/screenPercentage';
 
 export const Container = styled(RectButton)`
   height: ${parseHeightPercentage(56)}px;

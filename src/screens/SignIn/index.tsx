@@ -12,15 +12,20 @@ import { FormHandles } from '@unform/core';
 import { useNavigation } from '@react-navigation/native';
 import * as Yup from 'yup';
 
-import getValidationErrors from '../../utils/getValidationErrors';
-import { useAuth } from '../../hooks/auth';
+import getValidationErrors from '@utils/getValidationErrors';
+import { useAuth } from '@hooks/auth';
 
-import Input from '../../components/Input';
-import Button from '../../components/Button';
-import CustomModal from '../../components/Modals/CustomModal';
+import Input from '@components/Input';
+import Button from '@components/Button';
+import CustomModal from '@components/Modals/CustomModal';
 import MessageModal, {
   MessageModalProps,
-} from '../../components/Modals/MessageModal';
+} from '@components/Modals/MessageModal';
+
+import logoImg from '@assets/Logo.png';
+import backgroundImg from '@assets/bg-image.png';
+import googleLogo from '@assets/google.png';
+import facebookLogo from '@assets/facebook.png';
 
 import {
   Container,
@@ -42,11 +47,6 @@ import {
   ModalSendButton,
   ModalButtonText,
 } from './styles';
-
-import logoImg from '../../assets/Logo.png';
-import backgroundImg from '../../assets/bg-image.png';
-import googleLogo from '../../assets/google.png';
-import facebookLogo from '../../assets/facebook.png';
 
 interface SignInFormData {
   email: string;
