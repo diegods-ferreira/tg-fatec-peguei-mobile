@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
@@ -36,8 +37,17 @@ import {
 } from './styles';
 
 const Profile: React.FC = () => {
+  const navigation = useNavigation();
+
+  const handleEditProfile = useCallback(() => {
+    navigation.navigate('EditProfile');
+  }, [navigation]);
+
   return (
-    <ScrollView keyboardShouldPersistTaps="handled">
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      style={{ backgroundColor: '#2b2831' }}
+    >
       <Container>
         <Header>
           <LinearGradient
@@ -68,7 +78,10 @@ const Profile: React.FC = () => {
               <AvatarImage source={noUserAvatarImg} />
             </AvatarImageContainer>
 
-            <EditProfileButton rippleColor="#ebebeb10">
+            <EditProfileButton
+              rippleColor="#ebebeb10"
+              onPress={handleEditProfile}
+            >
               <Feather
                 name="edit-3"
                 size={parseWidthPercentage(20)}
