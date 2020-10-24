@@ -27,6 +27,7 @@ interface User {
   show_phone: boolean;
   created_at: Date;
   updated_at: Date;
+  avatar_url: string;
 }
 
 interface AuthState {
