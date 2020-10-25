@@ -4,6 +4,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
+import boxShadowProps from '@utils/boxShadowProps';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -57,24 +58,8 @@ const Profile: React.FC = () => {
             angle={84.6}
           />
 
-          <ProfileContainer
-            style={{
-              elevation: 8,
-              shadowOffset: { width: 5, height: 5 },
-              shadowColor: '#000000',
-              shadowOpacity: 0.25,
-              shadowRadius: 8,
-            }}
-          >
-            <AvatarImageContainer
-              style={{
-                elevation: 8,
-                shadowOffset: { width: 5, height: 5 },
-                shadowColor: '#000000',
-                shadowOpacity: 0.25,
-                shadowRadius: 8,
-              }}
-            >
+          <ProfileContainer style={boxShadowProps}>
+            <AvatarImageContainer style={boxShadowProps}>
               <AvatarImage source={noUserAvatarImg} />
             </AvatarImageContainer>
 

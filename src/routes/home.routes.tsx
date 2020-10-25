@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { parseHeightPercentage } from '@utils/screenPercentage';
+import boxShadowProps from '@utils/boxShadowProps';
 
 import Orders from '@screens/Orders';
 import Trips from '@screens/Trips';
@@ -46,11 +47,7 @@ const HomeRoutes: React.FC = () => {
         style: {
           height: parseHeightPercentage(56),
           borderTopColor: '#312e38',
-          elevation: 8,
-          shadowOffset: { width: 5, height: 5 },
-          shadowColor: '#000000',
-          shadowOpacity: 0.25,
-          shadowRadius: 8,
+          ...boxShadowProps,
         },
       }}
     >

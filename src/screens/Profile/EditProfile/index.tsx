@@ -7,6 +7,7 @@ import { FormHandles } from '@unform/core';
 import Axios from 'axios';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
+import boxShadowProps from '@utils/boxShadowProps';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -110,15 +111,7 @@ const EditProfile: React.FC = () => {
               </BackButton>
             </BackButtonContainer>
 
-            <AvatarContainer
-              style={{
-                elevation: 8,
-                shadowOffset: { width: 5, height: 5 },
-                shadowColor: '#000000',
-                shadowOpacity: 0.25,
-                shadowRadius: 8,
-              }}
-            >
+            <AvatarContainer style={boxShadowProps}>
               <AvatarImage source={noUserAvatarImg} />
               <EditAvatarButton rippleColor="#00000050">
                 <Feather

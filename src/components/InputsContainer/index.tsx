@@ -1,5 +1,7 @@
 import React from 'react';
 
+import boxShadowProps from '@utils/boxShadowProps';
+
 import { Container, Title } from './styles';
 
 interface InputsContainerProps {
@@ -11,15 +13,7 @@ const InputsContainer: React.FC<InputsContainerProps> = ({
   children,
 }) => {
   return (
-    <Container
-      style={{
-        elevation: 8,
-        shadowOffset: { width: 5, height: 5 },
-        shadowColor: '#000000',
-        shadowOpacity: 0.25,
-        shadowRadius: 8,
-      }}
-    >
+    <Container style={boxShadowProps}>
       <Title>{title}</Title>
       {children}
     </Container>
