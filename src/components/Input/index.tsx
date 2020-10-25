@@ -20,7 +20,7 @@ import {
   ErrorLabel,
 } from './styles';
 
-interface InputProps extends TextInputProps {
+export interface InputProps extends TextInputProps {
   name: string;
   icon: string;
   toggleContentVisibilityButton?: boolean;
@@ -70,11 +70,26 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
     setIsSecureTextEntry(!isSecureTextEntry);
   }, [isContentVisible, isSecureTextEntry]);
 
+  const handleToggleSecureTextEntryFontStyle = useCallback(() => {
+    inputElementRef.current.setNativeProps({
+      style: { fontFamily: 'sans-serif' },
+      text: inputValueRef.current.value,
+    });
+  }, []);
+
   useImperativeHandle(ref, () => ({
     focus() {
       inputElementRef.current.focus();
     },
   }));
+
+  useEffect(() => {
+    handleToggleSecureTextEntryFontStyle();
+  }, [handleToggleSecureTextEntryFontStyle]);
+
+  useEffect(() => {
+    handleToggleSecureTextEntryFontStyle();
+  }, [handleToggleSecureTextEntryFontStyle, isSecureTextEntry]);
 
   useEffect(() => {
     registerField<string>({
@@ -110,7 +125,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
           {...rest}
           ref={inputElementRef}
           keyboardAppearance="dark"
-          placeholderTextColor="#666360"
+          placeholderTextColor="#606060"
           secureTextEntry={isSecureTextEntry}
           defaultValue={defaultValue}
           onFocus={handleInputFocus}

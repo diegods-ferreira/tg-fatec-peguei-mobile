@@ -119,6 +119,7 @@ const SignUp: React.FC = () => {
             />
 
             <Input
+              ref={emailInputRef}
               name="email"
               icon="mail"
               placeholder="E-mail"
@@ -130,6 +131,7 @@ const SignUp: React.FC = () => {
             />
 
             <Input
+              ref={usernameInputRef}
               name="username"
               icon="user"
               placeholder="Usuário"
