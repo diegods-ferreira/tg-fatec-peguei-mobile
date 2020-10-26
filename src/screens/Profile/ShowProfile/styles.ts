@@ -73,7 +73,6 @@ export const ProfileName = styled.Text`
 
 export const ProfileAddress = styled.View`
   width: 100%;
-  margin-bottom: ${parseHeightPercentage(8)}px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -87,6 +86,7 @@ export const ProfileAddressText = styled.Text`
 
 export const ProfileStatistics = styled.View`
   flex-direction: row;
+  margin-top: ${parseHeightPercentage(8)}px;
 `;
 
 export const OrdersCounter = styled.TouchableOpacity`

@@ -3,6 +3,8 @@ import { ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 
+import { useAuth } from '@hooks/auth';
+
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
@@ -40,6 +42,8 @@ import {
 const Profile: React.FC = () => {
   const navigation = useNavigation();
 
+  const { user } = useAuth();
+
   const handleEditProfile = useCallback(() => {
     navigation.navigate('EditProfile');
   }, [navigation]);
@@ -60,7 +64,11 @@ const Profile: React.FC = () => {
 
           <ProfileContainer style={boxShadowProps}>
             <AvatarImageContainer style={boxShadowProps}>
-              <AvatarImage source={noUserAvatarImg} />
+              <AvatarImage
+                source={
+                  user.avatar_url ? { uri: user.avatar_url } : noUserAvatarImg
+                }
+              />
             </AvatarImageContainer>
 
             <EditProfileButton
@@ -74,16 +82,21 @@ const Profile: React.FC = () => {
               />
             </EditProfileButton>
 
-            <ProfileName>John Doe</ProfileName>
+            <ProfileName>{user.name}</ProfileName>
 
-            <ProfileAddress>
-              <Feather
-                name="map-pin"
-                size={parseWidthPercentage(10)}
-                color="#ebebeb"
-              />
-              <ProfileAddressText>São Paulo, SP</ProfileAddressText>
-            </ProfileAddress>
+            {(user.city || user.state) && (
+              <ProfileAddress>
+                <Feather
+                  name="map-pin"
+                  size={parseWidthPercentage(10)}
+                  color="#ebebeb"
+                />
+
+                <ProfileAddressText>
+                  {user.city + (user.state && `, ${user.state}`)}
+                </ProfileAddressText>
+              </ProfileAddress>
+            )}
 
             <ProfileStatistics>
               <OrdersCounter>
@@ -104,53 +117,63 @@ const Profile: React.FC = () => {
           </ProfileContainer>
         </Header>
 
-        <PresentationText>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-          vehicula odio elit, vel volutpat nisi dapibus eget. Quisque metus
-          purus, cursus et ipsum eget, dapibus placerat metus. Vestibulum
-          tincidunt ipsum vel lorem rhoncus, eget bibendum risus placerat.
-        </PresentationText>
+        {user.presentation && (
+          <PresentationText>{user.presentation}</PresentationText>
+        )}
 
-        <Section>
-          <SectionTitle>Formas de contato</SectionTitle>
-          <ContactFormsButtons>
-            <ContactForm rippleColor="#ebebeb10">
-              <Feather
-                name="mail"
-                size={parseWidthPercentage(18)}
-                color="#ebebeb"
-              />
-              <ContactFormText>E-mail</ContactFormText>
-            </ContactForm>
+        {(user.show_phone ||
+          user.show_email ||
+          user.show_facebook ||
+          user.show_instagram) && (
+          <Section>
+            <SectionTitle>Formas de contato</SectionTitle>
+            <ContactFormsButtons>
+              {user.show_email && (
+                <ContactForm rippleColor="#ebebeb10">
+                  <Feather
+                    name="mail"
+                    size={parseWidthPercentage(18)}
+                    color="#ebebeb"
+                  />
+                  <ContactFormText>E-mail</ContactFormText>
+                </ContactForm>
+              )}
 
-            <ContactForm rippleColor="#ebebeb10">
-              <Feather
-                name="phone"
-                size={parseWidthPercentage(18)}
-                color="#ebebeb"
-              />
-              <ContactFormText>Telefone</ContactFormText>
-            </ContactForm>
+              {user.show_phone && (
+                <ContactForm rippleColor="#ebebeb10">
+                  <Feather
+                    name="phone"
+                    size={parseWidthPercentage(18)}
+                    color="#ebebeb"
+                  />
+                  <ContactFormText>Telefone</ContactFormText>
+                </ContactForm>
+              )}
 
-            <ContactForm rippleColor="#ebebeb10">
-              <Feather
-                name="facebook"
-                size={parseWidthPercentage(18)}
-                color="#ebebeb"
-              />
-              <ContactFormText>Facebook</ContactFormText>
-            </ContactForm>
+              {user.show_facebook && (
+                <ContactForm rippleColor="#ebebeb10">
+                  <Feather
+                    name="facebook"
+                    size={parseWidthPercentage(18)}
+                    color="#ebebeb"
+                  />
+                  <ContactFormText>Facebook</ContactFormText>
+                </ContactForm>
+              )}
 
-            <ContactForm rippleColor="#ebebeb10">
-              <Feather
-                name="instagram"
-                size={parseWidthPercentage(18)}
-                color="#ebebeb"
-              />
-              <ContactFormText>Instagram</ContactFormText>
-            </ContactForm>
-          </ContactFormsButtons>
-        </Section>
+              {user.show_instagram && (
+                <ContactForm rippleColor="#ebebeb10">
+                  <Feather
+                    name="instagram"
+                    size={parseWidthPercentage(18)}
+                    color="#ebebeb"
+                  />
+                  <ContactFormText>Instagram</ContactFormText>
+                </ContactForm>
+              )}
+            </ContactFormsButtons>
+          </Section>
+        )}
 
         <Section>
           <SectionTitleContainer>
