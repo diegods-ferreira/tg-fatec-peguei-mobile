@@ -14,6 +14,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import * as Yup from 'yup';
 
 import api from '@services/api';
+import { useAuth } from '@hooks/auth';
 import getValidationErrors from '@utils/getValidationErrors';
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
@@ -40,6 +41,8 @@ const SignUp: React.FC = () => {
   const passwordConfirmationInputRef = useRef<TextInput>(null);
 
   const navigation = useNavigation();
+
+  const { signIn } = useAuth();
 
   const handleNavigateBack = useCallback(() => {
     navigation.goBack();
@@ -76,10 +79,13 @@ const SignUp: React.FC = () => {
 
         Alert.alert(
           'Cadastro realizado com sucesso!',
-          'Você já pode fazer login na aplicação.',
+          'Você será redirecionado à tela inicial do Peguei!',
         );
 
-        navigation.goBack();
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
