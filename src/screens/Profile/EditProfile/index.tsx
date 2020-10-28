@@ -1,13 +1,26 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
-import Axios from 'axios';
+import * as Yup from 'yup';
+import { CheckBox } from 'react-native-elements';
+import ImagePicker from 'react-native-image-picker';
+
+import api from '@services/api';
+
+import { useAuth } from '@hooks/auth';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
+import getValidationErrors from '@utils/getValidationErrors';
+import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -17,6 +30,7 @@ import PickerSelectGroup from '@components/PickerSelectGroup';
 
 import { Picker } from '@react-native-community/picker';
 import Button from '@components/Button';
+
 import {
   Header,
   LinearGradient,
@@ -25,55 +39,72 @@ import {
   AvatarContainer,
   AvatarImage,
   EditAvatarButton,
-  UserFullNameContainer,
-  UserFullName,
   Container,
   CityStateSelectContainer,
+  SocialNetworksContainer,
 } from './styles';
 
-/**
- * Type definition for the IBGE's API UFs object response.
- */
-interface IBGEUFResponse {
-  sigla: string;
-}
-
-/**
- * Type definition for the IBGE's API cities object response.
- */
-interface IBGECityResponse {
-  nome: string;
+interface EditProfileFormData {
+  name: string;
+  username: string;
+  email: string;
+  presentation: string;
+  address: string;
+  city: string;
+  state: string;
+  phone: string;
+  facebook: string;
+  instagram: string;
+  show_email: boolean;
+  show_facebook: boolean;
+  show_instagram: boolean;
+  show_phone: boolean;
+  old_password?: string;
+  password?: string;
+  password_confirmation?: string;
 }
 
 const EditProfile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const [ufs, setUfs] = useState<string[]>([]);
+  const { user, updateUser } = useAuth();
+
+  const [statesCities, setStatesCities] = useState<IBGEStateCities[]>([]);
+  const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-  const [selectedState, setSelectedState] = useState('uf');
-  const [selectedCity, setSelectedCity] = useState('city');
+
+  const [selectedState, setSelectedState] = useState(
+    user.state ? user.state : 'UF',
+  );
+  const [selectedCity, setSelectedCity] = useState(
+    user.city ? user.city : 'Cidade',
+  );
+  const [showEmail, setShowEmail] = useState(user.show_email);
+  const [showPhone, setShowPhone] = useState(user.show_phone);
+  const [showFacebook, setShowFacebook] = useState(user.show_facebook);
+  const [showInstagram, setShowInstagram] = useState(user.show_instagram);
 
   const navigation = useNavigation();
 
   useEffect(() => {
-    Axios.get<IBGEUFResponse[]>(
-      'https://servicodados.ibge.gov.br/api/v1/localidades/estados',
-    ).then(response => {
-      const ufInitials = response.data.map(uf => uf.sigla).sort();
-      setUfs(ufInitials);
-    });
+    setStatesCities(getStatesCities());
   }, []);
 
   useEffect(() => {
-    if (selectedState === '0') return;
+    setStates(statesCities.map(({ initials }) => initials).sort());
+  }, [statesCities]);
 
-    Axios.get<IBGECityResponse[]>(
-      `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedState}/municipios`,
-    ).then(response => {
-      const cityNames = response.data.map(city => city.nome).sort();
-      setCities(cityNames);
-    });
-  }, [selectedState]);
+  useEffect(() => {
+    const stateCities = statesCities.find(
+      ({ initials }) => initials === selectedState,
+    );
+
+    if (!stateCities) {
+      return;
+    }
+
+    setCities(stateCities.cities);
+  }, [statesCities, selectedState]);
 
   const handleSelectState = useCallback((value: React.ReactText) => {
     setSelectedState(value.toString());
@@ -86,6 +117,132 @@ const EditProfile: React.FC = () => {
   const handleNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
+  const handleSaveProfile = useCallback(
+    async (data: EditProfileFormData) => {
+      try {
+        formRef.current?.setErrors({});
+
+        const formData = data;
+
+        const schema = Yup.object().shape({
+          name: Yup.string().required('Nome é obrigatório'),
+          email: Yup.string()
+            .required('E-mail é obrigatório')
+            .email('Entre com um e-mail válido'),
+          username: Yup.string()
+            .min(5, 'Mínimo de 5 caracteres')
+            .max(15, 'Máximo de 15 caracteres')
+            .matches(
+              /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s]*)$/g,
+              'Não utilize acentos ou caracteres especiais',
+            ),
+          presentation: Yup.string(),
+          address: Yup.string().min(10, 'Mínio de 10 caracteres'),
+          phone: Yup.string().min(10, 'Mínimo de 10 caracteres'),
+          old_password: Yup.string(),
+          password: Yup.string().when('old_password', {
+            is: val => !!val.length,
+            then: Yup.string().min(6, 'Mínimo de 6 caracteres'),
+            otherwise: Yup.string(),
+          }),
+          password_confirmation: Yup.string()
+            .when('old_password', {
+              is: val => !!val.length,
+              then: Yup.string().min(6, 'Mínimo de 6 caracteres'),
+              otherwise: Yup.string(),
+            })
+            .oneOf([Yup.ref('password'), undefined], 'As senhas não coincidem'),
+        });
+
+        await schema.validate(formData, {
+          abortEarly: false,
+        });
+
+        if (selectedState === 'uf' || selectedCity === 'city') {
+          Alert.alert(
+            'Erro',
+            'Você deve selecionar uma combinação estado/cidade válida.',
+          );
+          return;
+        }
+
+        if (!formData.old_password) {
+          delete formData.old_password;
+          delete formData.password;
+          delete formData.password_confirmation;
+        }
+
+        const userData = Object.assign(formData, {
+          state: selectedState,
+          city: selectedCity,
+          show_email: showEmail,
+          show_phone: showPhone,
+          show_facebook: showFacebook,
+          show_instagram: showInstagram,
+        });
+
+        const response = await api.put('/profile', userData);
+
+        updateUser(response.data);
+
+        Alert.alert('Sucesso', 'Seu perfil foi atualizado com sucesso!');
+
+        navigation.goBack();
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          formRef.current?.setErrors(errors);
+          return;
+        }
+
+        Alert.alert('Erro', err);
+      }
+    },
+    [
+      navigation,
+      selectedState,
+      selectedCity,
+      showEmail,
+      showPhone,
+      showFacebook,
+      showInstagram,
+      updateUser,
+    ],
+  );
+
+  const handleUpdateAvatar = useCallback(() => {
+    ImagePicker.showImagePicker(
+      {
+        title: 'Selecione um avatar',
+        cancelButtonTitle: 'Cancelar',
+        takePhotoButtonTitle: 'Usar câmera',
+        chooseFromLibraryButtonTitle: 'Escolher da galeria',
+      },
+      response => {
+        if (response.didCancel) {
+          return;
+        }
+
+        if (response.error) {
+          Alert.alert('Erro ao atualizar seu avatar.');
+          return;
+        }
+
+        const data = new FormData();
+
+        data.append('avatar', {
+          type: 'image/jpeg',
+          name: `${user.id}.jpg`,
+          uri: response.uri,
+        });
+
+        api.patch('/users/avatar', data).then(apiResponse => {
+          updateUser(apiResponse.data);
+        });
+      },
+    );
+  }, [updateUser, user.id]);
 
   return (
     <KeyboardAvoidingView
@@ -112,8 +269,16 @@ const EditProfile: React.FC = () => {
             </BackButtonContainer>
 
             <AvatarContainer style={boxShadowProps}>
-              <AvatarImage source={noUserAvatarImg} />
-              <EditAvatarButton rippleColor="#00000050">
+              <AvatarImage
+                source={
+                  user.avatar_url ? { uri: user.avatar_url } : noUserAvatarImg
+                }
+              />
+
+              <EditAvatarButton
+                rippleColor="#00000050"
+                onPress={handleUpdateAvatar}
+              >
                 <Feather
                   name="camera"
                   size={parseWidthPercentage(14)}
@@ -121,14 +286,10 @@ const EditProfile: React.FC = () => {
                 />
               </EditAvatarButton>
             </AvatarContainer>
-
-            <UserFullNameContainer>
-              <UserFullName>John Doe</UserFullName>
-            </UserFullNameContainer>
           </LinearGradient>
         </Header>
         <Container>
-          <Form ref={formRef} onSubmit={() => {}}>
+          <Form ref={formRef} initialData={user} onSubmit={handleSaveProfile}>
             <InputsContainer title="Meu perfil">
               <InputGroup
                 label="Nome"
@@ -148,7 +309,29 @@ const EditProfile: React.FC = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 returnKeyType="done"
-              />
+              >
+                <CheckBox
+                  title="Exibir no perfil"
+                  size={parseWidthPercentage(16)}
+                  right
+                  checked={showEmail}
+                  checkedColor="#ff8c42"
+                  uncheckedColor="#606060"
+                  onPress={() => setShowEmail(!showEmail)}
+                  containerStyle={{
+                    padding: 0,
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
+                  }}
+                  textStyle={{
+                    color: '#ededed',
+                    fontWeight: 'normal',
+                    fontSize: parseWidthPercentage(13),
+                    marginLeft: parseWidthPercentage(8),
+                    marginRight: 0,
+                  }}
+                />
+              </InputGroup>
 
               <InputGroup
                 label="Nome de usuário"
@@ -167,7 +350,7 @@ const EditProfile: React.FC = () => {
                 placeholder="Diga um pouco sobre você"
                 multiline
                 numberOfLines={5}
-                autoCapitalize="words"
+                autoCapitalize="sentences"
                 returnKeyType="done"
               />
 
@@ -189,14 +372,22 @@ const EditProfile: React.FC = () => {
                   label="Estado"
                   name="state"
                   prompt="Selecione um estado"
-                  defaultValue="uf"
-                  defaultValueLabel="UF"
+                  defaultValue={selectedState}
+                  defaultValueLabel={selectedState}
                   selectedValue={selectedState}
                   onValueChange={handleSelectState}
                 >
-                  {ufs.map(uf => (
-                    <Picker.Item key={uf} label={uf} value={uf} />
-                  ))}
+                  {states.map(
+                    state =>
+                      state !== selectedState && (
+                        <Picker.Item
+                          key={state}
+                          label={state}
+                          value={state}
+                          color="#2f2f2f"
+                        />
+                      ),
+                  )}
                 </PickerSelectGroup>
 
                 <PickerSelectGroup
@@ -204,14 +395,22 @@ const EditProfile: React.FC = () => {
                   label="Cidade"
                   name="city"
                   prompt="Selecione uma cidade"
-                  defaultValue="city"
-                  defaultValueLabel="Selecione"
+                  defaultValue={selectedCity}
+                  defaultValueLabel={selectedCity}
                   selectedValue={selectedCity}
                   onValueChange={handleSelectCity}
                 >
-                  {cities.map(city => (
-                    <Picker.Item key={city} label={city} value={city} />
-                  ))}
+                  {cities.map(
+                    city =>
+                      city !== selectedCity && (
+                        <Picker.Item
+                          key={city}
+                          label={city}
+                          value={city}
+                          color="#2f2f2f"
+                        />
+                      ),
+                  )}
                 </PickerSelectGroup>
               </CityStateSelectContainer>
 
@@ -222,7 +421,103 @@ const EditProfile: React.FC = () => {
                 placeholder="Digite seu telefone ou celular"
                 keyboardType="phone-pad"
                 returnKeyType="done"
-              />
+              >
+                <CheckBox
+                  title="Exibir no perfil"
+                  size={parseWidthPercentage(16)}
+                  right
+                  checked={showPhone}
+                  checkedColor="#ff8c42"
+                  uncheckedColor="#606060"
+                  onPress={() => setShowPhone(!showPhone)}
+                  containerStyle={{
+                    padding: 0,
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
+                  }}
+                  textStyle={{
+                    color: '#ededed',
+                    fontWeight: 'normal',
+                    fontSize: parseWidthPercentage(13),
+                    marginLeft: parseWidthPercentage(8),
+                    marginRight: 0,
+                  }}
+                />
+              </InputGroup>
+            </InputsContainer>
+
+            <InputsContainer title="Redes sociais">
+              <SocialNetworksContainer>
+                <InputGroup
+                  label="Facebook"
+                  name="facebook"
+                  icon="facebook"
+                  placeholder="Vincular"
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  returnKeyType="done"
+                  containerStyle={{
+                    width: parseWidthPercentage(136),
+                  }}
+                >
+                  <CheckBox
+                    title="Exibir no perfil"
+                    size={parseWidthPercentage(16)}
+                    right
+                    checked={showFacebook}
+                    checkedColor="#ff8c42"
+                    uncheckedColor="#606060"
+                    onPress={() => setShowFacebook(!showFacebook)}
+                    containerStyle={{
+                      padding: 0,
+                      backgroundColor: 'transparent',
+                      borderWidth: 0,
+                    }}
+                    textStyle={{
+                      color: '#ededed',
+                      fontWeight: 'normal',
+                      fontSize: parseWidthPercentage(13),
+                      marginLeft: parseWidthPercentage(8),
+                      marginRight: 0,
+                    }}
+                  />
+                </InputGroup>
+
+                <InputGroup
+                  label="Instagram"
+                  name="instagram"
+                  icon="instagram"
+                  placeholder="Vincular"
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  returnKeyType="done"
+                  containerStyle={{
+                    width: parseWidthPercentage(136),
+                  }}
+                >
+                  <CheckBox
+                    title="Exibir no perfil"
+                    size={parseWidthPercentage(16)}
+                    right
+                    checked={showInstagram}
+                    checkedColor="#ff8c42"
+                    uncheckedColor="#606060"
+                    onPress={() => setShowInstagram(!showInstagram)}
+                    containerStyle={{
+                      padding: 0,
+                      backgroundColor: 'transparent',
+                      borderWidth: 0,
+                    }}
+                    textStyle={{
+                      color: '#ededed',
+                      fontWeight: 'normal',
+                      fontSize: parseWidthPercentage(13),
+                      marginLeft: parseWidthPercentage(8),
+                      marginRight: 0,
+                    }}
+                  />
+                </InputGroup>
+              </SocialNetworksContainer>
             </InputsContainer>
 
             <InputsContainer title="Sua senha">
@@ -260,7 +555,9 @@ const EditProfile: React.FC = () => {
               />
             </InputsContainer>
 
-            <Button>Salvar</Button>
+            <Button onPress={() => formRef.current?.submitForm()}>
+              Salvar
+            </Button>
           </Form>
         </Container>
       </ScrollView>

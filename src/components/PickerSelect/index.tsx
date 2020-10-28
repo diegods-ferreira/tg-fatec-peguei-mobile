@@ -97,6 +97,7 @@ const PickerSelect: React.RefForwardingComponent<
             key="default-value"
             label={defaultValueLabel}
             value={defaultValue}
+            color="#ff8c42"
           />
           {children}
         </StyledPickerSelect>

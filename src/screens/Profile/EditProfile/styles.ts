@@ -87,3 +87,9 @@ export const CityStateSelectContainer = styled.View`
   width: 100%;
   flex-direction: row;
 `;
+
+export const SocialNetworksContainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+`;
