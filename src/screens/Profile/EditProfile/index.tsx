@@ -95,6 +95,8 @@ const EditProfile: React.FC = () => {
   }, [statesCities]);
 
   useEffect(() => {
+    setSelectedCity('Cidade');
+
     const stateCities = statesCities.find(
       ({ initials }) => initials === selectedState,
     );
