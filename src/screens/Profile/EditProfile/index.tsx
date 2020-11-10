@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -95,8 +101,6 @@ const EditProfile: React.FC = () => {
   }, [statesCities]);
 
   useEffect(() => {
-    setSelectedCity('Cidade');
-
     const stateCities = statesCities.find(
       ({ initials }) => initials === selectedState,
     );
@@ -107,6 +111,14 @@ const EditProfile: React.FC = () => {
 
     setCities(stateCities.cities);
   }, [statesCities, selectedState]);
+
+  useEffect(() => {
+    setSelectedCity('Cidade');
+  }, [selectedState]);
+
+  useEffect(() => {
+    setSelectedCity(user.city ? user.city : 'Cidade');
+  }, [user.city]);
 
   const handleSelectState = useCallback((value: React.ReactText) => {
     setSelectedState(value.toString());
@@ -125,8 +137,6 @@ const EditProfile: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const formData = data;
-
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome é obrigatório'),
           email: Yup.string()
@@ -140,7 +150,7 @@ const EditProfile: React.FC = () => {
               'Não utilize acentos ou caracteres especiais',
             ),
           presentation: Yup.string(),
-          address: Yup.string().min(10, 'Mínio de 10 caracteres'),
+          address: Yup.string().min(10, 'Mínimo de 10 caracteres'),
           phone: Yup.string().min(10, 'Mínimo de 10 caracteres'),
           old_password: Yup.string(),
           password: Yup.string().when('old_password', {
@@ -157,17 +167,28 @@ const EditProfile: React.FC = () => {
             .oneOf([Yup.ref('password'), undefined], 'As senhas não coincidem'),
         });
 
-        await schema.validate(formData, {
+        await schema.validate(data, {
           abortEarly: false,
         });
 
-        if (selectedState === 'uf' || selectedCity === 'city') {
-          Alert.alert(
-            'Erro',
+        if (selectedState === 'UF' || selectedCity === 'Cidade') {
+          throw new Error(
             'Você deve selecionar uma combinação estado/cidade válida.',
           );
-          return;
         }
+
+        const formData = {
+          ...data,
+          state: selectedState,
+          city: selectedCity,
+          presentation: data.presentation.length ? data.presentation : null,
+          facebook: data.facebook.length ? data.facebook : null,
+          instagram: data.instagram.length ? data.instagram : null,
+          show_email: showEmail,
+          show_phone: showPhone,
+          show_facebook: showFacebook,
+          show_instagram: showInstagram,
+        };
 
         if (!formData.old_password) {
           delete formData.old_password;
@@ -175,16 +196,7 @@ const EditProfile: React.FC = () => {
           delete formData.password_confirmation;
         }
 
-        const userData = Object.assign(formData, {
-          state: selectedState,
-          city: selectedCity,
-          show_email: showEmail,
-          show_phone: showPhone,
-          show_facebook: showFacebook,
-          show_instagram: showInstagram,
-        });
-
-        const response = await api.put('/profile', userData);
+        const response = await api.put('/profile', formData);
 
         updateUser(response.data);
 
@@ -198,7 +210,7 @@ const EditProfile: React.FC = () => {
           return;
         }
 
-        Alert.alert('Erro', err);
+        Alert.alert('Erro', err.message);
       }
     },
     [
@@ -246,6 +258,15 @@ const EditProfile: React.FC = () => {
     );
   }, [updateUser, user.id]);
 
+  const parsedUser = useMemo(() => {
+    return {
+      ...user,
+      facebook: user.facebook || '',
+      instagram: user.instagram || '',
+      presentation: user.presentation || '',
+    };
+  }, [user]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -291,7 +312,11 @@ const EditProfile: React.FC = () => {
           </LinearGradient>
         </Header>
         <Container>
-          <Form ref={formRef} initialData={user} onSubmit={handleSaveProfile}>
+          <Form
+            ref={formRef}
+            initialData={parsedUser}
+            onSubmit={handleSaveProfile}
+          >
             <InputsContainer title="Meu perfil">
               <InputGroup
                 label="Nome"
@@ -372,7 +397,6 @@ const EditProfile: React.FC = () => {
                     marginRight: parseWidthPercentage(8),
                   }}
                   label="Estado"
-                  name="state"
                   prompt="Selecione um estado"
                   defaultValue={selectedState}
                   defaultValueLabel={selectedState}
@@ -395,7 +419,6 @@ const EditProfile: React.FC = () => {
                 <PickerSelectGroup
                   containerStyle={{ flex: 1 }}
                   label="Cidade"
-                  name="city"
                   prompt="Selecione uma cidade"
                   defaultValue={selectedCity}
                   defaultValueLabel={selectedCity}
