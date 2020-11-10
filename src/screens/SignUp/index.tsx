@@ -77,11 +77,6 @@ const SignUp: React.FC = () => {
 
         await api.post('/users', data);
 
-        Alert.alert(
-          'Cadastro realizado com sucesso!',
-          'Você será redirecionado à tela inicial do Peguei!',
-        );
-
         await signIn({
           email: data.email,
           password: data.password,
@@ -99,7 +94,7 @@ const SignUp: React.FC = () => {
         );
       }
     },
-    [navigation],
+    [signIn],
   );
 
   return (
