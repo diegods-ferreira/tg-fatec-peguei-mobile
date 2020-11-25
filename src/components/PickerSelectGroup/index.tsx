@@ -5,7 +5,7 @@ import PickerSelect, { PickerSelectProps } from '@components/PickerSelect';
 import { Container, Label } from './styles';
 
 interface PickerSelectGroupProps extends PickerSelectProps {
-  label: string;
+  label?: string;
   containerStyle?: {};
 }
 
@@ -17,7 +17,7 @@ const PickerSelectGroup: React.FC<PickerSelectGroupProps> = ({
 }) => {
   return (
     <Container style={containerStyle}>
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <PickerSelect {...rest}>{children}</PickerSelect>
     </Container>
   );

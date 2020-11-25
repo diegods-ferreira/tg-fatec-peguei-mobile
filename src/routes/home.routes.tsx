@@ -5,10 +5,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import { parseHeightPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
-import Orders from '@screens/Orders';
 import Trips from '@screens/Trips';
 import Chats from '@screens/Chats';
 import ShowProfile from '@screens/Profile/ShowProfile';
+import OrdersTabs from './ordersTopTabs.routes';
 
 export const BottomTab = createBottomTabNavigator();
 
@@ -21,7 +21,7 @@ const HomeRoutes: React.FC = () => {
           const iconColor = focused ? '#2f2f2f' : '#adadad';
           let iconName = 'slash';
 
-          if (route.name === 'Orders') {
+          if (route.name === 'OrdersTabs') {
             iconName = 'list';
           } else if (route.name === 'Trips') {
             iconName = 'map';
@@ -51,7 +51,7 @@ const HomeRoutes: React.FC = () => {
         },
       }}
     >
-      <BottomTab.Screen name="Orders" component={Orders} />
+      <BottomTab.Screen name="OrdersTabs" component={OrdersTabs} />
       <BottomTab.Screen name="Trips" component={Trips} />
       <BottomTab.Screen name="Chats" component={Chats} />
       <BottomTab.Screen name="ShowProfile" component={ShowProfile} />

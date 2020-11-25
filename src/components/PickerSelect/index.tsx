@@ -1,24 +1,12 @@
-import React, {
-  useEffect,
-  useRef,
-  useImperativeHandle,
-  forwardRef,
-} from 'react';
-import { useField } from '@unform/core';
+import React from 'react';
 import { PickerProps } from '@react-native-community/picker/typings/Picker';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import {
-  Container,
-  StyledPickerSelect,
-  ErrorContainer,
-  ErrorLabel,
-} from './styles';
+import { Container, StyledPickerSelect } from './styles';
 
 export interface PickerSelectProps extends PickerProps {
-  name: string;
   icon?: string;
   defaultValue: string;
   defaultValueLabel: string;
@@ -26,63 +14,17 @@ export interface PickerSelectProps extends PickerProps {
   children: any;
 }
 
-interface PickerSelectValueReference {
-  value: string;
-}
-
-interface PickerSelectRef {
-  focus(): void;
-}
-
-const PickerSelect: React.RefForwardingComponent<
-  PickerSelectRef,
-  PickerSelectProps
-> = (
-  {
-    name,
-    icon,
-    defaultValue,
-    defaultValueLabel,
-    containerStyle = {},
-    children,
-    ...rest
-  },
-  ref,
-) => {
-  const pickerSelectElementRef = useRef<any>(null);
-
-  const { registerField, fieldName, error } = useField(name);
-  const pickerSelectValueRef = useRef<PickerSelectValueReference>({
-    value: defaultValue,
-  });
-
-  useImperativeHandle(ref, () => ({
-    focus() {
-      pickerSelectElementRef.current.focus();
-    },
-  }));
-
-  useEffect(() => {
-    registerField<string>({
-      name: fieldName,
-      ref: pickerSelectValueRef.current,
-      path: 'selectedValue',
-      setValue(_: any, value) {
-        pickerSelectValueRef.current.value = value.toString();
-        pickerSelectElementRef.current.setNativeProps({
-          text: value.toString(),
-        });
-      },
-      clearValue() {
-        pickerSelectValueRef.current.value = '';
-        pickerSelectElementRef.current.clear();
-      },
-    });
-  }, [fieldName, registerField]);
-
+const PickerSelect: React.FC<PickerSelectProps> = ({
+  icon,
+  defaultValue,
+  defaultValueLabel,
+  containerStyle = {},
+  children,
+  ...rest
+}) => {
   return (
     <>
-      <Container style={containerStyle} isErrored={!!error}>
+      <Container style={containerStyle}>
         {icon && (
           <Feather
             name={icon}
@@ -92,7 +34,7 @@ const PickerSelect: React.RefForwardingComponent<
           />
         )}
 
-        <StyledPickerSelect ref={pickerSelectElementRef} {...rest}>
+        <StyledPickerSelect {...rest}>
           <StyledPickerSelect.Item
             key="default-value"
             label={defaultValueLabel}
@@ -102,14 +44,8 @@ const PickerSelect: React.RefForwardingComponent<
           {children}
         </StyledPickerSelect>
       </Container>
-
-      {!!error && (
-        <ErrorContainer>
-          <ErrorLabel>{error}</ErrorLabel>
-        </ErrorContainer>
-      )}
     </>
   );
 };
 
-export default forwardRef(PickerSelect);
+export default PickerSelect;

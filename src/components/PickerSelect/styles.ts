@@ -5,13 +5,9 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-interface ContainerProps {
-  isErrored: boolean;
-}
-
-export const Container = styled.View<ContainerProps>`
+export const Container = styled.View`
   width: 100%;
-  min-height: ${parseHeightPercentage(56)}px;
+  height: ${parseHeightPercentage(56)}px;
   padding-left: ${parseWidthPercentage(16)}px;
   background: #232129;
   border-radius: 8px;
@@ -20,16 +16,9 @@ export const Container = styled.View<ContainerProps>`
   border-color: #ebebeb10;
   flex-direction: row;
   align-items: center;
-
-  ${props =>
-    props.isErrored &&
-    css`
-      border-color: #e74c3c;
-      margin-bottom: ${parseHeightPercentage(2)}px;
-    `}
 `;
 
-export const StyledPickerSelect = styled(Picker)<StyledPickerSelectProps>`
+export const StyledPickerSelect = styled(Picker)`
   flex: 1;
   color: #ebebeb;
   font-size: ${parseWidthPercentage(16)}px;
