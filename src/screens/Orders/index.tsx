@@ -170,6 +170,7 @@ const Orders: React.FC = () => {
         onRefresh={onRefreshOrdersList}
         progressBackgroundColor="#2b2831"
         colors={['#6f7bae', '#ff8c42']}
+        tintColor="#6f7bae"
       />
     );
   }, [refreshing, onRefreshOrdersList]);
