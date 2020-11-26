@@ -131,6 +131,13 @@ const Orders: React.FC = () => {
     setRefreshing(false);
   }, [fetchOrdersFromApi]);
 
+  const handleNavigateToOrderDetails = useCallback(
+    (id: string) => {
+      navigation.navigate('OrderDetails', { id });
+    },
+    [navigation],
+  );
+
   useEffect(() => {
     if (!user.address && !user.state && !user.city) {
       Alert.alert(
@@ -233,7 +240,10 @@ const Orders: React.FC = () => {
           keyExtractor={order => order.id}
           renderItem={({ item: order }) => (
             <OrderContainer>
-              <OrderClickable rippleColor="#ebebeb10">
+              <OrderClickable
+                rippleColor="#ebebeb10"
+                onPress={() => handleNavigateToOrderDetails(order.id)}
+              >
                 <OrderRequesterAvatar
                   source={
                     order.requester.avatar_url
