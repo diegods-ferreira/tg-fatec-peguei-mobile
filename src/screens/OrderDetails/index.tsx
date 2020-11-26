@@ -12,6 +12,7 @@ import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 import formatDistanceValue from '@utils/formatDistanceValue';
 
+import LoadingScreen from '@components/LoadingScreen';
 import TitleBar from '@components/TitleBar';
 import InputsContainer from '@components/InputsContainer';
 import Button from '@components/Button';
@@ -22,7 +23,6 @@ import noOrderItemImg from '@assets/no-order-item-image.png';
 import api from '@services/api';
 
 import {
-  LoadingContainer,
   Container,
   RequesterContainer,
   RequesterAvatar,
@@ -124,11 +124,7 @@ const OrderDetails: React.FC = () => {
   );
 
   if (loading) {
-    return (
-      <LoadingContainer>
-        <ActivityIndicator size="large" color="#6f7bae" />
-      </LoadingContainer>
-    );
+    return <LoadingScreen />;
   }
 
   return (

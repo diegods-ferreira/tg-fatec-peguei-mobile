@@ -10,6 +10,8 @@ import { useLocation } from '@hooks/location';
 
 import api from '@services/api';
 
+import LoadingScreen from '@components/LoadingScreen';
+
 import {
   parseHeightPercentage,
   parseWidthPercentage,
@@ -78,8 +80,11 @@ const Orders: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [distances, setDistances] = useState<Distance[]>([]);
   const [selectedDistance, setSelectedDistance] = useState(5);
+  const [loading, setLoading] = useState(true);
 
   const fetchOrdersFromApi = useCallback(() => {
+    setLoading(true);
+
     const { latitude, longitude } = location;
 
     if (latitude && longitude) {
@@ -121,7 +126,10 @@ const Orders: React.FC = () => {
               err,
             )}`,
           ),
-        );
+        )
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [location, selectedDistance]);
 
@@ -181,6 +189,10 @@ const Orders: React.FC = () => {
       />
     );
   }, [refreshing, onRefreshOrdersList]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Container>
