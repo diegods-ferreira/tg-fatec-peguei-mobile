@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { ActivityIndicator, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,7 +14,7 @@ import formatDistanceValue from '@utils/formatDistanceValue';
 
 import LoadingScreen from '@components/LoadingScreen';
 import TitleBar from '@components/TitleBar';
-import InputsContainer from '@components/InputsContainer';
+import TitledBox from '@components/TitledBox';
 import Button from '@components/Button';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
@@ -192,7 +192,7 @@ const OrderDetails: React.FC = () => {
           </RequesterContainer>
 
           <OrderInfoContainer>
-            <InputsContainer title="Retirada">
+            <TitledBox title="Retirada">
               <OrderInfoWrapper isFirst>
                 <Feather
                   name="map-pin"
@@ -221,9 +221,9 @@ const OrderDetails: React.FC = () => {
                   {format(parseISO(order.pickup_date), 'dd/MM/yyyy')}
                 </OrderInfoText>
               </OrderInfoWrapper>
-            </InputsContainer>
+            </TitledBox>
 
-            <InputsContainer title="Local de Entrega">
+            <TitledBox title="Local de Entrega">
               <OrderInfoWrapper isFirst>
                 <Feather
                   name="map-pin"
@@ -232,9 +232,9 @@ const OrderDetails: React.FC = () => {
                 />
                 <OrderInfoText>{order.delivery_address}</OrderInfoText>
               </OrderInfoWrapper>
-            </InputsContainer>
+            </TitledBox>
 
-            <InputsContainer title="Itens do Pedido">
+            <TitledBox title="Itens do Pedido">
               {order.items.map((item, index) => (
                 <OrderItemContainer
                   key={item.id}
@@ -263,15 +263,15 @@ const OrderDetails: React.FC = () => {
                   </OrderItemPressable>
                 </OrderItemContainer>
               ))}
-            </InputsContainer>
+            </TitledBox>
 
-            <InputsContainer title="Nota Fiscal">
+            <TitledBox title="Nota Fiscal">
               <ViewInvoiceButton>
                 <ViewInvoiceButtonText>
                   Visualizar documento
                 </ViewInvoiceButtonText>
               </ViewInvoiceButton>
-            </InputsContainer>
+            </TitledBox>
 
             <Button>Me ofereço para buscar</Button>
           </OrderInfoContainer>

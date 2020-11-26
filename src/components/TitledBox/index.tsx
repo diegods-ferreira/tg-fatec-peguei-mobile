@@ -4,14 +4,11 @@ import boxShadowProps from '@utils/boxShadowProps';
 
 import { Container, Title } from './styles';
 
-interface InputsContainerProps {
+interface TitledBoxProps {
   title: string;
 }
 
-const InputsContainer: React.FC<InputsContainerProps> = ({
-  title,
-  children,
-}) => {
+const TitledBox: React.FC<TitledBoxProps> = ({ title, children }) => {
   return (
     <Container style={boxShadowProps}>
       <Title>{title}</Title>
@@ -20,4 +17,4 @@ const InputsContainer: React.FC<InputsContainerProps> = ({
   );
 };
 
-export default InputsContainer;
+export default TitledBox;

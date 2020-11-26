@@ -30,7 +30,7 @@ import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
-import InputsContainer from '@components/InputsContainer';
+import TitledBox from '@components/TitledBox';
 import InputGroup from '@components/InputGroup';
 import PickerSelectGroup from '@components/PickerSelectGroup';
 
@@ -317,7 +317,7 @@ const EditProfile: React.FC = () => {
             initialData={parsedUser}
             onSubmit={handleSaveProfile}
           >
-            <InputsContainer title="Meu perfil">
+            <TitledBox title="Meu perfil">
               <InputGroup
                 label="Nome"
                 name="name"
@@ -469,9 +469,9 @@ const EditProfile: React.FC = () => {
                   }}
                 />
               </InputGroup>
-            </InputsContainer>
+            </TitledBox>
 
-            <InputsContainer title="Redes sociais">
+            <TitledBox title="Redes sociais">
               <SocialNetworksContainer>
                 <InputGroup
                   label="Facebook"
@@ -543,9 +543,9 @@ const EditProfile: React.FC = () => {
                   />
                 </InputGroup>
               </SocialNetworksContainer>
-            </InputsContainer>
+            </TitledBox>
 
-            <InputsContainer title="Sua senha">
+            <TitledBox title="Sua senha">
               <InputGroup
                 label="Senha antiga"
                 name="old_password"
@@ -578,7 +578,7 @@ const EditProfile: React.FC = () => {
                 autoCapitalize="none"
                 returnKeyType="done"
               />
-            </InputsContainer>
+            </TitledBox>
 
             <Button onPress={() => formRef.current?.submitForm()}>
               Salvar
