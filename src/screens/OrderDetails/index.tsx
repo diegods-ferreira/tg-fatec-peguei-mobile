@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Alert } from 'react-native';
+import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
+import Clipboard from '@react-native-community/clipboard';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useLocation } from '@hooks/location';
@@ -76,6 +77,7 @@ interface Order {
   pickup_establishment: string;
   pickup_date: string;
   delivery_address: string;
+  purchase_invoice_url: string;
   items: Item[];
   requester: {
     name: string;
@@ -122,6 +124,25 @@ const OrderDetails: React.FC = () => {
     },
     [navigation],
   );
+
+  const handleViewPurchaseInvoice = useCallback(() => {
+    Linking.canOpenURL(order.purchase_invoice_url).then(supported => {
+      if (supported) {
+        Linking.openURL(order.purchase_invoice_url);
+      } else {
+        Clipboard.setString(order.purchase_invoice_url);
+
+        if (Platform.OS === 'ios') {
+          Alert.alert(
+            'Copiado!',
+            'O link foi copiado para sua área de transferência.',
+          );
+        } else {
+          ToastAndroid.show('Link copiado', ToastAndroid.LONG);
+        }
+      }
+    });
+  }, [order.purchase_invoice_url]);
 
   const getDistanceFromRequestPickupPlaceToCurrentLocation = useCallback(
     (latitude: number, longitude: number) => {
@@ -278,7 +299,7 @@ const OrderDetails: React.FC = () => {
             </TitledBox>
 
             <TitledBox title="Nota Fiscal">
-              <ViewInvoiceButton>
+              <ViewInvoiceButton onPress={handleViewPurchaseInvoice}>
                 <ViewInvoiceButtonText>
                   Visualizar documento
                 </ViewInvoiceButtonText>
