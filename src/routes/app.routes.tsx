@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import EditProfile from '@screens/Profile/EditProfile';
 import OrderDetails from '@screens/OrderDetails';
+import ItemDetails from '@screens/ItemDetails';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();
@@ -20,6 +21,7 @@ const AppRoutes: React.FC = () => {
 
       <Stack.Screen name="EditProfile" component={EditProfile} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} />
+      <Stack.Screen name="ItemDetails" component={ItemDetails} />
     </Stack.Navigator>
   );
 };

@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Alert } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
+import { useNavigation } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useLocation } from '@hooks/location';
@@ -87,6 +88,7 @@ interface Order {
 const OrderDetails: React.FC = () => {
   const { location } = useLocation();
 
+  const navigation = useNavigation();
   const route = useRoute();
   const routeParams = route.params as Params;
 
@@ -113,6 +115,13 @@ const OrderDetails: React.FC = () => {
         setLoading(false);
       });
   }, [routeParams]);
+
+  const handleNavigateToItemDetails = useCallback(
+    (id: string) => {
+      navigation.navigate('ItemDetails', { id });
+    },
+    [navigation],
+  );
 
   const getDistanceFromRequestPickupPlaceToCurrentLocation = useCallback(
     (latitude: number, longitude: number) => {
@@ -240,7 +249,10 @@ const OrderDetails: React.FC = () => {
                   key={item.id}
                   hasBorder={index !== order.items.length - 1}
                 >
-                  <OrderItemPressable rippleColor="#ebebeb10">
+                  <OrderItemPressable
+                    rippleColor="#ebebeb10"
+                    onPress={() => handleNavigateToItemDetails(item.id)}
+                  >
                     <OrderItemQuantity>
                       <OrderItemQuantityText>
                         {item.quantity}
