@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components/native';
 import { FlatList } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import {
   parseHeightPercentage,
@@ -173,7 +173,8 @@ export const OrderItemsCategoriesIconsContainer = styled.View`
 `;
 
 export const OrderItemsCategoryIcon = styled(FontAwesome)`
-  margin-left: ${parseWidthPercentage(16)}px;
+  margin-right: ${parseWidthPercentage(4)}px;
+  margin-bottom: ${parseHeightPercentage(4)}px;
 `;
 
 export const EmptyOrdersListContainer = styled.View`

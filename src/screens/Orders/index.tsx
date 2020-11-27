@@ -47,6 +47,13 @@ import {
   EmptyOrdersListText,
 } from './styles';
 
+interface Item {
+  id: string;
+  category: {
+    icon: string;
+  };
+}
+
 export interface Order {
   id: string;
   pickup_city: string;
@@ -54,7 +61,7 @@ export interface Order {
   pickup_latitude: number;
   pickup_longitude: number;
   delivery_value: number;
-  items: any[];
+  items: Item[];
   requester: {
     name: string;
     username: string;
@@ -301,11 +308,14 @@ const Orders: React.FC = () => {
                 </OrderMeta>
 
                 <OrderItemsCategoriesIconsContainer>
-                  <OrderItemsCategoryIcon
-                    name="star-o"
-                    size={parseWidthPercentage(12)}
-                    color="#606060"
-                  />
+                  {order.items.slice(0, 4).map(item => (
+                    <OrderItemsCategoryIcon
+                      key={item.id}
+                      name={item.category.icon}
+                      size={parseWidthPercentage(12)}
+                      color="#606060"
+                    />
+                  ))}
                 </OrderItemsCategoriesIconsContainer>
               </OrderClickable>
             </OrderContainer>
