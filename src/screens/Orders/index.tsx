@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, Alert, RefreshControl, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { getDistance, convertDistance } from 'geolib';
@@ -11,6 +11,7 @@ import { useLocation } from '@hooks/location';
 import api from '@services/api';
 
 import LoadingScreen from '@components/LoadingScreen';
+import Button from '@components/Button';
 
 import {
   parseHeightPercentage,
@@ -45,6 +46,8 @@ import {
   OrderItemsCategoryIcon,
   EmptyOrdersListContainer,
   EmptyOrdersListText,
+  RefreshOrdersListButton,
+  RefreshOrdersListButtonText,
 } from './styles';
 
 interface Item {
@@ -88,70 +91,36 @@ const Orders: React.FC = () => {
   const [distances, setDistances] = useState<Distance[]>([]);
   const [selectedDistance, setSelectedDistance] = useState(5);
   const [loading, setLoading] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [page, setPage] = useState(1);
+  const [endOfList, setEndOfList] = useState(false);
+  const [baseSearchDate, setBaseSearchDate] = useState(new Date());
+  const [refreshButtonVisible, setRefreshButtonVisible] = useState(false);
 
-  const fetchOrdersFromApi = useCallback(() => {
-    setLoading(true);
-
-    const { latitude, longitude } = location;
-
-    if (latitude && longitude) {
-      api
-        .get('/orders', {
-          params: {
-            user_latitude: latitude,
-            user_longitude: longitude,
-            distance: selectedDistance,
-          },
-        })
-        .then(response => {
-          setOrders(
-            response.data.map((order: Order) => ({
-              ...order,
-              formatted_created_at: format(
-                parseISO(order.created_at),
-                'dd/MM/yyyy',
-              ),
-              distance: formatDistanceValue(
-                convertDistance(
-                  getDistance(
-                    {
-                      latitude: order.pickup_latitude,
-                      longitude: order.pickup_longitude,
-                    },
-                    location,
-                  ),
-                  'km',
-                ),
-              ),
-            })),
-          );
-        })
-        .catch(err =>
-          Alert.alert(
-            'Erro',
-            `Ocorreu um erro ao tentar recuperar os pedidos. Tente novamente mais tarde, por favor.\n\n${String(
-              err,
-            )}`,
-          ),
-        )
-        .finally(() => {
-          setLoading(false);
-        });
+  const fetchNextPageOrdersFromApi = useCallback(async () => {
+    if (!endOfList && !loadingOrders) {
+      setPage(state => state + 1);
     }
-  }, [location, selectedDistance]);
+  }, [endOfList, loadingOrders]);
 
-  const onRefreshOrdersList = useCallback(async () => {
-    setRefreshing(true);
-    fetchOrdersFromApi();
-    setRefreshing(false);
-  }, [fetchOrdersFromApi]);
+  const handleRefreshOrdersList = useCallback(async () => {
+    setPage(1);
+    setEndOfList(false);
+    setBaseSearchDate(new Date());
+    setRefreshButtonVisible(false);
+  }, []);
 
   const handleNavigateToOrderDetails = useCallback(
-    (id: string) => {
-      navigation.navigate('OrderDetails', { id });
-    },
+    (id: string) => navigation.navigate('OrderDetails', { id }),
     [navigation],
   );
+
+  const handleSelectDistance = useCallback((distance: number) => {
+    setSelectedDistance(distance);
+    setPage(1);
+    setEndOfList(false);
+    setBaseSearchDate(new Date());
+  }, []);
 
   useEffect(() => {
     if (!user.address && !user.state && !user.city) {
@@ -182,24 +151,84 @@ const Orders: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchOrdersFromApi();
-  }, [fetchOrdersFromApi]);
+    async function loadOrders() {
+      setLoading(page === 1);
+      setRefreshing(page === 1);
+      setLoadingOrders(page > 1);
+
+      const { latitude, longitude } = location;
+
+      if (latitude && longitude) {
+        try {
+          const response = await api.get('/orders', {
+            params: {
+              user_latitude: latitude,
+              user_longitude: longitude,
+              distance: selectedDistance,
+              page,
+              date: baseSearchDate,
+            },
+          });
+
+          const serializedOrders = response.data.map((order: Order) => ({
+            ...order,
+            formatted_created_at: format(
+              parseISO(order.created_at),
+              'dd/MM/yyyy',
+            ),
+            distance: formatDistanceValue(
+              convertDistance(
+                getDistance(
+                  {
+                    latitude: order.pickup_latitude,
+                    longitude: order.pickup_longitude,
+                  },
+                  location,
+                ),
+                'km',
+              ),
+            ),
+          }));
+
+          if (serializedOrders) {
+            setOrders(state =>
+              page === 1 ? serializedOrders : [...state, ...serializedOrders],
+            );
+
+            if (serializedOrders.length === 0) {
+              setEndOfList(true);
+              setRefreshButtonVisible(true);
+            }
+          }
+        } catch (err) {
+          Alert.alert(
+            'Erro',
+            'Ocorreu um erro ao tentar recuperar os pedidos. Tente novamente mais tarde, por favor.',
+          );
+
+          console.log(String(err));
+        } finally {
+          setLoadingOrders(false);
+          setRefreshing(false);
+          setLoading(false);
+        }
+      }
+    }
+
+    loadOrders();
+  }, [location, selectedDistance, page, baseSearchDate]);
 
   const refreshIndicator = useMemo(() => {
     return (
       <RefreshControl
         refreshing={refreshing}
-        onRefresh={onRefreshOrdersList}
+        onRefresh={handleRefreshOrdersList}
         progressBackgroundColor="#2b2831"
         colors={['#6f7bae', '#ff8c42']}
         tintColor="#6f7bae"
       />
     );
-  }, [refreshing, onRefreshOrdersList]);
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  }, [refreshing, handleRefreshOrdersList]);
 
   return (
     <Container>
@@ -222,7 +251,7 @@ const Orders: React.FC = () => {
             <DistanceContainer isSelected={selectedDistance === distance.value}>
               <DistanceChoosable
                 rippleColor="#ebebeb10"
-                onPress={() => setSelectedDistance(distance.value)}
+                onPress={() => handleSelectDistance(distance.value)}
               >
                 <DistanceText isSelected={selectedDistance === distance.value}>
                   {distance.label}
@@ -233,95 +262,130 @@ const Orders: React.FC = () => {
         />
       </DistancesListContainer>
 
-      <OrdersListContainer>
-        <OrdersList
-          showsVerticalScrollIndicator
-          refreshControl={refreshIndicator}
-          ListFooterComponent={() => (
-            <View style={{ height: parseHeightPercentage(24) }} />
-          )}
-          ItemSeparatorComponent={() => (
-            <View style={{ height: parseHeightPercentage(8) }} />
-          )}
-          ListEmptyComponent={() => (
-            <EmptyOrdersListContainer>
-              <Feather
-                name="package"
-                size={parseWidthPercentage(104)}
-                color="#606060"
-              />
-              <EmptyOrdersListText>
-                Não há nenhum pedido aqui ainda!
-              </EmptyOrdersListText>
-            </EmptyOrdersListContainer>
-          )}
-          data={orders}
-          keyExtractor={order => order.id}
-          renderItem={({ item: order }) => (
-            <OrderContainer>
-              <OrderClickable
-                rippleColor="#ebebeb10"
-                onPress={() => handleNavigateToOrderDetails(order.id)}
-              >
-                <OrderRequesterAvatar
-                  source={
-                    order.requester.avatar_url
-                      ? { uri: order.requester.avatar_url }
-                      : noUserAvatarImg
-                  }
+      {loading ? (
+        <LoadingScreen />
+      ) : (
+        <OrdersListContainer>
+          <OrdersList
+            showsVerticalScrollIndicator
+            refreshControl={refreshIndicator}
+            ListFooterComponent={() => {
+              if (loadingOrders) {
+                return (
+                  <View
+                    style={{
+                      marginTop: parseHeightPercentage(8),
+                      marginBottom: parseHeightPercentage(24),
+                    }}
+                  >
+                    <ActivityIndicator size="small" color="#6f7bae" />
+                  </View>
+                );
+              }
+
+              if (refreshButtonVisible) {
+                return (
+                  <RefreshOrdersListButton
+                    onPress={handleRefreshOrdersList}
+                    rippleColor="#00000050"
+                  >
+                    <RefreshOrdersListButtonText>
+                      Hmm... Parece que acabou a lista.
+                    </RefreshOrdersListButtonText>
+                    <RefreshOrdersListButtonText>
+                      Clique aqui para carregar novos pedidos!
+                    </RefreshOrdersListButtonText>
+                  </RefreshOrdersListButton>
+                );
+              }
+
+              return <View style={{ height: parseHeightPercentage(24) }} />;
+            }}
+            ItemSeparatorComponent={() => (
+              <View style={{ height: parseHeightPercentage(8) }} />
+            )}
+            ListEmptyComponent={() => (
+              <EmptyOrdersListContainer>
+                <Feather
+                  name="package"
+                  size={parseWidthPercentage(104)}
+                  color="#606060"
                 />
+                <EmptyOrdersListText>
+                  Não há nenhum pedido aqui ainda!
+                </EmptyOrdersListText>
+              </EmptyOrdersListContainer>
+            )}
+            onEndReached={fetchNextPageOrdersFromApi}
+            onEndReachedThreshold={0.1}
+            data={orders}
+            keyExtractor={order => order.id}
+            renderItem={({ item: order }) => (
+              <OrderContainer>
+                <OrderClickable
+                  rippleColor="#ebebeb10"
+                  onPress={() => handleNavigateToOrderDetails(order.id)}
+                >
+                  <OrderRequesterAvatar
+                    source={
+                      order.requester.avatar_url
+                        ? { uri: order.requester.avatar_url }
+                        : noUserAvatarImg
+                    }
+                  />
 
-                <OrderMeta>
-                  <OrderTextWrapper>
-                    <OrderRequesterFullName>
-                      {order.requester.name}
-                    </OrderRequesterFullName>
-                    <OrderRequesterUsername>
-                      {`@${order.requester.username}`}
-                    </OrderRequesterUsername>
-                  </OrderTextWrapper>
-
-                  <OrderDeliveryInfo>
+                  <OrderMeta>
                     <OrderTextWrapper>
-                      <Feather
-                        name="package"
+                      <OrderRequesterFullName>
+                        {order.requester.name}
+                      </OrderRequesterFullName>
+                      <OrderRequesterUsername>
+                        {`@${order.requester.username}`}
+                      </OrderRequesterUsername>
+                    </OrderTextWrapper>
+
+                    <OrderDeliveryInfo>
+                      <OrderTextWrapper>
+                        <Feather
+                          name="package"
+                          size={parseWidthPercentage(12)}
+                          color="#ff8c42"
+                        />
+                        <OrderItensCounter>
+                          {`${order.items.length} ${
+                            order.items.length > 1 ? 'itens' : 'item'
+                          }`}
+                        </OrderItensCounter>
+                        <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
+                      </OrderTextWrapper>
+
+                      <OrderTextWrapper>
+                        <OrderDeliveryLocation>
+                          {`${order.pickup_city}, ${order.pickup_state} ·`}
+                        </OrderDeliveryLocation>
+                        <OrderDeliveryDistance>
+                          {`${order.distance} km`}
+                        </OrderDeliveryDistance>
+                      </OrderTextWrapper>
+                    </OrderDeliveryInfo>
+                  </OrderMeta>
+
+                  <OrderItemsCategoriesIconsContainer>
+                    {order.items.slice(0, 4).map(item => (
+                      <OrderItemsCategoryIcon
+                        key={item.id}
+                        name={item.category.icon}
                         size={parseWidthPercentage(12)}
-                        color="#ff8c42"
+                        color="#606060"
                       />
-                      <OrderItensCounter>
-                        {`${order.items.length} ${
-                          order.items.length > 1 ? 'itens' : 'item'
-                        }`}
-                      </OrderItensCounter>
-                      <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
-                    </OrderTextWrapper>
-
-                    <OrderTextWrapper>
-                      <OrderDeliveryLocation>
-                        {`${order.pickup_city}, ${order.pickup_state} ·`}
-                      </OrderDeliveryLocation>
-                      <OrderDeliveryDistance>
-                        {`${order.distance} km`}
-                      </OrderDeliveryDistance>
-                    </OrderTextWrapper>
-                  </OrderDeliveryInfo>
-                </OrderMeta>
-
-                <OrderItemsCategoriesIconsContainer>
-                  {order.items.slice(0, 4).map(item => (
-                    <OrderItemsCategoryIcon
-                      key={item.id}
-                      name={item.category.icon}
-                      size={parseWidthPercentage(12)}
-                      color="#606060"
-                    />
-                  ))}
-                </OrderItemsCategoriesIconsContainer>
-              </OrderClickable>
-            </OrderContainer>
-          )}
-        />
-      </OrdersListContainer>
+                    ))}
+                  </OrderItemsCategoriesIconsContainer>
+                </OrderClickable>
+              </OrderContainer>
+            )}
+          />
+        </OrdersListContainer>
+      )}
     </Container>
   );
 };
