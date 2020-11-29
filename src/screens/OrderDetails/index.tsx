@@ -291,7 +291,11 @@ const OrderDetails: React.FC = () => {
 
                     <OrderItemImage
                       defaultSource={noOrderItemImg}
-                      source={noOrderItemImg}
+                      source={
+                        item.image_url
+                          ? { uri: item.image_url }
+                          : noOrderItemImg
+                      }
                     />
                   </OrderItemPressable>
                 </OrderItemContainer>
