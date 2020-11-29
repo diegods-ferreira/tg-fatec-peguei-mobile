@@ -11,7 +11,6 @@ import { useLocation } from '@hooks/location';
 import api from '@services/api';
 
 import LoadingScreen from '@components/LoadingScreen';
-import Button from '@components/Button';
 
 import {
   parseHeightPercentage,
