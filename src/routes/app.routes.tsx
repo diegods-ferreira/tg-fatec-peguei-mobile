@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import EditProfile from '@screens/Profile/EditProfile';
+import EditProfile from '@screens/EditProfile';
 import OrderDetails from '@screens/OrderDetails';
 import ItemDetails from '@screens/ItemDetails';
 import HomeRoutes from './home.routes';

@@ -7,7 +7,7 @@ import boxShadowProps from '@utils/boxShadowProps';
 
 import Trips from '@screens/Trips';
 import Chats from '@screens/Chats';
-import ShowProfile from '@screens/Profile/ShowProfile';
+import Profile from '@screens/Profile';
 import OrdersTabs from './ordersTopTabs.routes';
 
 export const BottomTab = createBottomTabNavigator();
@@ -27,7 +27,7 @@ const HomeRoutes: React.FC = () => {
             iconName = 'map';
           } else if (route.name === 'Chats') {
             iconName = 'message-circle';
-          } else if (route.name === 'ShowProfile') {
+          } else if (route.name === 'Profile') {
             iconName = 'user';
           }
 
@@ -54,7 +54,7 @@ const HomeRoutes: React.FC = () => {
       <BottomTab.Screen name="OrdersTabs" component={OrdersTabs} />
       <BottomTab.Screen name="Trips" component={Trips} />
       <BottomTab.Screen name="Chats" component={Chats} />
-      <BottomTab.Screen name="ShowProfile" component={ShowProfile} />
+      <BottomTab.Screen name="Profile" component={Profile} />
     </BottomTab.Navigator>
   );
 };
