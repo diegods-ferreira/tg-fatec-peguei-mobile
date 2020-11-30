@@ -144,6 +144,10 @@ const MyOrders: React.FC = () => {
     [navigation],
   );
 
+  const handleNavigateToCreateOrder = useCallback(() => {
+    navigation.navigate('CreateOrder');
+  }, [navigation]);
+
   useEffect(() => {
     if (!user.address && !user.state && !user.city) {
       Alert.alert(
@@ -305,7 +309,7 @@ const MyOrders: React.FC = () => {
         </OrdersListContainer>
       </Container>
 
-      <FloatingButton iconName="plus" onPress={() => {}} />
+      <FloatingButton iconName="plus" onPress={handleNavigateToCreateOrder} />
     </>
   );
 };

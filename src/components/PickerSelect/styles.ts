@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Picker } from '@react-native-community/picker';
 import {
   parseHeightPercentage,
@@ -7,7 +7,7 @@ import {
 
 export const Container = styled.View`
   width: 100%;
-  height: ${parseHeightPercentage(56)}px;
+  min-height: ${parseHeightPercentage(56)}px;
   padding-left: ${parseWidthPercentage(16)}px;
   background: #232129;
   border-radius: 8px;
