@@ -118,6 +118,7 @@ const Orders: React.FC = () => {
     setSelectedDistance(distance);
     setPage(1);
     setEndOfList(false);
+    setRefreshButtonVisible(false);
     setBaseSearchDate(new Date());
   }, []);
 
@@ -282,7 +283,7 @@ const Orders: React.FC = () => {
                 );
               }
 
-              if (refreshButtonVisible) {
+              if (orders.length > 0 && refreshButtonVisible) {
                 return (
                   <RefreshOrdersListButton
                     onPress={handleRefreshOrdersList}
