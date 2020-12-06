@@ -1,4 +1,6 @@
 import styled, { css } from 'styled-components/native';
+import Feather from 'react-native-vector-icons/Feather';
+
 import {
   parseHeightPercentage,
   parseWidthPercentage,
@@ -7,6 +9,14 @@ import {
 interface ContainerProps {
   isFocused: boolean;
   isErrored: boolean;
+}
+
+interface TextInputProps {
+  textAlign?: 'left' | 'right' | 'center';
+}
+
+interface IconProps {
+  marginRight?: number;
 }
 
 export const Container = styled.View<ContainerProps>`
@@ -35,10 +45,26 @@ export const Container = styled.View<ContainerProps>`
     `}
 `;
 
-export const TextInput = styled.TextInput`
+export const TextInput = styled.TextInput<TextInputProps>`
   flex: 1;
   color: #ebebeb;
   font-size: ${parseWidthPercentage(16)}px;
+  padding-left: 0px;
+  padding-right: 0px;
+
+  ${props =>
+    props.textAlign &&
+    css`
+      text-align: ${props.textAlign};
+    `}
+`;
+
+export const Icon = styled(Feather)<IconProps>`
+  ${props =>
+    props.marginRight &&
+    css`
+      margin-right: ${parseWidthPercentage(16)}px;
+    `}
 `;
 
 const toggleContentVisibilityButtonSize = parseWidthPercentage(20);

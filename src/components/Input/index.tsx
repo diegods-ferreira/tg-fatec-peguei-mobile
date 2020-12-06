@@ -8,13 +8,13 @@ import React, {
 } from 'react';
 import { TextInputProps } from 'react-native';
 import { useField } from '@unform/core';
-import Feather from 'react-native-vector-icons/Feather';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
 import {
   Container,
   TextInput,
+  Icon,
   ToggleContentVisibilityButton,
   ErrorContainer,
   ErrorLabel,
@@ -22,7 +22,8 @@ import {
 
 export interface InputProps extends TextInputProps {
   name: string;
-  icon: string;
+  icon?: string;
+  textAlign?: 'left' | 'right' | 'center';
   toggleContentVisibilityButton?: boolean;
   containerStyle?: {};
 }
@@ -39,6 +40,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
   {
     name,
     icon,
+    textAlign = 'left',
     secureTextEntry,
     toggleContentVisibilityButton,
     containerStyle = {},
@@ -114,12 +116,14 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
         isFocused={isFocused}
         isErrored={!!error}
       >
-        <Feather
-          name={icon}
-          size={parseWidthPercentage(20)}
-          color={isFocused || isFilled ? '#6f7bae' : '#606060'}
-          style={{ marginRight: parseWidthPercentage(16) }}
-        />
+        {icon && (
+          <Icon
+            name={icon}
+            size={parseWidthPercentage(20)}
+            color={isFocused || isFilled ? '#6f7bae' : '#606060'}
+            marginRight={16}
+          />
+        )}
 
         <TextInput
           {...rest}
@@ -128,6 +132,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
           placeholderTextColor="#606060"
           secureTextEntry={isSecureTextEntry}
           defaultValue={defaultValue}
+          textAlign={textAlign}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
           onChangeText={value => {
@@ -137,7 +142,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
 
         {toggleContentVisibilityButton && (
           <ToggleContentVisibilityButton>
-            <Feather
+            <Icon
               name={isContentVisible ? 'eye-off' : 'eye'}
               size={parseWidthPercentage(20)}
               color={isFocused || isFilled ? '#6f7bae' : '#606060'}

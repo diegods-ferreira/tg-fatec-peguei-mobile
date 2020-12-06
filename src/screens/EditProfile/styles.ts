@@ -86,6 +86,7 @@ export const Container = styled.View`
 export const CityStateSelectContainer = styled.View`
   width: 100%;
   flex-direction: row;
+  margin-bottom: ${parseHeightPercentage(8)}px;
 `;
 
 export const SocialNetworksContainer = styled.View`
