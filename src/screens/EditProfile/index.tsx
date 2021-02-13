@@ -75,6 +75,7 @@ const EditProfile: React.FC = () => {
 
   const { user, updateUser } = useAuth();
 
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const [statesCities, setStatesCities] = useState<IBGEStateCities[]>([]);
   const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -134,6 +135,8 @@ const EditProfile: React.FC = () => {
 
   const handleSaveProfile = useCallback(
     async (data: EditProfileFormData) => {
+      setIsSubmiting(true);
+
       try {
         formRef.current?.setErrors({});
 
@@ -202,8 +205,12 @@ const EditProfile: React.FC = () => {
 
         Alert.alert('Sucesso', 'Seu perfil foi atualizado com sucesso!');
 
+        setIsSubmiting(false);
+
         navigation.goBack();
       } catch (err) {
+        setIsSubmiting(false);
+
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
           formRef.current?.setErrors(errors);
@@ -580,7 +587,10 @@ const EditProfile: React.FC = () => {
               />
             </TitledBox>
 
-            <Button onPress={() => formRef.current?.submitForm()}>
+            <Button
+              onPress={() => formRef.current?.submitForm()}
+              showLoadingIndicator={isSubmiting}
+            >
               Salvar
             </Button>
           </Form>

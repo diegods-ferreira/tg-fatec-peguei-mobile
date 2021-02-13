@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -49,6 +49,8 @@ const SignIn: React.FC = () => {
 
   const navigation = useNavigation();
 
+  const [isSubmiting, setIsSubmiting] = useState(false);
+
   const { signIn } = useAuth();
 
   const handleNavigateToSignUp = useCallback(() => {
@@ -57,6 +59,8 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = useCallback(
     async (data: SignInFormData) => {
+      setIsSubmiting(true);
+
       try {
         formRef.current?.setErrors({});
 
@@ -71,11 +75,15 @@ const SignIn: React.FC = () => {
           abortEarly: false,
         });
 
+        setIsSubmiting(false);
+
         await signIn({
           email: data.email,
           password: data.password,
         });
       } catch (err) {
+        setIsSubmiting(false);
+
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
           formRef.current?.setErrors(errors);
@@ -141,7 +149,10 @@ const SignIn: React.FC = () => {
               onSubmitEditing={() => formRef.current?.submitForm()}
             />
 
-            <Button onPress={() => formRef.current?.submitForm()}>
+            <Button
+              onPress={() => formRef.current?.submitForm()}
+              showLoadingIndicator={isSubmiting}
+            >
               Entrar
             </Button>
           </Form>

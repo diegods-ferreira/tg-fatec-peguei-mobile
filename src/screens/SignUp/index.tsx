@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
   ImageBackground,
@@ -44,12 +44,16 @@ const SignUp: React.FC = () => {
 
   const { signIn } = useAuth();
 
+  const [isSubmiting, setIsSubmiting] = useState(false);
+
   const handleNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
   const handleSignUp = useCallback(
     async (data: SignUpFormData) => {
+      setIsSubmiting(true);
+
       try {
         formRef.current?.setErrors({});
 
@@ -77,11 +81,15 @@ const SignUp: React.FC = () => {
 
         await api.post('/users', data);
 
+        setIsSubmiting(false);
+
         await signIn({
           email: data.email,
           password: data.password,
         });
       } catch (err) {
+        setIsSubmiting(false);
+
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
           formRef.current?.setErrors(errors);
@@ -168,7 +176,10 @@ const SignUp: React.FC = () => {
               onSubmitEditing={() => formRef.current?.submitForm()}
             />
 
-            <Button onPress={() => formRef.current?.submitForm()}>
+            <Button
+              onPress={() => formRef.current?.submitForm()}
+              showLoadingIndicator={isSubmiting}
+            >
               Cadastrar
             </Button>
           </Form>
