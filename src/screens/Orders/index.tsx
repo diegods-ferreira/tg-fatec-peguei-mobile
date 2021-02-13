@@ -88,12 +88,11 @@ const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [distances, setDistances] = useState<Distance[]>([]);
-  const [selectedDistance, setSelectedDistance] = useState(5);
+  const [selectedDistance, setSelectedDistance] = useState(10);
   const [loading, setLoading] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [page, setPage] = useState(1);
   const [endOfList, setEndOfList] = useState(false);
-  const [baseSearchDate, setBaseSearchDate] = useState(new Date());
   const [refreshButtonVisible, setRefreshButtonVisible] = useState(false);
 
   const fetchNextPageOrdersFromApi = useCallback(async () => {
@@ -105,7 +104,6 @@ const Orders: React.FC = () => {
   const handleRefreshOrdersList = useCallback(async () => {
     setPage(1);
     setEndOfList(false);
-    setBaseSearchDate(new Date());
     setRefreshButtonVisible(false);
   }, []);
 
@@ -119,7 +117,6 @@ const Orders: React.FC = () => {
     setPage(1);
     setEndOfList(false);
     setRefreshButtonVisible(false);
-    setBaseSearchDate(new Date());
   }, []);
 
   useEffect(() => {
@@ -141,12 +138,14 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     setDistances([
-      { value: 5, label: '5 km' },
       { value: 10, label: '10 km' },
-      { value: 15, label: '15 km' },
       { value: 20, label: '20 km' },
-      { value: 25, label: '25 km' },
       { value: 30, label: '30 km' },
+      { value: 40, label: '40 km' },
+      { value: 50, label: '50 km' },
+      { value: 75, label: '75 km' },
+      { value: 100, label: '100 km' },
+      { value: 150, label: '150 km' },
     ]);
   }, []);
 
@@ -166,7 +165,6 @@ const Orders: React.FC = () => {
               user_longitude: longitude,
               distance: selectedDistance,
               page,
-              date: baseSearchDate,
             },
           });
 
@@ -216,7 +214,7 @@ const Orders: React.FC = () => {
     }
 
     loadOrders();
-  }, [location, selectedDistance, page, baseSearchDate]);
+  }, [location, selectedDistance, page]);
 
   const refreshIndicator = useMemo(() => {
     return (
