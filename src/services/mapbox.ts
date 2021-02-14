@@ -25,7 +25,7 @@ export async function fetchAddressMapbox(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${address}.json?access_token=${ACCESS_TOKEN_MAP_BOX}`,
     );
 
-    const [latitude, longitude] = response.data.features[0].center;
+    const [longitude, latitude] = response.data.features[0].center;
 
     return { latitude, longitude };
   } catch {
