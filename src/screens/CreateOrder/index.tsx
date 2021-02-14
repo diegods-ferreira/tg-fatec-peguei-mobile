@@ -194,8 +194,6 @@ const CreateOrder: React.FC = () => {
 
   useEffect(() => {
     async function loadData() {
-      setLoading(true);
-
       if (routeParams && routeParams.item_id && routeParams.updated_at) {
         const { item_id } = routeParams;
 
@@ -290,8 +288,6 @@ const CreateOrder: React.FC = () => {
           'Erro!',
           'Ocorreu um erro ao tentar realizar essa operação. Tente novamente mais tarde.',
         );
-
-        console.log(String(err));
       }
     }
   }, []);
