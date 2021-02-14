@@ -3,6 +3,7 @@ import { Alert, RefreshControl, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { getDistance, convertDistance } from 'geolib';
+import AsyncStorage from '@react-native-community/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
@@ -144,7 +145,15 @@ const MyOrders: React.FC = () => {
     [navigation],
   );
 
-  const handleNavigateToCreateOrder = useCallback(() => {
+  const handleNavigateToCreateOrder = useCallback(async () => {
+    const asyncStorageKeys = await AsyncStorage.getAllKeys();
+
+    const createOrderItemKeys = asyncStorageKeys.filter(key =>
+      key.includes('@Peguei!:create-order-item-'),
+    );
+
+    await AsyncStorage.multiRemove(createOrderItemKeys);
+
     navigation.navigate('CreateOrder');
   }, [navigation]);
 

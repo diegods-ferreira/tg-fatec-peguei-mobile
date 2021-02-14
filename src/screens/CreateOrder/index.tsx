@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform, Text } from 'react-native';
+import { Alert, Platform } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
@@ -10,6 +11,11 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import { Picker } from '@react-native-community/picker';
 import { ButtonGroup } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
+import * as Yup from 'yup';
+
+import api from '@services/api';
+import { fetchAddressMapbox } from '@services/mapbox';
 
 import { useAuth } from '@hooks/auth';
 
@@ -18,6 +24,9 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
+import getValidationErrors from '@utils/getValidationErrors';
+
+import LoadingScreen from '@components/LoadingScreen';
 
 import TitleBar from '@components/TitleBar';
 import TitledBox from '@components/TitledBox';
@@ -44,9 +53,16 @@ import {
   OrderItemName,
   OrderItemPacking,
   OrderItemImage,
+  NoItemTextContainer,
+  NoItemText,
   AddItemToOrderButtonContainer,
   AddItemToOrderButton,
   AddItemToOrderButtonText,
+  ItemInfoWrapper,
+  ItemInfoLabel,
+  ItemInfoValueContainer,
+  ItemInfoValueIcon,
+  ItemInfoValueText,
   AttachPurchaseInvoiceWrapper,
   AttachPurchaseInvoiceLabel,
   AttachPurchaseInvoiceValueContainer,
@@ -55,11 +71,52 @@ import {
   AttachPurchaseInvoiceValueText,
 } from './styles';
 
+export interface OrderItem {
+  id: number;
+  name: string;
+  description: string;
+  quantity: number;
+  weight: number;
+  width: number;
+  height: number;
+  depth: number;
+  packing: string;
+  category_id: number;
+  weight_unit_id: number;
+  dimension_unit_id: number;
+  image_uri: string;
+}
+
+interface RouteParams {
+  item_id: number;
+  updated_at: number;
+}
+
+interface CreateOrderFormData {
+  pickup_establishment: string;
+  pickup_address: string;
+  delivery_address: string;
+}
+
+interface CreateOrderItemResponse {
+  id: string;
+}
+
+interface CreateOrderResponse {
+  id: string;
+  items: CreateOrderItemResponse[];
+}
+
 const CreateOrder: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const routeParams = route.params as RouteParams | undefined;
 
   const { user } = useAuth();
 
+  const [loading, setLoading] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickupDate, setPickupDate] = useState(new Date());
   const [statesCities, setStatesCities] = useState<IBGEStateCities[]>([]);
@@ -70,7 +127,10 @@ const CreateOrder: React.FC = () => {
   const [deliveryCities, setDeliveryCities] = useState<string[]>([]);
   const [selectedDeliveryState, setSelectedDeliveryState] = useState('UF');
   const [selectedDeliveryCity, setSelectedDeliveryCity] = useState('Cidade');
-  const [useMyOrAnotherAddress, setUseMyOrAnotherAddress] = useState(0);
+  const [useMyOrAnotherAddress, setUseMyOrAnotherAddress] = useState(
+    user.address !== '' && user.state !== '' && user.city !== '' ? 0 : 1,
+  );
+  const [items, setItems] = useState<OrderItem[]>([]);
   const [purchaseInvoiceFile, setPurchaseInvoiceFile] = useState<
     DocumentPickerResponse
   >({} as DocumentPickerResponse);
@@ -132,6 +192,52 @@ const CreateOrder: React.FC = () => {
     setSelectedDeliveryCity('Cidade');
   }, [selectedDeliveryState]);
 
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+
+      if (routeParams && routeParams.item_id && routeParams.updated_at) {
+        const { item_id } = routeParams;
+
+        const storagedItem = await AsyncStorage.getItem(
+          `@Peguei!:create-order-item-${item_id}`,
+        );
+
+        if (!storagedItem) {
+          Alert.alert(
+            'Erro',
+            'Ocorreu um erro ao tentar recuperar o item que acabou de salvar.',
+          );
+          return;
+        }
+
+        const parsedItem = JSON.parse(storagedItem) as OrderItem;
+
+        setItems(state => {
+          const itemIndex = state.findIndex(
+            findItem => findItem.id === item_id,
+          );
+
+          if (itemIndex > -1) {
+            return state.map(item => {
+              if (item.id === item_id) {
+                return parsedItem;
+              }
+
+              return item;
+            });
+          }
+
+          return [...state, parsedItem];
+        });
+      }
+
+      setLoading(false);
+    }
+
+    loadData();
+  }, [routeParams]);
+
   const handleSelectPickupState = useCallback((value: React.ReactText) => {
     setSelectedPickupState(value.toString());
   }, []);
@@ -150,9 +256,23 @@ const CreateOrder: React.FC = () => {
 
   const handleUseMyOrAnotherAddressChangeIndex = useCallback(
     (index: number) => {
+      if (
+        index === 0 &&
+        user.address === '' &&
+        user.state === '' &&
+        user.city === ''
+      ) {
+        Alert.alert(
+          'Ops...',
+          'Você deve preencher seu endereço em seu perfil para utilizar essa opção.',
+        );
+
+        return;
+      }
+
       setUseMyOrAnotherAddress(index);
     },
-    [],
+    [user.address, user.state, user.city],
   );
 
   const handlePickPurchaseInvoiceFile = useCallback(async () => {
@@ -181,6 +301,174 @@ const CreateOrder: React.FC = () => {
     }
   }, []);
 
+  const handleNavigateToAddItemToOrder = useCallback(() => {
+    navigation.navigate('AddItemToOrder');
+  }, [navigation]);
+
+  const handleSaveOrder = useCallback(
+    async (data: CreateOrderFormData) => {
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          pickup_establishment: Yup.string()
+            .required('Esse campo é obrigatório')
+            .min(4, 'Mínimo de 4 caracteres'),
+          pickup_address: Yup.string()
+            .required('Esse campo é obrigatório')
+            .min(10, 'Mínimo de 10 caracteres'),
+          ...(useMyOrAnotherAddress === 1 && {
+            delivery_address: Yup.string()
+              .required('Esse campo é obrigatório')
+              .min(10, 'Mínimo de 10 caracteres'),
+          }),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        if (selectedPickupState === 'UF' || selectedPickupCity === 'Cidade') {
+          throw new Error(
+            'Você deve selecionar uma combinação estado/cidade válida para o local de retirada.',
+          );
+        }
+
+        if (
+          useMyOrAnotherAddress === 1 &&
+          (selectedDeliveryState === 'UF' || selectedDeliveryCity === 'Cidade')
+        ) {
+          throw new Error(
+            'Você deve selecionar uma combinação estado/cidade válida para o local de entrega.',
+          );
+        }
+
+        if (items.length === 0) {
+          throw new Error('Você precisa incluir ao menos 1 item ao pedido.');
+        }
+
+        if (purchaseInvoiceFile.uri === '') {
+          throw new Error('Você precisa anexar uma nota fiscal ao pedido.');
+        }
+
+        const {
+          latitude: pickup_latitude,
+          longitude: pickup_longitude,
+        } = await fetchAddressMapbox(
+          `${data.pickup_address}, ${selectedDeliveryCity}-${selectedDeliveryState}, Brazil`,
+        );
+
+        const {
+          latitude: delivery_latitude,
+          longitude: delivery_longitude,
+        } = await fetchAddressMapbox(
+          useMyOrAnotherAddress === 0
+            ? `${user.address}, ${user.city}-${user.state}, Brazil`
+            : `${data.delivery_address}, ${selectedDeliveryCity}-${selectedDeliveryState}, Brazil`,
+        );
+
+        const pickup_date = new Date(pickupDate);
+        pickup_date.setHours(0);
+        pickup_date.setMinutes(0);
+
+        const orderToSave = {
+          ...data,
+          pickup_date,
+          pickup_city: selectedPickupCity,
+          pickup_state: selectedPickupState,
+          pickup_latitude,
+          pickup_longitude,
+          delivery_address:
+            useMyOrAnotherAddress === 0 ? user.address : data.pickup_address,
+          delivery_city:
+            useMyOrAnotherAddress === 0 ? user.city : selectedDeliveryCity,
+          delivery_state:
+            useMyOrAnotherAddress === 0 ? user.state : selectedDeliveryState,
+          delivery_latitude,
+          delivery_longitude,
+          items: items.map(item => ({
+            name: item.name,
+            description: item.description,
+            quantity: item.quantity,
+            weight: item.weight,
+            width: item.width,
+            height: item.height,
+            depth: item.depth,
+            packing: item.packing,
+            category_id: item.category_id,
+            weight_unit_id: item.weight_unit_id,
+            dimension_unit_id: item.dimension_unit_id,
+          })),
+        };
+
+        const createOrderResponse = await api.post<CreateOrderResponse>(
+          '/orders',
+          orderToSave,
+        );
+
+        const uploadPurchaseInvoice = new FormData();
+
+        uploadPurchaseInvoice.append('order_id', createOrderResponse.data.id);
+        uploadPurchaseInvoice.append('purchase_invoice', {
+          type: purchaseInvoiceFile.type,
+          name: `${createOrderResponse.data.id}.${
+            purchaseInvoiceFile.type === 'application/pdf' ? 'pdf' : 'jpg'
+          }`,
+          uri: purchaseInvoiceFile.uri,
+        });
+
+        await api.patch('/orders/purchase_invoice', uploadPurchaseInvoice);
+
+        items.forEach(async (item, index) => {
+          const uploadItemImage = new FormData();
+
+          uploadItemImage.append(
+            'item_id',
+            createOrderResponse.data.items[index].id,
+          );
+
+          uploadItemImage.append('image', {
+            type: 'image/jpeg',
+            name: `${createOrderResponse.data.items[index].id}.jpg`,
+            uri: item.image_uri,
+          });
+
+          await api.patch('/items/image', uploadItemImage);
+        });
+
+        Alert.alert('Eba!', 'Seu pedido foi salvo com sucesso.');
+
+        navigation.goBack();
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          formRef.current?.setErrors(errors);
+          return;
+        }
+
+        Alert.alert('Ops...', err.message);
+      }
+    },
+    [
+      pickupDate,
+      selectedPickupState,
+      selectedPickupCity,
+      selectedDeliveryState,
+      selectedDeliveryCity,
+      items,
+      purchaseInvoiceFile,
+      useMyOrAnotherAddress,
+      user.address,
+      user.city,
+      user.state,
+      navigation,
+    ],
+  );
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <>
       <TitleBar title="Cadastrar Pedido" />
@@ -191,7 +479,7 @@ const CreateOrder: React.FC = () => {
         style={{ flex: 1 }}
       >
         <Container>
-          <Form ref={formRef} onSubmit={() => {}}>
+          <Form ref={formRef} onSubmit={handleSaveOrder}>
             <TitledBox title="Retirada">
               <DateTimePickerWrapper>
                 <DateTimePickerLabel>Data de retirada</DateTimePickerLabel>
@@ -292,31 +580,55 @@ const CreateOrder: React.FC = () => {
             </TitledBox>
 
             <TitledBox title="Itens do Pedido">
-              <OrderItemContainer key={1} hasBorder={false}>
-                <OrderItemPressable rippleColor="#ebebeb10" onPress={() => {}}>
-                  <OrderItemQuantity>
-                    <OrderItemQuantityText>2</OrderItemQuantityText>
-                  </OrderItemQuantity>
+              {items.length === 0 && (
+                <NoItemTextContainer>
+                  <NoItemText>Nenhum item ainda</NoItemText>
+                </NoItemTextContainer>
+              )}
 
-                  <OrderItemNameAndPacking>
-                    <OrderItemName numberOfLines={1} ellipsizeMode="tail">
-                      Engradado
-                    </OrderItemName>
-                    <OrderItemPacking numberOfLines={1} ellipsizeMode="tail">
-                      Sem embalagem
-                    </OrderItemPacking>
-                  </OrderItemNameAndPacking>
+              {items.map((item, index) => (
+                <OrderItemContainer
+                  key={item.id}
+                  hasBorder={index !== items.length - 1}
+                >
+                  <OrderItemPressable
+                    rippleColor="#ebebeb10"
+                    onPress={() => {
+                      navigation.navigate('AddItemToOrder', {
+                        item_id: item.id,
+                      });
+                    }}
+                  >
+                    <OrderItemQuantity>
+                      <OrderItemQuantityText>
+                        {item.quantity}
+                      </OrderItemQuantityText>
+                    </OrderItemQuantity>
 
-                  <OrderItemImage
-                    defaultSource={noOrderItemImg}
-                    source={noOrderItemImg}
-                  />
-                </OrderItemPressable>
-              </OrderItemContainer>
+                    <OrderItemNameAndPacking>
+                      <OrderItemName numberOfLines={1} ellipsizeMode="tail">
+                        {item.name}
+                      </OrderItemName>
+                      <OrderItemPacking numberOfLines={1} ellipsizeMode="tail">
+                        {item.packing}
+                      </OrderItemPacking>
+                    </OrderItemNameAndPacking>
+
+                    <OrderItemImage
+                      defaultSource={noOrderItemImg}
+                      source={
+                        item.image_uri
+                          ? { uri: item.image_uri }
+                          : noOrderItemImg
+                      }
+                    />
+                  </OrderItemPressable>
+                </OrderItemContainer>
+              ))}
 
               <AddItemToOrderButtonContainer>
                 <AddItemToOrderButton
-                  onPress={() => {}}
+                  onPress={handleNavigateToAddItemToOrder}
                   rippleColor="#ebebeb10"
                 >
                   <AddItemToOrderButtonText>
@@ -357,63 +669,115 @@ const CreateOrder: React.FC = () => {
                 }}
               />
 
-              <InputGroup
-                label="Endereço"
-                name="delivery_address"
-                icon="map-pin"
-                placeholder="Onde devem ser entregues?"
-                autoCapitalize="words"
-                returnKeyType="done"
-              />
+              {useMyOrAnotherAddress === 0 ? (
+                <>
+                  <ItemInfoWrapper marginBottom={8}>
+                    <ItemInfoLabel>Endereço</ItemInfoLabel>
+                    <ItemInfoValueContainer borderColor="#6F7BAE">
+                      <ItemInfoValueIcon
+                        name="map-pin"
+                        size={parseWidthPercentage(20)}
+                        color="#6f7bae"
+                      />
+                      <ItemInfoValueText
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        color="#6F7BAE"
+                      >
+                        {user.address}
+                      </ItemInfoValueText>
+                    </ItemInfoValueContainer>
+                  </ItemInfoWrapper>
 
-              <CityStateSelectContainer>
-                <PickerSelectGroup
-                  containerStyle={{
-                    width: parseWidthPercentage(112),
-                    marginRight: parseWidthPercentage(8),
-                  }}
-                  label="Estado"
-                  prompt="Selecione um estado"
-                  defaultValue={selectedDeliveryState}
-                  defaultValueLabel={selectedDeliveryState}
-                  selectedValue={selectedDeliveryState}
-                  onValueChange={handleSelectDeliveryState}
-                >
-                  {states.map(
-                    state =>
-                      state !== selectedDeliveryState && (
-                        <Picker.Item
-                          key={state}
-                          label={state}
-                          value={state}
-                          color="#2f2f2f"
-                        />
-                      ),
-                  )}
-                </PickerSelectGroup>
+                  <CityStateSelectContainer>
+                    <ItemInfoWrapper width={112} marginRight={8}>
+                      <ItemInfoLabel>Estado</ItemInfoLabel>
+                      <ItemInfoValueContainer borderColor="#6F7BAE">
+                        <ItemInfoValueText
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          color="#6F7BAE"
+                        >
+                          {user.state}
+                        </ItemInfoValueText>
+                      </ItemInfoValueContainer>
+                    </ItemInfoWrapper>
 
-                <PickerSelectGroup
-                  containerStyle={{ flex: 1 }}
-                  label="Cidade"
-                  prompt="Selecione uma cidade"
-                  defaultValue={selectedDeliveryCity}
-                  defaultValueLabel={selectedDeliveryCity}
-                  selectedValue={selectedDeliveryCity}
-                  onValueChange={handleSelectDeliveryCity}
-                >
-                  {deliveryCities.map(
-                    city =>
-                      city !== selectedDeliveryCity && (
-                        <Picker.Item
-                          key={city}
-                          label={city}
-                          value={city}
-                          color="#2f2f2f"
-                        />
-                      ),
-                  )}
-                </PickerSelectGroup>
-              </CityStateSelectContainer>
+                    <ItemInfoWrapper flex={1}>
+                      <ItemInfoLabel>Cidade</ItemInfoLabel>
+                      <ItemInfoValueContainer borderColor="#6F7BAE">
+                        <ItemInfoValueText
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          color="#6F7BAE"
+                        >
+                          {user.city}
+                        </ItemInfoValueText>
+                      </ItemInfoValueContainer>
+                    </ItemInfoWrapper>
+                  </CityStateSelectContainer>
+                </>
+              ) : (
+                <>
+                  <InputGroup
+                    label="Endereço"
+                    name="delivery_address"
+                    icon="map-pin"
+                    placeholder="Onde devem ser entregues?"
+                    autoCapitalize="words"
+                    returnKeyType="done"
+                  />
+
+                  <CityStateSelectContainer>
+                    <PickerSelectGroup
+                      containerStyle={{
+                        width: parseWidthPercentage(112),
+                        marginRight: parseWidthPercentage(8),
+                      }}
+                      label="Estado"
+                      prompt="Selecione um estado"
+                      defaultValue={selectedDeliveryState}
+                      defaultValueLabel={selectedDeliveryState}
+                      selectedValue={selectedDeliveryState}
+                      onValueChange={handleSelectDeliveryState}
+                    >
+                      {states.map(
+                        state =>
+                          state !== selectedDeliveryState && (
+                            <Picker.Item
+                              key={state}
+                              label={state}
+                              value={state}
+                              color="#2f2f2f"
+                            />
+                          ),
+                      )}
+                    </PickerSelectGroup>
+
+                    <PickerSelectGroup
+                      containerStyle={{ flex: 1 }}
+                      label="Cidade"
+                      prompt="Selecione uma cidade"
+                      defaultValue={selectedDeliveryCity}
+                      defaultValueLabel={selectedDeliveryCity}
+                      selectedValue={selectedDeliveryState}
+                      onValueChange={handleSelectDeliveryCity}
+                    >
+                      {deliveryCities.map(
+                        city =>
+                          city !== selectedDeliveryCity && (
+                            <Picker.Item
+                              key={city}
+                              label={city}
+                              value={city}
+                              color="#2f2f2f"
+                            />
+                          ),
+                      )}
+                    </PickerSelectGroup>
+                  </CityStateSelectContainer>
+                </>
+              )}
             </TitledBox>
 
             <TitledBox title="Nota Fiscal">
@@ -445,7 +809,9 @@ const CreateOrder: React.FC = () => {
               </AttachPurchaseInvoiceWrapper>
             </TitledBox>
 
-            <Button onPress={() => {}}>Concluir pedido</Button>
+            <Button onPress={() => formRef.current?.submitForm()}>
+              Concluir pedido
+            </Button>
           </Form>
         </Container>
       </ScrollView>
