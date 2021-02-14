@@ -128,7 +128,7 @@ const CreateOrder: React.FC = () => {
   const [selectedDeliveryState, setSelectedDeliveryState] = useState('UF');
   const [selectedDeliveryCity, setSelectedDeliveryCity] = useState('Cidade');
   const [useMyOrAnotherAddress, setUseMyOrAnotherAddress] = useState(
-    user.address !== '' && user.state !== '' && user.city !== '' ? 0 : 1,
+    !user.address && !user.state && !user.city ? 1 : 0,
   );
   const [items, setItems] = useState<OrderItem[]>([]);
   const [purchaseInvoiceFile, setPurchaseInvoiceFile] = useState<
@@ -256,12 +256,7 @@ const CreateOrder: React.FC = () => {
 
   const handleUseMyOrAnotherAddressChangeIndex = useCallback(
     (index: number) => {
-      if (
-        index === 0 &&
-        user.address === '' &&
-        user.state === '' &&
-        user.city === ''
-      ) {
+      if (index === 0 && !user.address && !user.state && !user.city) {
         Alert.alert(
           'Ops...',
           'Você deve preencher seu endereço em seu perfil para utilizar essa opção.',
