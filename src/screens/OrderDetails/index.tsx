@@ -1,18 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Platform,
+  ToastAndroid,
+} from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
+import { Modalize } from 'react-native-modalize';
 import Clipboard from '@react-native-community/clipboard';
 import Feather from 'react-native-vector-icons/Feather';
 
+import { useAuth } from '@hooks/auth';
 import { useLocation } from '@hooks/location';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 import formatDistanceValue from '@utils/formatDistanceValue';
+import formatCurrencyValue from '@utils/formatCurrencyValue';
 
 import LoadingScreen from '@components/LoadingScreen';
 import TitleBar from '@components/TitleBar';
@@ -53,6 +62,19 @@ import {
   OrderItemImage,
   ViewInvoiceButton,
   ViewInvoiceButtonText,
+  OfferToPickupIndicatorContainer,
+  OfferToPickupIndicatorText,
+  OfferToPickupModalContainer,
+  OfferToPickupInputContainer,
+  OfferToPickupInputContainerLabel,
+  TextInput,
+  OfferToPickupModalTitle,
+  OfferToPickupDateTime,
+  OfferToPickupButtons,
+  OfferToPickupCancelDeleteButton,
+  OfferToPickupCancelDeleteButtonText,
+  OfferToPickupOkUpdateButton,
+  OfferToPickupOkUpdateButtonText,
 } from './styles';
 
 interface Params {
@@ -87,7 +109,17 @@ interface Order {
   created_at: string;
 }
 
+interface OfferToPickup {
+  id: string;
+  delivery_value: number;
+  created_at: string;
+  formatted_created_at: string;
+}
+
 const OrderDetails: React.FC = () => {
+  const modalizeRef = useRef<Modalize>(null);
+
+  const { user } = useAuth();
   const { location } = useLocation();
 
   const navigation = useNavigation();
@@ -96,27 +128,62 @@ const OrderDetails: React.FC = () => {
 
   const [order, setOrder] = useState<Order>({} as Order);
   const [loading, setLoading] = useState(true);
+  const [offerToPickup, setOfferToPickup] = useState<OfferToPickup>(
+    {} as OfferToPickup,
+  );
+  const [offerToPickupInputValue, setOfferToPickupInputValue] = useState('0');
+  const [offerToPickupValue, setOfferToPickupValue] = useState(0);
+  const [isSubmiting, setIsSubmiting] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-
-    api
-      .get(`/orders/${routeParams.id}`)
-      .then(response => {
+    async function loadOrderData() {
+      try {
+        const response = await api.get(`/orders/${routeParams.id}`);
         setOrder(response.data);
-      })
-      .catch(err => {
+      } catch (err) {
         Alert.alert(
           'Erro',
           `Ocorreu um erro ao tentar carregar esse pedido. Tente novamente mais tarde, por favor.\n\n${String(
             err,
           )}`,
         );
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    setLoading(true);
+    loadOrderData();
   }, [routeParams]);
+
+  useEffect(() => {
+    async function loadUserPickupOfferForThisOrder() {
+      try {
+        const response = await api.get(
+          `/orders/pickup-offers/${order.id}/deliveryman/${user.id}`,
+        );
+
+        if (response.data) {
+          setOfferToPickup({
+            ...response.data,
+            formatted_created_at: format(
+              parseISO(response.data.created_at),
+              "dd/MM/yyyy 'às' HH:mm",
+            ),
+          });
+        }
+      } catch (err) {
+        Alert.alert(
+          'Erro',
+          `Ocorreu um erro ao tentar carregar esse pedido. Tente novamente mais tarde, por favor.\n\n${String(
+            err,
+          )}`,
+        );
+      }
+    }
+
+    loadUserPickupOfferForThisOrder();
+  }, [order.id, user.id]);
 
   const handleNavigateToItemDetails = useCallback(
     (id: string) => {
@@ -153,6 +220,107 @@ const OrderDetails: React.FC = () => {
     [location],
   );
 
+  const handleOpenOfferToPickupModal = useCallback(() => {
+    modalizeRef.current?.open();
+
+    if (offerToPickup.id) {
+      setOfferToPickupInputValue(
+        formatCurrencyValue(offerToPickup.delivery_value).replace('R$', ''),
+      );
+      setOfferToPickupValue(offerToPickup.delivery_value);
+    } else {
+      setOfferToPickupInputValue('0');
+      setOfferToPickupValue(0);
+    }
+  }, [offerToPickup.id, offerToPickup.delivery_value]);
+
+  const handleCloseOfferToPickupModal = useCallback(() => {
+    modalizeRef.current?.close();
+  }, []);
+
+  const handleOfferToPickupValueInputChange = useCallback((value: string) => {
+    setOfferToPickupInputValue(value);
+    setOfferToPickupValue(Number(value.replace('.', '').replace(',', '.')));
+  }, []);
+
+  const handleOfferToPickup = useCallback(async () => {
+    setIsSubmiting(true);
+
+    try {
+      if (!offerToPickupValue) {
+        Alert.alert('Erro', 'O valor deve ser maior que zero.');
+        return;
+      }
+
+      const response = await api.post(`/orders/pickup-offers/${order.id}`, {
+        delivery_value: offerToPickupValue,
+      });
+
+      setOfferToPickup(response.data);
+
+      Alert.alert(
+        'Opa!',
+        'Você se ofereceu para realizar essa entrega.\n\nAgora é com o(a) solicitante!\n\nVocê receberá uma notificação caso ele(a) te escolha.',
+      );
+    } catch {
+      Alert.alert(
+        'Erro',
+        'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(false);
+      modalizeRef.current?.close();
+    }
+  }, [offerToPickupValue, order.id]);
+
+  const handleDeleteMyOfferToPickup = useCallback(async () => {
+    setIsSubmiting(true);
+
+    try {
+      await api.delete(`/orders/pickup-offers/${offerToPickup.id}`);
+
+      setOfferToPickup({} as OfferToPickup);
+
+      Alert.alert('Excluído!', 'Sua oferta foi excluída com sucesso.');
+    } catch {
+      Alert.alert(
+        'Erro',
+        'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(false);
+      modalizeRef.current?.close();
+    }
+  }, [offerToPickup.id]);
+
+  const handleUpdateMyOfferToPickup = useCallback(async () => {
+    setIsSubmiting(true);
+
+    try {
+      await api.put(`/orders/pickup-offers/${offerToPickup.id}`, {
+        delivery_value: offerToPickupValue,
+      });
+
+      setOfferToPickup(state => ({
+        ...state,
+        delivery_value: offerToPickupValue,
+      }));
+
+      Alert.alert(
+        'Atualizado!',
+        'O valor da sua oferta foi atualizado com sucesso.',
+      );
+    } catch {
+      Alert.alert(
+        'Erro',
+        'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(false);
+      modalizeRef.current?.close();
+    }
+  }, [offerToPickup.id, offerToPickupValue]);
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -160,6 +328,14 @@ const OrderDetails: React.FC = () => {
   return (
     <>
       <TitleBar title="Detalhes do Pedido" />
+
+      {offerToPickup.id && (
+        <OfferToPickupIndicatorContainer onPress={handleOpenOfferToPickupModal}>
+          <OfferToPickupIndicatorText>
+            Você já se ofereceu para fazer essa entrega
+          </OfferToPickupIndicatorText>
+        </OfferToPickupIndicatorContainer>
+      )}
 
       <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
         <Container>
@@ -310,10 +486,121 @@ const OrderDetails: React.FC = () => {
               </ViewInvoiceButton>
             </TitledBox>
 
-            <Button>Me ofereço para buscar</Button>
+            {!offerToPickup.id && (
+              <Button onPress={handleOpenOfferToPickupModal}>
+                Me ofereço para buscar
+              </Button>
+            )}
           </OrderInfoContainer>
         </Container>
       </ScrollView>
+
+      <Modalize
+        ref={modalizeRef}
+        adjustToContentHeight
+        keyboardAvoidingBehavior="height"
+        closeOnOverlayTap={!!offerToPickup.id}
+        overlayStyle={{ backgroundColor: '#00000090' }}
+      >
+        <OfferToPickupModalContainer>
+          <OfferToPickupModalTitle
+            fontWeight={offerToPickup.id ? 'normal' : undefined}
+            fontSize={offerToPickup.id ? 14 : undefined}
+          >
+            {offerToPickup.id ? 'Oferta feita em' : 'Quanto você quer cobrar?'}
+          </OfferToPickupModalTitle>
+
+          {offerToPickup.id && (
+            <OfferToPickupDateTime>
+              {offerToPickup.formatted_created_at}
+            </OfferToPickupDateTime>
+          )}
+
+          {offerToPickup.id && (
+            <OfferToPickupInputContainerLabel>
+              Valor ofertado
+            </OfferToPickupInputContainerLabel>
+          )}
+
+          <OfferToPickupInputContainer hasMarginTop={!offerToPickup.id}>
+            <Feather
+              name="dollar-sign"
+              size={parseWidthPercentage(24)}
+              color="#606060"
+            />
+
+            <TextInput
+              type="money"
+              options={{ unit: '' }}
+              maxLength={10}
+              value={offerToPickupInputValue}
+              onChangeText={handleOfferToPickupValueInputChange}
+              placeholder="0,00"
+              placeholderTextColor="#606060"
+              textAlign="right"
+              returnKeyType="send"
+              onSubmitEditing={handleOfferToPickup}
+            />
+          </OfferToPickupInputContainer>
+
+          {!offerToPickup.id && (
+            <OfferToPickupButtons>
+              <OfferToPickupCancelDeleteButton
+                onPress={handleCloseOfferToPickupModal}
+              >
+                <OfferToPickupCancelDeleteButtonText>
+                  Cancelar
+                </OfferToPickupCancelDeleteButtonText>
+              </OfferToPickupCancelDeleteButton>
+
+              <OfferToPickupOkUpdateButton
+                rippleColor="#00000050"
+                onPress={handleOfferToPickup}
+              >
+                {isSubmiting ? (
+                  <ActivityIndicator size="large" color="#ebebeb" />
+                ) : (
+                  <OfferToPickupOkUpdateButtonText>
+                    Ok
+                  </OfferToPickupOkUpdateButtonText>
+                )}
+              </OfferToPickupOkUpdateButton>
+            </OfferToPickupButtons>
+          )}
+
+          {offerToPickup.id && (
+            <OfferToPickupButtons>
+              <OfferToPickupCancelDeleteButton
+                onPress={handleDeleteMyOfferToPickup}
+              >
+                {isSubmiting ? (
+                  <ActivityIndicator size="large" color="#eb4d4b" />
+                ) : (
+                  <OfferToPickupCancelDeleteButtonText>
+                    Excluir
+                  </OfferToPickupCancelDeleteButtonText>
+                )}
+              </OfferToPickupCancelDeleteButton>
+
+              {offerToPickupValue !== offerToPickup.delivery_value &&
+                offerToPickupValue > 0 && (
+                  <OfferToPickupOkUpdateButton
+                    rippleColor="#00000050"
+                    onPress={handleUpdateMyOfferToPickup}
+                  >
+                    {isSubmiting ? (
+                      <ActivityIndicator size="large" color="#ebebeb" />
+                    ) : (
+                      <OfferToPickupOkUpdateButtonText>
+                        Atualizar
+                      </OfferToPickupOkUpdateButtonText>
+                    )}
+                  </OfferToPickupOkUpdateButton>
+                )}
+            </OfferToPickupButtons>
+          )}
+        </OfferToPickupModalContainer>
+      </Modalize>
     </>
   );
 };
