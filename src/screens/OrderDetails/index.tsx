@@ -256,7 +256,13 @@ const OrderDetails: React.FC = () => {
         delivery_value: offerToPickupValue,
       });
 
-      setOfferToPickup(response.data);
+      setOfferToPickup({
+        ...response.data,
+        formatted_created_at: format(
+          parseISO(response.data.created_at),
+          "dd/MM/yyyy 'às' HH:mm",
+        ),
+      });
 
       Alert.alert(
         'Opa!',
