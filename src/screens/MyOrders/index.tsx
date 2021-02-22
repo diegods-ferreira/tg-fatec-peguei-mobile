@@ -8,7 +8,6 @@ import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
 
-import { useAuth } from '@hooks/auth';
 import { useLocation } from '@hooks/location';
 
 import formatDistanceValue from '@utils/formatDistanceValue';
@@ -77,7 +76,6 @@ interface Section {
 }
 
 const MyOrders: React.FC = () => {
-  const { user } = useAuth();
   const { location } = useLocation();
 
   const navigation = useNavigation();
@@ -156,23 +154,6 @@ const MyOrders: React.FC = () => {
 
     navigation.navigate('CreateOrder');
   }, [navigation]);
-
-  useEffect(() => {
-    if (!user.address && !user.state && !user.city) {
-      Alert.alert(
-        'Aviso!',
-        'Há informações do seu perfil pendentes de preenchimento.\n\nRecomendamos que você atualize o seu perfil o quanto antes.',
-        [
-          { text: 'Agora não', style: 'cancel' },
-          {
-            text: 'Vamos lá!',
-            style: 'default',
-            onPress: () => navigation.navigate('EditProfile'),
-          },
-        ],
-      );
-    }
-  }, [user, navigation]);
 
   useEffect(() => {
     const openOrders = orders.filter(order => order.status === 1);
