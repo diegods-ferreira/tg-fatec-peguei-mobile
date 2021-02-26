@@ -7,6 +7,7 @@ import ItemDetails from '@screens/ItemDetails';
 import CreateOrder from '@screens/CreateOrder';
 import AddItemToOrder from '@screens/AddItemToOrder';
 import OrdersAsDeliveryman from '@screens/OrdersAsDeliveryman';
+import ChatRoom from '@screens/ChatRoom';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();
@@ -31,6 +32,7 @@ const AppRoutes: React.FC = () => {
         name="OrdersAsDeliveryman"
         component={OrdersAsDeliveryman}
       />
+      <Stack.Screen name="ChatRoom" component={ChatRoom} />
     </Stack.Navigator>
   );
 };

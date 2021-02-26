@@ -10,11 +10,13 @@ import { Container, BackButton, Title, ContextMenuButton } from './styles';
 interface TitleBarProps {
   title: string;
   showContextMenuButton?: boolean;
+  showBackButton?: boolean;
 }
 
 const TitleBar: React.FC<TitleBarProps> = ({
   title,
   showContextMenuButton = false,
+  showBackButton = true,
 }) => {
   const navigation = useNavigation();
 
@@ -25,11 +27,13 @@ const TitleBar: React.FC<TitleBarProps> = ({
   return (
     <Container style={boxShadowProps}>
       <BackButton rippleColor="#EBEBEB10" onPress={handleNavigateBack}>
-        <Feather
-          name="arrow-left"
-          size={parseWidthPercentage(24)}
-          color="#EBEBEB"
-        />
+        {showBackButton && (
+          <Feather
+            name="arrow-left"
+            size={parseWidthPercentage(24)}
+            color="#EBEBEB"
+          />
+        )}
       </BackButton>
 
       <Title>{title}</Title>
