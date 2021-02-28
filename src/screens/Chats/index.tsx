@@ -32,7 +32,7 @@ import {
   EmptyChatsListText,
 } from './styles';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   username: string;
@@ -94,8 +94,8 @@ const Chats: React.FC = () => {
   }, [fetchChatsListFromTheApi]);
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient_id: string) => {
-      navigation.navigate('ChatRoom', { chat_id, recipient_id });
+    (chat_id: string, recipient: User) => {
+      navigation.navigate('ChatRoom', { chat_id, recipient });
     },
     [navigation],
   );
@@ -151,9 +151,7 @@ const Chats: React.FC = () => {
               <ChatContainer>
                 <ChatClickable
                   rippleColor="#ebebeb10"
-                  onPress={() =>
-                    handleJoinChatRoom(chat.id, chat.other_user.id)
-                  }
+                  onPress={() => handleJoinChatRoom(chat.id, chat.other_user)}
                 >
                   <ChatUserAvatar
                     source={
@@ -179,6 +177,8 @@ const Chats: React.FC = () => {
           />
         </ChatsListContainer>
       </Container>
+
+      <ChatClickable onPress={() => handleJoinChatRoom('', {} as User)} />
     </>
   );
 };
