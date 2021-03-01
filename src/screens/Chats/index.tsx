@@ -25,11 +25,14 @@ import {
   ChatsList,
   ChatContainer,
   ChatClickable,
+  ChatInfoContainer,
   ChatUserAvatar,
   ChatMeta,
   ChatTextWrapper,
   ChatOtherUserFullName,
-  ChatOrderIdentifier,
+  ChatOtherUserUsername,
+  ChatOrderIdentifierContainer,
+  ChatOrderIdentifierText,
   ChatLastMessageSentAt,
   ChatLastMessageText,
   EmptyChatsListContainer,
@@ -160,36 +163,44 @@ const Chats: React.FC = () => {
                   rippleColor="#ebebeb10"
                   onPress={() => handleJoinChatRoom(chat.id, chat.other_user)}
                 >
-                  <ChatUserAvatar
-                    source={
-                      chat.other_user.avatar_url
-                        ? { uri: chat.other_user.avatar_url }
-                        : noUserAvatarImg
-                    }
-                  />
+                  <ChatInfoContainer>
+                    <ChatUserAvatar
+                      source={
+                        chat.other_user.avatar_url
+                          ? { uri: chat.other_user.avatar_url }
+                          : noUserAvatarImg
+                      }
+                    />
 
-                  <ChatMeta>
-                    <ChatTextWrapper>
-                      <ChatOtherUserFullName>
-                        {chat.other_user.name}
-                      </ChatOtherUserFullName>
+                    <ChatMeta>
+                      <ChatTextWrapper>
+                        <ChatOtherUserFullName>
+                          {chat.other_user.name}
+                        </ChatOtherUserFullName>
 
-                      <ChatOrderIdentifier>
-                        {`Nº do pedido: ${chat.order.number}`}
-                      </ChatOrderIdentifier>
+                        <ChatOtherUserUsername>
+                          {`@${chat.other_user.username}`}
+                        </ChatOtherUserUsername>
 
-                      <ChatLastMessageSentAt>14:53</ChatLastMessageSentAt>
-                    </ChatTextWrapper>
+                        <ChatLastMessageSentAt>14:53</ChatLastMessageSentAt>
+                      </ChatTextWrapper>
 
-                    <ChatTextWrapper marginTop={4}>
-                      <ChatLastMessageText
-                        numberOfLines={2}
-                        ellipsizeMode="tail"
-                      >
-                        {chat.last_message_text}
-                      </ChatLastMessageText>
-                    </ChatTextWrapper>
-                  </ChatMeta>
+                      <ChatTextWrapper marginTop={4}>
+                        <ChatLastMessageText
+                          numberOfLines={2}
+                          ellipsizeMode="tail"
+                        >
+                          {chat.last_message_text}
+                        </ChatLastMessageText>
+                      </ChatTextWrapper>
+                    </ChatMeta>
+                  </ChatInfoContainer>
+
+                  <ChatOrderIdentifierContainer>
+                    <ChatOrderIdentifierText>
+                      {`Nº do pedido: ${chat.order.number}`}
+                    </ChatOrderIdentifierText>
+                  </ChatOrderIdentifierContainer>
                 </ChatClickable>
               </ChatContainer>
             )}
