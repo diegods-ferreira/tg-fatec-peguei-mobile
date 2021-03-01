@@ -12,6 +12,8 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
+import { Order } from '@screens/Orders';
+
 import TitleBar from '@components/TitleBar';
 import LoadingScreen from '@components/LoadingScreen';
 
@@ -28,6 +30,8 @@ import {
   ChatTextWrapper,
   ChatOtherUserFullName,
   ChatOrderIdentifier,
+  ChatLastMessageSentAt,
+  ChatLastMessageText,
   EmptyChatsListContainer,
   EmptyChatsListText,
 } from './styles';
@@ -41,11 +45,14 @@ export interface User {
 
 export interface Chat {
   id: string;
-  order_id: string;
+  order: Order;
   created_at: string;
   updated_at: string;
   requester: User;
   deliveryman: User;
+  last_message_text: string;
+  last_message_sent_at: string;
+  last_message_sent_by: string;
   other_user: User;
 }
 
@@ -166,9 +173,21 @@ const Chats: React.FC = () => {
                       <ChatOtherUserFullName>
                         {chat.other_user.name}
                       </ChatOtherUserFullName>
+
                       <ChatOrderIdentifier>
-                        Pedido: 123456789
+                        {`Nº do pedido: ${chat.order.number}`}
                       </ChatOrderIdentifier>
+
+                      <ChatLastMessageSentAt>14:53</ChatLastMessageSentAt>
+                    </ChatTextWrapper>
+
+                    <ChatTextWrapper marginTop={4}>
+                      <ChatLastMessageText
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {chat.last_message_text}
+                      </ChatLastMessageText>
                     </ChatTextWrapper>
                   </ChatMeta>
                 </ChatClickable>
@@ -177,8 +196,6 @@ const Chats: React.FC = () => {
           />
         </ChatsListContainer>
       </Container>
-
-      <ChatClickable onPress={() => handleJoinChatRoom('', {} as User)} />
     </>
   );
 };

@@ -73,6 +73,7 @@ export interface Order {
   created_at: string;
   formatted_created_at: string;
   distance: number;
+  number: number;
 }
 
 export interface Distance {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, StyleProp, ViewStyle } from 'react-native';
+import { Alert, StyleProp, View, ViewStyle } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { io as socketio, Socket } from 'socket.io-client';
 import {
@@ -7,11 +7,14 @@ import {
   BubbleProps,
   Composer,
   ComposerProps,
+  Day,
+  DayProps,
   GiftedChat,
   IMessage,
   Send,
   SendProps,
 } from 'react-native-gifted-chat';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
@@ -43,14 +46,6 @@ interface RouteParams {
   chat_id: string;
   recipient: User;
 }
-
-// interface Message extends IMessage {
-//   id: string;
-//   from: string;
-//   to: string;
-//   text: string;
-//   created_at: string;
-// }
 
 const ChatRoom: React.FC = () => {
   const route = useRoute();
@@ -107,6 +102,10 @@ const ChatRoom: React.FC = () => {
 
       setSocket(newSocket);
     }, 0);
+
+    return () => {
+      newSocket.disconnect();
+    };
   }, [routeParams, user.id]);
 
   const handleSendMessage = useCallback(
@@ -163,6 +162,19 @@ const ChatRoom: React.FC = () => {
         onPressAvatar={() => Alert.alert('onPressAvatar', 'Abrir perfil')}
         keyboardShouldPersistTaps="never"
         infiniteScroll
+        scrollToBottomStyle={{
+          backgroundColor: '#6F7BAE',
+        }}
+        scrollToBottomComponent={() => (
+          <Feather
+            name="chevron-down"
+            color="#ebebeb"
+            size={parseHeightPercentage(24)}
+          />
+        )}
+        renderDay={(props: DayProps<IMessage>) => (
+          <Day {...props} dateFormat="DD/MM/YYYY" />
+        )}
         renderComposer={(props: ComposerProps) => (
           <ComposerContainer>
             <Composer
@@ -175,7 +187,7 @@ const ChatRoom: React.FC = () => {
         )}
         renderSend={(props: SendProps<IMessage>) => (
           <Send {...props} containerStyle={sendContainerStyle}>
-            <Feather
+            <MaterialIcon
               name="send"
               color="#ff8c42"
               size={parseWidthPercentage(24)}
@@ -186,11 +198,11 @@ const ChatRoom: React.FC = () => {
           <Bubble
             {...props}
             wrapperStyle={{
-              left: { backgroundColor: '#FF8C42' },
-              right: { backgroundColor: '#6F7BAE' },
+              left: { backgroundColor: '#6F7BAE' },
+              right: { backgroundColor: '#606060' },
             }}
             textStyle={{
-              left: { color: '#232129' },
+              left: { color: '#EBEBEB' },
               right: { color: '#EBEBEB' },
             }}
           />
@@ -213,6 +225,9 @@ const ChatRoom: React.FC = () => {
               Vocês ainda não trocaram nenhuma mensagem.
             </ChatEmptyText>
           </ChatEmptyContainer>
+        )}
+        renderChatFooter={() => (
+          <View style={{ height: parseHeightPercentage(8) }} />
         )}
       />
     </Container>

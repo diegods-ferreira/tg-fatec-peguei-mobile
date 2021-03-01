@@ -1,7 +1,6 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { FlatList } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import { Chat } from '@screens/Chats';
 
@@ -9,6 +8,10 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
+
+interface ChatTextWrapperProps {
+  marginTop?: number;
+}
 
 export const Container = styled.View`
   flex: 1;
@@ -57,7 +60,15 @@ export const ChatMeta = styled.View`
   margin-left: ${parseWidthPercentage(16)}px;
 `;
 
-export const ChatTextWrapper = styled.View``;
+export const ChatTextWrapper = styled.View<ChatTextWrapperProps>`
+  position: relative;
+
+  ${props =>
+    props.marginTop &&
+    css`
+      margin-top: ${parseHeightPercentage(props.marginTop)}px;
+    `}
+`;
 
 export const ChatOtherUserFullName = styled.Text`
   color: #ebebeb;
@@ -69,6 +80,19 @@ export const ChatOrderIdentifier = styled.Text`
   color: #606060;
   font-size: ${parseWidthPercentage(10)}px;
   font-style: italic;
+`;
+
+export const ChatLastMessageSentAt = styled.Text`
+  color: #606060;
+  font-size: ${parseWidthPercentage(10)}px;
+  position: absolute;
+  top: 0;
+  right: 0;
+`;
+
+export const ChatLastMessageText = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(11)}px;
 `;
 
 export const EmptyChatsListContainer = styled.View`
