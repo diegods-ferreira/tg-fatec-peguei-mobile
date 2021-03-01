@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Alert, StyleProp, View, ViewStyle } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { io as socketio, Socket } from 'socket.io-client';
@@ -14,6 +20,8 @@ import {
   Send,
   SendProps,
 } from 'react-native-gifted-chat';
+import { Modalize } from 'react-native-modalize';
+import { useNavigation } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -40,6 +48,9 @@ import {
   ChatEmptyUserAvatar,
   ChatEmptyUserName,
   ChatEmptyText,
+  ContextMenuModal,
+  ContextMenuOption,
+  ContextMenuOptionText,
 } from './styles';
 
 interface RouteParams {
@@ -48,6 +59,10 @@ interface RouteParams {
 }
 
 const ChatRoom: React.FC = () => {
+  const modalizeRef = useRef<Modalize>(null);
+
+  const navigation = useNavigation();
+
   const route = useRoute();
   const routeParams = route.params as RouteParams;
 
@@ -125,6 +140,15 @@ const ChatRoom: React.FC = () => {
     [routeParams.recipient.id, user.id, socket],
   );
 
+  const handleOpenContextMenuModal = useCallback(() => {
+    modalizeRef.current?.open();
+  }, []);
+
+  const handleOpenOrderDetails = useCallback(
+    (id: string) => navigation.navigate('OrderDetails', { id }),
+    [navigation],
+  );
+
   const giftedChatUser = useMemo(
     () => ({
       _id: user.id,
@@ -151,86 +175,123 @@ const ChatRoom: React.FC = () => {
   }
 
   return (
-    <Container>
-      <TitleBar title={routeParams.recipient.name} />
+    <>
+      <Container>
+        <TitleBar
+          title={routeParams.recipient.name}
+          showContextMenuButton
+          onContextMenuButtonPress={handleOpenContextMenuModal}
+        />
 
-      <GiftedChat
-        messages={messages}
-        onSend={sentMessages => handleSendMessage(sentMessages)}
-        user={giftedChatUser}
-        scrollToBottom
-        onPressAvatar={() => Alert.alert('onPressAvatar', 'Abrir perfil')}
-        keyboardShouldPersistTaps="never"
-        infiniteScroll
-        scrollToBottomStyle={{
-          backgroundColor: '#6F7BAE',
-        }}
-        scrollToBottomComponent={() => (
-          <Feather
-            name="chevron-down"
-            color="#ebebeb"
-            size={parseHeightPercentage(24)}
-          />
-        )}
-        renderDay={(props: DayProps<IMessage>) => (
-          <Day {...props} dateFormat="DD/MM/YYYY" />
-        )}
-        renderComposer={(props: ComposerProps) => (
-          <ComposerContainer>
-            <Composer
+        <GiftedChat
+          messages={messages}
+          onSend={sentMessages => handleSendMessage(sentMessages)}
+          user={giftedChatUser}
+          scrollToBottom
+          onPressAvatar={() => Alert.alert('onPressAvatar', 'Abrir perfil')}
+          keyboardShouldPersistTaps="never"
+          infiniteScroll
+          scrollToBottomStyle={{
+            backgroundColor: '#6F7BAE',
+          }}
+          scrollToBottomComponent={() => (
+            <Feather
+              name="chevron-down"
+              color="#ebebeb"
+              size={parseHeightPercentage(24)}
+            />
+          )}
+          renderDay={(props: DayProps<IMessage>) => (
+            <Day {...props} dateFormat="DD/MM/YYYY" />
+          )}
+          renderComposer={(props: ComposerProps) => (
+            <ComposerContainer>
+              <Composer
+                {...props}
+                placeholder="Escreva uma mensagem"
+                placeholderTextColor="#606060"
+                textInputStyle={{ color: '#EBEBEB' }}
+              />
+            </ComposerContainer>
+          )}
+          renderSend={(props: SendProps<IMessage>) => (
+            <Send {...props} containerStyle={sendContainerStyle}>
+              <MaterialIcon
+                name="send"
+                color="#ff8c42"
+                size={parseWidthPercentage(24)}
+              />
+            </Send>
+          )}
+          renderBubble={(props: BubbleProps<IMessage>) => (
+            <Bubble
               {...props}
-              placeholder="Escreva uma mensagem"
-              placeholderTextColor="#606060"
-              textInputStyle={{ color: '#EBEBEB' }}
+              wrapperStyle={{
+                left: { backgroundColor: '#6F7BAE' },
+                right: { backgroundColor: '#606060' },
+              }}
+              textStyle={{
+                left: { color: '#EBEBEB' },
+                right: { color: '#EBEBEB' },
+              }}
             />
-          </ComposerContainer>
-        )}
-        renderSend={(props: SendProps<IMessage>) => (
-          <Send {...props} containerStyle={sendContainerStyle}>
-            <MaterialIcon
-              name="send"
-              color="#ff8c42"
-              size={parseWidthPercentage(24)}
-            />
-          </Send>
-        )}
-        renderBubble={(props: BubbleProps<IMessage>) => (
-          <Bubble
-            {...props}
-            wrapperStyle={{
-              left: { backgroundColor: '#6F7BAE' },
-              right: { backgroundColor: '#606060' },
-            }}
-            textStyle={{
-              left: { color: '#EBEBEB' },
-              right: { color: '#EBEBEB' },
-            }}
-          />
-        )}
-        renderChatEmpty={() => (
-          <ChatEmptyContainer
-            style={{
-              transform: [{ rotateY: '180deg' }, { rotateZ: '180deg' }],
-            }}
+          )}
+          renderChatEmpty={() => (
+            <ChatEmptyContainer
+              style={{
+                transform: [{ rotateY: '180deg' }, { rotateZ: '180deg' }],
+              }}
+            >
+              <ChatEmptyUserAvatar
+                source={
+                  routeParams.recipient.avatar_url
+                    ? { uri: routeParams.recipient.avatar_url }
+                    : noUserAvatarImg
+                }
+              />
+              <ChatEmptyUserName>
+                {routeParams.recipient.name}
+              </ChatEmptyUserName>
+              <ChatEmptyText>
+                Vocês ainda não trocaram nenhuma mensagem.
+              </ChatEmptyText>
+            </ChatEmptyContainer>
+          )}
+          renderChatFooter={() => (
+            <View style={{ height: parseHeightPercentage(8) }} />
+          )}
+        />
+      </Container>
+
+      <Modalize
+        ref={modalizeRef}
+        adjustToContentHeight
+        overlayStyle={{ backgroundColor: '#00000090' }}
+      >
+        <ContextMenuModal>
+          <ContextMenuOption
+            rippleColor="#ebebeb10"
+            onPress={handleOpenOrderDetails}
           >
-            <ChatEmptyUserAvatar
-              source={
-                routeParams.recipient.avatar_url
-                  ? { uri: routeParams.recipient.avatar_url }
-                  : noUserAvatarImg
-              }
+            <Feather
+              name="external-link"
+              color="#606060"
+              size={parseHeightPercentage(24)}
             />
-            <ChatEmptyUserName>{routeParams.recipient.name}</ChatEmptyUserName>
-            <ChatEmptyText>
-              Vocês ainda não trocaram nenhuma mensagem.
-            </ChatEmptyText>
-          </ChatEmptyContainer>
-        )}
-        renderChatFooter={() => (
-          <View style={{ height: parseHeightPercentage(8) }} />
-        )}
-      />
-    </Container>
+            <ContextMenuOptionText>Ver pedido</ContextMenuOptionText>
+          </ContextMenuOption>
+
+          <ContextMenuOption rippleColor="#ebebeb10" onPress={() => {}}>
+            <Feather
+              name="user"
+              color="#606060"
+              size={parseHeightPercentage(24)}
+            />
+            <ContextMenuOptionText>{`Ver perfil de ${routeParams.recipient.name}`}</ContextMenuOptionText>
+          </ContextMenuOption>
+        </ContextMenuModal>
+      </Modalize>
+    </>
   );
 };
 

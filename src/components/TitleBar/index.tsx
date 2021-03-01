@@ -10,12 +10,14 @@ import { Container, BackButton, Title, ContextMenuButton } from './styles';
 interface TitleBarProps {
   title: string;
   showContextMenuButton?: boolean;
+  onContextMenuButtonPress?: () => void;
   showBackButton?: boolean;
 }
 
 const TitleBar: React.FC<TitleBarProps> = ({
   title,
   showContextMenuButton = false,
+  onContextMenuButtonPress = () => {},
   showBackButton = true,
 }) => {
   const navigation = useNavigation();
@@ -41,6 +43,7 @@ const TitleBar: React.FC<TitleBarProps> = ({
       <ContextMenuButton
         rippleColor="#EBEBEB10"
         enabled={showContextMenuButton}
+        onPress={onContextMenuButtonPress}
       >
         {showContextMenuButton && (
           <Feather

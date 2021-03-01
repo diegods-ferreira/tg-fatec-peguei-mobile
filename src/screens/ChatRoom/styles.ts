@@ -4,6 +4,7 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
+import { RectButton } from 'react-native-gesture-handler';
 
 export const Container = styled.View`
   flex: 1;
@@ -42,4 +43,25 @@ export const ChatEmptyText = styled.Text`
   text-align: center;
   font-size: ${parseWidthPercentage(13)}px;
   max-width: ${parseWidthPercentage(200)}px;
+`;
+
+export const ContextMenuModal = styled.View`
+  width: 100%;
+  padding: ${parseHeightPercentage(16)}px 0px;
+  background-color: #312e38;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+`;
+
+export const ContextMenuOption = styled(RectButton)`
+  width: 100%;
+  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(24)}px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const ContextMenuOptionText = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(16)}px;
+  margin-left: ${parseWidthPercentage(16)}px;
 `;
