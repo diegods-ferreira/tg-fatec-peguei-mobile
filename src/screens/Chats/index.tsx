@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { format, parseISO } from 'date-fns';
 import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
@@ -104,8 +105,8 @@ const Chats: React.FC = () => {
   }, [fetchChatsListFromTheApi]);
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient: User) => {
-      navigation.navigate('ChatRoom', { chat_id, recipient });
+    (chat_id: string, recipient: User, order_id: string) => {
+      navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
     },
     [navigation],
   );
@@ -161,7 +162,9 @@ const Chats: React.FC = () => {
               <ChatContainer>
                 <ChatClickable
                   rippleColor="#ebebeb10"
-                  onPress={() => handleJoinChatRoom(chat.id, chat.other_user)}
+                  onPress={() => {
+                    handleJoinChatRoom(chat.id, chat.other_user, chat.order.id);
+                  }}
                 >
                   <ChatInfoContainer>
                     <ChatUserAvatar
@@ -182,16 +185,36 @@ const Chats: React.FC = () => {
                           {`@${chat.other_user.username}`}
                         </ChatOtherUserUsername>
 
-                        <ChatLastMessageSentAt>14:53</ChatLastMessageSentAt>
+                        {chat.last_message_sent_by && (
+                          <ChatLastMessageSentAt>
+                            {format(
+                              parseISO(chat.last_message_sent_at),
+                              'HH:mm',
+                            )}
+                          </ChatLastMessageSentAt>
+                        )}
                       </ChatTextWrapper>
 
                       <ChatTextWrapper marginTop={4}>
-                        <ChatLastMessageText
-                          numberOfLines={2}
-                          ellipsizeMode="tail"
-                        >
-                          {chat.last_message_text}
-                        </ChatLastMessageText>
+                        {!chat.last_message_sent_by && (
+                          <ChatLastMessageText
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
+                          >
+                            Nenhuma mensagem ainda
+                          </ChatLastMessageText>
+                        )}
+
+                        {chat.last_message_sent_by && (
+                          <ChatLastMessageText
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
+                          >
+                            {chat.last_message_sent_by === user.id
+                              ? `Você: ${chat.last_message_text}`
+                              : chat.last_message_text}
+                          </ChatLastMessageText>
+                        )}
                       </ChatTextWrapper>
                     </ChatMeta>
                   </ChatInfoContainer>

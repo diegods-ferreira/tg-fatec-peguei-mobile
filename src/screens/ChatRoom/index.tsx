@@ -56,6 +56,7 @@ import {
 interface RouteParams {
   chat_id: string;
   recipient: User;
+  order_id: string;
 }
 
 const ChatRoom: React.FC = () => {
@@ -145,8 +146,8 @@ const ChatRoom: React.FC = () => {
   }, []);
 
   const handleOpenOrderDetails = useCallback(
-    (id: string) => navigation.navigate('OrderDetails', { id }),
-    [navigation],
+    () => navigation.navigate('OrderDetails', { id: routeParams.order_id }),
+    [navigation, routeParams.order_id],
   );
 
   const giftedChatUser = useMemo(
