@@ -350,17 +350,6 @@ const OrderDetails: React.FC = () => {
     }
   }, [offerToPickup.id, offerToPickupValue]);
 
-  const showOfferToPickupButton = useMemo(
-    () =>
-      user.id !== order.requester.id && order.status === 1 && !offerToPickup.id,
-    [user.id, order.requester.id, order.status, offerToPickup.id],
-  );
-
-  const showDeleteOrderButton = useMemo(
-    () => user.id === order.requester.id && order.status === 1,
-    [user.id, order.requester.id, order.status],
-  );
-
   if (loading) {
     return <LoadingScreen />;
   }
@@ -529,13 +518,15 @@ const OrderDetails: React.FC = () => {
               </OutlinedButton>
             </TitledBox>
 
-            {showOfferToPickupButton && (
-              <Button onPress={handleOpenOfferToPickupModal}>
-                Me ofereço para buscar
-              </Button>
-            )}
+            {user.id !== order.requester.id &&
+              order.status === 1 &&
+              !offerToPickup.id && (
+                <Button onPress={handleOpenOfferToPickupModal}>
+                  Me ofereço para buscar
+                </Button>
+              )}
 
-            {showDeleteOrderButton && (
+            {user.id === order.requester.id && order.status === 1 && (
               <OutlinedButton color="#EB4D4B" onPress={handleDeleteOrder}>
                 {isSubmiting ? (
                   <ActivityIndicator size="large" color="#EB4D4B" />
