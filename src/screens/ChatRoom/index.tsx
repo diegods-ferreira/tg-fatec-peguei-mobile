@@ -25,7 +25,7 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
-import api from '@services/api';
+import api, { API_URL } from '@services/api';
 
 import { useAuth } from '@hooks/auth';
 
@@ -101,7 +101,7 @@ const ChatRoom: React.FC = () => {
   }, [routeParams.chat_id]);
 
   useEffect(() => {
-    const newSocket = socketio('http://192.168.1.158:3333', {
+    const newSocket = socketio(API_URL, {
       query: { user_id: user.id },
     });
 
