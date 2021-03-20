@@ -312,37 +312,3 @@ export const OfferToPickupButtons = styled.View`
   flex-direction: row;
   justify-content: space-between;
 `;
-
-export const OfferToPickupCancelDeleteButton = styled.TouchableOpacity`
-  flex: 1;
-  height: ${parseHeightPercentage(56)}px;
-  border-radius: 8px;
-  border-width: 2px;
-  border-color: #eb4d4b;
-
-  justify-content: center;
-  align-items: center;
-`;
-
-export const OfferToPickupCancelDeleteButtonText = styled.Text`
-  color: #eb4d4b;
-  font-size: ${parseWidthPercentage(18)}px;
-  font-weight: bold;
-`;
-
-export const OfferToPickupOkUpdateButton = styled(RectButton)`
-  flex: 1;
-  height: ${parseHeightPercentage(56)}px;
-  margin-left: ${parseWidthPercentage(8)}px;
-  border-radius: 8px;
-  background-color: #6ab04c;
-
-  justify-content: center;
-  align-items: center;
-`;
-
-export const OfferToPickupOkUpdateButtonText = styled.Text`
-  color: #ebebeb;
-  font-size: ${parseWidthPercentage(18)}px;
-  font-weight: bold;
-`;

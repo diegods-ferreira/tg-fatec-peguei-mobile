@@ -1,21 +1,61 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { RectButton } from 'react-native-gesture-handler';
 import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-export const Container = styled(RectButton)`
+interface ContainerProps {
+  backgroundColor: string;
+  widthPercentage?: number;
+  marginTop: number;
+  marginLeft: number;
+  flex?: number;
+}
+
+interface ButtonTextProps {
+  textColor: string;
+}
+
+export const Container = styled(RectButton)<ContainerProps>`
   height: ${parseHeightPercentage(56)}px;
-  background: #ff8c42;
   border-radius: 8px;
-  margin-top: ${parseHeightPercentage(8)}px;
   justify-content: center;
   align-items: center;
+
+  ${props =>
+    props.flex &&
+    css`
+      flex: ${props.flex};
+    `}
+
+  ${props =>
+    props.backgroundColor &&
+    css`
+      background: ${props.backgroundColor};
+    `}
+
+  ${props =>
+    props.widthPercentage &&
+    css`
+      width: ${props.widthPercentage}%;
+    `}
+
+  ${props =>
+    (props.marginLeft || props.marginTop) &&
+    css`
+      margin: ${parseHeightPercentage(props.marginTop)}px 0px 0px
+        ${parseWidthPercentage(props.marginLeft)}px;
+    `}
 `;
 
-export const ButtonText = styled.Text`
-  color: #312e38;
+export const ButtonText = styled.Text<ButtonTextProps>`
   font-size: ${parseWidthPercentage(18)}px;
   font-weight: bold;
+
+  ${props =>
+    props.textColor &&
+    css`
+      color: ${props.textColor};
+    `}
 `;

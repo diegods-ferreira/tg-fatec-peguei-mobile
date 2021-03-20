@@ -1,19 +1,7 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-  ActivityIndicator,
-  Alert,
-  Linking,
-  Platform,
-  ToastAndroid,
-} from 'react-native';
+import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
@@ -78,10 +66,6 @@ import {
   OfferToPickupModalTitle,
   OfferToPickupDateTime,
   OfferToPickupButtons,
-  OfferToPickupCancelDeleteButton,
-  OfferToPickupCancelDeleteButtonText,
-  OfferToPickupOkUpdateButton,
-  OfferToPickupOkUpdateButtonText,
 } from './styles';
 
 interface Params {
@@ -597,18 +581,17 @@ const OrderDetails: React.FC = () => {
                 Cancelar
               </OutlinedButton>
 
-              <OfferToPickupOkUpdateButton
-                rippleColor="#00000050"
+              <Button
+                showLoadingIndicator={isSubmiting}
+                backgroundColor="#6ab04c"
+                textColor="#ebebeb"
+                marginTop={0}
+                marginLeft={8}
+                flex={1}
                 onPress={handleOfferToPickup}
               >
-                {isSubmiting ? (
-                  <ActivityIndicator size="large" color="#ebebeb" />
-                ) : (
-                  <OfferToPickupOkUpdateButtonText>
-                    Ok
-                  </OfferToPickupOkUpdateButtonText>
-                )}
-              </OfferToPickupOkUpdateButton>
+                Ok
+              </Button>
             </OfferToPickupButtons>
           )}
 
@@ -624,18 +607,17 @@ const OrderDetails: React.FC = () => {
 
               {offerToPickupValue !== offerToPickup.delivery_value &&
                 offerToPickupValue > 0 && (
-                  <OfferToPickupOkUpdateButton
-                    rippleColor="#00000050"
+                  <Button
+                    showLoadingIndicator={isSubmiting}
+                    backgroundColor="#6ab04c"
+                    textColor="#ebebeb"
+                    marginTop={0}
+                    marginLeft={8}
+                    flex={1}
                     onPress={handleUpdateMyOfferToPickup}
                   >
-                    {isSubmiting ? (
-                      <ActivityIndicator size="large" color="#ebebeb" />
-                    ) : (
-                      <OfferToPickupOkUpdateButtonText>
-                        Atualizar
-                      </OfferToPickupOkUpdateButtonText>
-                    )}
-                  </OfferToPickupOkUpdateButton>
+                    Atualizar
+                  </Button>
                 )}
             </OfferToPickupButtons>
           )}
