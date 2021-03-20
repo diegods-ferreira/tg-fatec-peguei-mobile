@@ -15,6 +15,10 @@ interface OrderItemContainerProps {
   hasBorder: boolean;
 }
 
+interface OutlinedButtonProps {
+  color: string;
+}
+
 interface OfferToPickupInputContainerProps {
   isFocused?: boolean;
   hasMarginTop?: boolean;
@@ -209,21 +213,31 @@ export const OrderItemImage = styled.Image`
   margin-left: ${parseWidthPercentage(16)}px;
 `;
 
-export const ViewInvoiceButton = styled.TouchableOpacity`
+export const OutlinedButton = styled.TouchableOpacity<OutlinedButtonProps>`
   width: 100%;
   height: ${parseHeightPercentage(56)}px;
   margin-top: ${parseHeightPercentage(8)}px;
   border-width: 2px;
-  border-color: #6f7bae;
   border-radius: 8px;
   align-items: center;
   justify-content: center;
+
+  ${props =>
+    props.color &&
+    css`
+      border-color: ${props.color};
+    `}
 `;
 
-export const ViewInvoiceButtonText = styled.Text`
-  color: #6f7bae;
+export const OutlinedButtonText = styled.Text<OutlinedButtonProps>`
   font-size: ${parseWidthPercentage(18)}px;
   font-weight: bold;
+
+  ${props =>
+    props.color &&
+    css`
+      color: ${props.color};
+    `}
 `;
 
 export const OfferToPickupIndicatorContainer = styled.TouchableOpacity`

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
@@ -60,8 +66,8 @@ import {
   OrderItemName,
   OrderItemPacking,
   OrderItemImage,
-  ViewInvoiceButton,
-  ViewInvoiceButtonText,
+  OutlinedButton,
+  OutlinedButtonText,
   OfferToPickupIndicatorContainer,
   OfferToPickupIndicatorText,
   OfferToPickupModalContainer,
@@ -100,8 +106,10 @@ interface Order {
   pickup_date: string;
   delivery_address: string;
   purchase_invoice_url: string;
+  status: number;
   items: Item[];
   requester: {
+    id: string;
     name: string;
     username: string;
     avatar_url: string;
@@ -220,6 +228,21 @@ const OrderDetails: React.FC = () => {
     [location],
   );
 
+  const handleDeleteOrder = useCallback(async () => {
+    setIsSubmiting(true);
+
+    try {
+      await api.delete(`/orders/${order.id}`);
+
+      setIsSubmiting(false);
+
+      navigation.goBack();
+    } catch (err) {
+      Alert.alert('Ops...', err.message);
+      setIsSubmiting(false);
+    }
+  }, [order.id, navigation]);
+
   const handleOpenOfferToPickupModal = useCallback(() => {
     modalizeRef.current?.open();
 
@@ -326,6 +349,17 @@ const OrderDetails: React.FC = () => {
       modalizeRef.current?.close();
     }
   }, [offerToPickup.id, offerToPickupValue]);
+
+  const showOfferToPickupButton = useMemo(
+    () =>
+      user.id !== order.requester.id && order.status === 1 && !offerToPickup.id,
+    [user.id, order.requester.id, order.status, offerToPickup.id],
+  );
+
+  const showDeleteOrderButton = useMemo(
+    () => user.id === order.requester.id && order.status === 1,
+    [user.id, order.requester.id, order.status],
+  );
 
   if (loading) {
     return <LoadingScreen />;
@@ -485,17 +519,32 @@ const OrderDetails: React.FC = () => {
             </TitledBox>
 
             <TitledBox title="Nota Fiscal">
-              <ViewInvoiceButton onPress={handleViewPurchaseInvoice}>
-                <ViewInvoiceButtonText>
+              <OutlinedButton
+                color="#6f7bae"
+                onPress={handleViewPurchaseInvoice}
+              >
+                <OutlinedButtonText color="#6f7bae">
                   Visualizar documento
-                </ViewInvoiceButtonText>
-              </ViewInvoiceButton>
+                </OutlinedButtonText>
+              </OutlinedButton>
             </TitledBox>
 
-            {!offerToPickup.id && (
+            {showOfferToPickupButton && (
               <Button onPress={handleOpenOfferToPickupModal}>
                 Me ofereço para buscar
               </Button>
+            )}
+
+            {showDeleteOrderButton && (
+              <OutlinedButton color="#EB4D4B" onPress={handleDeleteOrder}>
+                {isSubmiting ? (
+                  <ActivityIndicator size="large" color="#EB4D4B" />
+                ) : (
+                  <OutlinedButtonText color="#EB4D4B">
+                    Excluir pedido
+                  </OutlinedButtonText>
+                )}
+              </OutlinedButton>
             )}
           </OrderInfoContainer>
         </Container>
