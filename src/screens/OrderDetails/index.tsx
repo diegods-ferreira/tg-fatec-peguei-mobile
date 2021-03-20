@@ -39,6 +39,7 @@ import noOrderItemImg from '@assets/no-order-item-image.png';
 
 import api from '@services/api';
 
+import OutlinedButton from '@components/OutlinedButton';
 import {
   Container,
   RequesterContainer,
@@ -66,8 +67,8 @@ import {
   OrderItemName,
   OrderItemPacking,
   OrderItemImage,
-  OutlinedButton,
-  OutlinedButtonText,
+  // OutlinedButton,
+  // OutlinedButtonText,
   OfferToPickupIndicatorContainer,
   OfferToPickupIndicatorText,
   OfferToPickupModalContainer,
@@ -510,11 +511,10 @@ const OrderDetails: React.FC = () => {
             <TitledBox title="Nota Fiscal">
               <OutlinedButton
                 color="#6f7bae"
+                widthPercentage={100}
                 onPress={handleViewPurchaseInvoice}
               >
-                <OutlinedButtonText color="#6f7bae">
-                  Visualizar documento
-                </OutlinedButtonText>
+                Visualizar documento
               </OutlinedButton>
             </TitledBox>
 
@@ -527,14 +527,13 @@ const OrderDetails: React.FC = () => {
               )}
 
             {user.id === order.requester.id && order.status === 1 && (
-              <OutlinedButton color="#EB4D4B" onPress={handleDeleteOrder}>
-                {isSubmiting ? (
-                  <ActivityIndicator size="large" color="#EB4D4B" />
-                ) : (
-                  <OutlinedButtonText color="#EB4D4B">
-                    Excluir pedido
-                  </OutlinedButtonText>
-                )}
+              <OutlinedButton
+                showLoadingIndicator={isSubmiting}
+                color="#EB4D4B"
+                marginTop={8}
+                onPress={handleDeleteOrder}
+              >
+                Excluir pedido
               </OutlinedButton>
             )}
           </OrderInfoContainer>
@@ -591,13 +590,12 @@ const OrderDetails: React.FC = () => {
 
           {!offerToPickup.id && (
             <OfferToPickupButtons>
-              <OfferToPickupCancelDeleteButton
+              <OutlinedButton
+                color="#EB4D4B"
                 onPress={handleCloseOfferToPickupModal}
               >
-                <OfferToPickupCancelDeleteButtonText>
-                  Cancelar
-                </OfferToPickupCancelDeleteButtonText>
-              </OfferToPickupCancelDeleteButton>
+                Cancelar
+              </OutlinedButton>
 
               <OfferToPickupOkUpdateButton
                 rippleColor="#00000050"
@@ -616,17 +614,13 @@ const OrderDetails: React.FC = () => {
 
           {offerToPickup.id && (
             <OfferToPickupButtons>
-              <OfferToPickupCancelDeleteButton
+              <OutlinedButton
+                showLoadingIndicator={isSubmiting}
+                color="#EB4D4B"
                 onPress={handleDeleteMyOfferToPickup}
               >
-                {isSubmiting ? (
-                  <ActivityIndicator size="large" color="#eb4d4b" />
-                ) : (
-                  <OfferToPickupCancelDeleteButtonText>
-                    Excluir
-                  </OfferToPickupCancelDeleteButtonText>
-                )}
-              </OfferToPickupCancelDeleteButton>
+                Excluir
+              </OutlinedButton>
 
               {offerToPickupValue !== offerToPickup.delivery_value &&
                 offerToPickupValue > 0 && (
