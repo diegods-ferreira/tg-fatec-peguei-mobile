@@ -29,7 +29,7 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
     {...rest}
   >
     {showLoadingIndicator ? (
-      <ActivityIndicator size="large" color="#312e38" />
+      <ActivityIndicator size="large" color={color} />
     ) : (
       <OutlinedButtonText color={color}>{children}</OutlinedButtonText>
     )}

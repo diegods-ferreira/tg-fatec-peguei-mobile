@@ -37,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
     {...rest}
   >
     {showLoadingIndicator ? (
-      <ActivityIndicator size="large" color="#312e38" />
+      <ActivityIndicator size="large" color={textColor} />
     ) : (
       <ButtonText textColor={textColor}>{children}</ButtonText>
     )}
