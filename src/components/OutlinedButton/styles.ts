@@ -9,6 +9,7 @@ interface ContainerProps {
   color: string;
   widthPercentage?: number;
   marginTop?: number;
+  flex?: number;
 }
 
 interface OutlinedButtonTextProps {
@@ -16,7 +17,6 @@ interface OutlinedButtonTextProps {
 }
 
 export const Container = styled.TouchableOpacity<ContainerProps>`
-  flex: 1;
   height: ${parseHeightPercentage(56)}px;
   border-width: 2px;
   border-radius: 8px;
@@ -39,6 +39,12 @@ export const Container = styled.TouchableOpacity<ContainerProps>`
     props.marginTop &&
     css`
       margin-top: ${parseHeightPercentage(props.marginTop)}px;
+    `}
+
+  ${props =>
+    props.flex &&
+    css`
+      flex: ${props.flex};
     `}
 `;
 
