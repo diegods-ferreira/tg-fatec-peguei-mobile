@@ -7,6 +7,7 @@ import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import Clipboard from '@react-native-community/clipboard';
+import { Rating } from 'react-native-elements';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useAuth } from '@hooks/auth';
@@ -55,8 +56,6 @@ import {
   OrderItemName,
   OrderItemPacking,
   OrderItemImage,
-  // OutlinedButton,
-  // OutlinedButtonText,
   OfferToPickupIndicatorContainer,
   OfferToPickupIndicatorText,
   OfferToPickupModalContainer,
@@ -66,6 +65,13 @@ import {
   OfferToPickupModalTitle,
   OfferToPickupDateTime,
   OfferToPickupButtons,
+  DeliverymanContainer,
+  DeliverymanAvatar,
+  DeliverymanMeta,
+  DeliverymanTextWrapper,
+  DeliverymanFullName,
+  DeliverymanUsername,
+  DeliverymanAvaluationStars,
 } from './styles';
 
 interface Params {
@@ -80,6 +86,13 @@ interface Item {
   image_url: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  username: string;
+  avatar_url: string;
+}
+
 interface Order {
   id: string;
   pickup_address: string;
@@ -89,16 +102,13 @@ interface Order {
   pickup_longitude: number;
   pickup_establishment: string;
   pickup_date: string;
+  deliveryman_id: string;
   delivery_address: string;
   purchase_invoice_url: string;
   status: number;
   items: Item[];
-  requester: {
-    id: string;
-    name: string;
-    username: string;
-    avatar_url: string;
-  };
+  requester: User;
+  deliveryman: User;
   created_at: string;
 }
 
@@ -150,7 +160,11 @@ const OrderDetails: React.FC = () => {
   }, [routeParams]);
 
   useEffect(() => {
-    async function loadUserPickupOfferForThisOrder() {
+    async function loadUserDeliverymanForThisOrder() {
+      if (!order.id) {
+        return;
+      }
+
       try {
         const response = await api.get(
           `/orders/pickup-offers/${order.id}/deliveryman/${user.id}`,
@@ -175,7 +189,7 @@ const OrderDetails: React.FC = () => {
       }
     }
 
-    loadUserPickupOfferForThisOrder();
+    loadUserDeliverymanForThisOrder();
   }, [order.id, user.id]);
 
   const handleNavigateToItemDetails = useCallback(
@@ -184,6 +198,10 @@ const OrderDetails: React.FC = () => {
     },
     [navigation],
   );
+
+  const handleNavigateToSelectDeliveryman = useCallback(() => {
+    navigation.navigate('SelectDeliveryman', { order_id: order.id });
+  }, [navigation, order.id]);
 
   const handleViewPurchaseInvoice = useCallback(() => {
     Linking.canOpenURL(order.purchase_invoice_url).then(supported => {
@@ -515,6 +533,47 @@ const OrderDetails: React.FC = () => {
               </OutlinedButton>
             </TitledBox>
 
+            {(order.status === 2 || order.status === 3) &&
+              order.deliveryman_id && (
+                <TitledBox title="Entregador">
+                  <DeliverymanContainer>
+                    <DeliverymanAvatar
+                      source={
+                        order.deliveryman.avatar_url
+                          ? { uri: order.deliveryman.avatar_url }
+                          : noUserAvatarImg
+                      }
+                    />
+
+                    <DeliverymanMeta>
+                      <DeliverymanTextWrapper>
+                        <DeliverymanFullName>
+                          {order.deliveryman.name}
+                        </DeliverymanFullName>
+                        <DeliverymanUsername
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {`@${order.deliveryman.username}`}
+                        </DeliverymanUsername>
+                      </DeliverymanTextWrapper>
+
+                      <DeliverymanAvaluationStars>
+                        <Rating
+                          readonly
+                          type="custom"
+                          startingValue={3.5}
+                          ratingBackgroundColor="#606060"
+                          ratingColor="#feca57"
+                          tintColor="#312e38"
+                          imageSize={parseWidthPercentage(16)}
+                        />
+                      </DeliverymanAvaluationStars>
+                    </DeliverymanMeta>
+                  </DeliverymanContainer>
+                </TitledBox>
+              )}
+
             {user.id !== order.requester.id &&
               order.status === 1 &&
               !offerToPickup.id && (
@@ -524,14 +583,20 @@ const OrderDetails: React.FC = () => {
               )}
 
             {user.id === order.requester.id && order.status === 1 && (
-              <OutlinedButton
-                showLoadingIndicator={isSubmiting}
-                color="#EB4D4B"
-                marginTop={8}
-                onPress={handleDeleteOrder}
-              >
-                Excluir pedido
-              </OutlinedButton>
+              <>
+                <Button onPress={handleNavigateToSelectDeliveryman}>
+                  Escolher entregador
+                </Button>
+
+                <OutlinedButton
+                  showLoadingIndicator={isSubmiting}
+                  color="#EB4D4B"
+                  marginTop={16}
+                  onPress={handleDeleteOrder}
+                >
+                  Excluir pedido
+                </OutlinedButton>
+              </>
             )}
           </OrderInfoContainer>
         </Container>
@@ -589,6 +654,7 @@ const OrderDetails: React.FC = () => {
             <OfferToPickupButtons>
               <OutlinedButton
                 color="#EB4D4B"
+                flex={1}
                 onPress={handleCloseOfferToPickupModal}
               >
                 Cancelar
@@ -613,6 +679,7 @@ const OrderDetails: React.FC = () => {
               <OutlinedButton
                 showLoadingIndicator={isSubmiting}
                 color="#EB4D4B"
+                flex={1}
                 onPress={handleDeleteMyOfferToPickup}
               >
                 Excluir
