@@ -213,19 +213,32 @@ const OrderDetails: React.FC = () => {
     [location],
   );
 
-  const handleDeleteOrder = useCallback(async () => {
-    setIsSubmiting(true);
+  const handleDeleteOrder = useCallback(() => {
+    Alert.alert(
+      'Tem certeza?',
+      'Uma vez excluído o pedido, não será possível recuperá-lo. Você poderá criar um outro sem problemas.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            setIsSubmiting(true);
 
-    try {
-      await api.delete(`/orders/${order.id}`);
+            try {
+              await api.delete(`/orders/${order.id}`);
 
-      setIsSubmiting(false);
+              setIsSubmiting(false);
 
-      navigation.goBack();
-    } catch (err) {
-      Alert.alert('Ops...', err.message);
-      setIsSubmiting(false);
-    }
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Ops...', err.message);
+              setIsSubmiting(false);
+            }
+          },
+        },
+      ],
+    );
   }, [order.id, navigation]);
 
   const handleOpenOfferToPickupModal = useCallback(() => {
