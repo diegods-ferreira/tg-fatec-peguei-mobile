@@ -25,7 +25,9 @@ import { useNavigation } from '@react-navigation/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 
-import api, { API_URL } from '@services/api';
+import { API_URL } from '@env';
+
+import api from '@services/api';
 
 import { useAuth } from '@hooks/auth';
 
