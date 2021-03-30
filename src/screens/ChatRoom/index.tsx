@@ -5,7 +5,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Alert, StyleProp, View, ViewStyle } from 'react-native';
+import {
+  Alert,
+  StyleProp,
+  View,
+  ViewStyle,
+  TouchableOpacity,
+} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { io as socketio, Socket } from 'socket.io-client';
 import {
@@ -173,6 +179,10 @@ const ChatRoom: React.FC = () => {
     } as StyleProp<ViewStyle>;
   }, []);
 
+  const handleNavigateToUserProfile = useCallback(() => {
+    navigation.navigate('UserProfile', { user_id: routeParams.recipient.id });
+  }, [navigation, routeParams.recipient.id]);
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -245,13 +255,16 @@ const ChatRoom: React.FC = () => {
                 transform: [{ rotateY: '180deg' }, { rotateZ: '180deg' }],
               }}
             >
-              <ChatEmptyUserAvatar
-                source={
-                  routeParams.recipient.avatar_url
-                    ? { uri: routeParams.recipient.avatar_url }
-                    : noUserAvatarImg
-                }
-              />
+              <TouchableOpacity onPress={handleNavigateToUserProfile}>
+                <ChatEmptyUserAvatar
+                  source={
+                    routeParams.recipient.avatar_url
+                      ? { uri: routeParams.recipient.avatar_url }
+                      : noUserAvatarImg
+                  }
+                />
+              </TouchableOpacity>
+
               <ChatEmptyUserName>
                 {routeParams.recipient.name}
               </ChatEmptyUserName>
@@ -284,7 +297,10 @@ const ChatRoom: React.FC = () => {
             <ContextMenuOptionText>Ver pedido</ContextMenuOptionText>
           </ContextMenuOption>
 
-          <ContextMenuOption rippleColor="#ebebeb10" onPress={() => {}}>
+          <ContextMenuOption
+            rippleColor="#ebebeb10"
+            onPress={handleNavigateToUserProfile}
+          >
             <Feather
               name="user"
               color="#606060"

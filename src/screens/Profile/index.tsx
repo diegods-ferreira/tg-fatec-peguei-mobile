@@ -1,21 +1,25 @@
-import React, { useCallback } from 'react';
-import { ScrollView } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { useAuth } from '@hooks/auth';
+import api from '@services/api';
+
+import { useAuth, User } from '@hooks/auth';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
-import noUserAvatarImg from '@assets/no-user-avatar.png';
-
 import AvaluationCard from '@components/AvaluationCard';
+import LoadingScreen from '@components/LoadingScreen';
+
+import noUserAvatarImg from '@assets/no-user-avatar.png';
 
 import {
   Container,
   Header,
   LinearGradient,
+  BackButton,
   ProfileContainer,
   AvatarImageContainer,
   AvatarImage,
@@ -39,14 +43,66 @@ import {
   ContactFormText,
 } from './styles';
 
+interface RouteParams {
+  user_id: string;
+}
+
 const Profile: React.FC = () => {
   const navigation = useNavigation();
 
-  const { user } = useAuth();
+  const route = useRoute();
+  const routeParams = route.params as RouteParams;
+
+  const { user: authUser } = useAuth();
+
+  const [user, setUser] = useState<User>({} as User);
+  const [showEditProfileButton, setShowEditProfileButton] = useState(false);
+  const [showGoBackButton, setShowGoBackButton] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleEditProfile = useCallback(() => {
     navigation.navigate('EditProfile');
   }, [navigation]);
+
+  const handleNavigateBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  useEffect(() => {
+    async function loadUserData() {
+      if (!routeParams) {
+        setUser(authUser);
+        setShowEditProfileButton(true);
+        setShowGoBackButton(false);
+        setLoading(false);
+
+        return;
+      }
+
+      try {
+        const response = await api.get(`/profile/${routeParams.user_id}`);
+
+        setUser(response.data);
+        setShowEditProfileButton(false);
+        setShowGoBackButton(true);
+      } catch (err) {
+        Alert.alert(
+          'Erro',
+          'Ocorreu um erro ao tentar recuperar os pedidos. Tente novamente mais tarde, por favor.',
+        );
+
+        console.log(String(err));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadUserData();
+  }, [routeParams, authUser]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ScrollView
@@ -62,6 +118,16 @@ const Profile: React.FC = () => {
             angle={84.6}
           />
 
+          {showGoBackButton && (
+            <BackButton rippleColor="#EBEBEB10" onPress={handleNavigateBack}>
+              <Feather
+                name="arrow-left"
+                size={parseWidthPercentage(24)}
+                color="#EBEBEB"
+              />
+            </BackButton>
+          )}
+
           <ProfileContainer style={boxShadowProps}>
             <AvatarImageContainer style={boxShadowProps}>
               <AvatarImage
@@ -71,16 +137,18 @@ const Profile: React.FC = () => {
               />
             </AvatarImageContainer>
 
-            <EditProfileButton
-              rippleColor="#ebebeb10"
-              onPress={handleEditProfile}
-            >
-              <Feather
-                name="edit-3"
-                size={parseWidthPercentage(20)}
-                color="#ebebeb"
-              />
-            </EditProfileButton>
+            {showEditProfileButton && (
+              <EditProfileButton
+                rippleColor="#ebebeb10"
+                onPress={handleEditProfile}
+              >
+                <Feather
+                  name="edit-3"
+                  size={parseWidthPercentage(20)}
+                  color="#ebebeb"
+                />
+              </EditProfileButton>
+            )}
 
             <ProfileName>{user.name}</ProfileName>
 

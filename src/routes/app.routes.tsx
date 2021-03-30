@@ -9,6 +9,7 @@ import AddItemToOrder from '@screens/AddItemToOrder';
 import OrdersAsDeliveryman from '@screens/OrdersAsDeliveryman';
 import ChatRoom from '@screens/ChatRoom';
 import SelectDeliveryman from '@screens/SelectDeliveryman';
+import Profile from '@screens/Profile';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();
@@ -24,6 +25,7 @@ const AppRoutes: React.FC = () => {
     >
       <Stack.Screen name="Home" component={HomeRoutes} />
 
+      <Stack.Screen name="UserProfile" component={Profile} />
       <Stack.Screen name="EditProfile" component={EditProfile} />
       <Stack.Screen name="OrderDetails" component={OrderDetails} />
       <Stack.Screen name="ItemDetails" component={ItemDetails} />

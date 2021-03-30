@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Platform,
+  ToastAndroid,
+  TouchableOpacity,
+} from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
@@ -366,6 +372,17 @@ const OrderDetails: React.FC = () => {
     }
   }, [offerToPickup.id, offerToPickupValue]);
 
+  const handleNavigateToUserProfile = useCallback(
+    (requester_id: string) => {
+      if (requester_id !== user.id) {
+        navigation.navigate('UserProfile', { user_id: requester_id });
+      } else {
+        navigation.navigate('Profile');
+      }
+    },
+    [navigation, user.id],
+  );
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -385,14 +402,20 @@ const OrderDetails: React.FC = () => {
       <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
         <Container>
           <RequesterContainer>
-            <RequesterAvatar
-              defaultSource={noUserAvatarImg}
-              source={
-                order.requester.avatar_url
-                  ? { uri: order.requester.avatar_url }
-                  : noUserAvatarImg
-              }
-            />
+            <TouchableOpacity
+              onPress={() => {
+                handleNavigateToUserProfile(order.requester.id);
+              }}
+            >
+              <RequesterAvatar
+                defaultSource={noUserAvatarImg}
+                source={
+                  order.requester.avatar_url
+                    ? { uri: order.requester.avatar_url }
+                    : noUserAvatarImg
+                }
+              />
+            </TouchableOpacity>
 
             <RequesterInfo>
               <RequesterFullName>{order.requester.name}</RequesterFullName>
@@ -537,13 +560,19 @@ const OrderDetails: React.FC = () => {
               order.deliveryman_id && (
                 <TitledBox title="Entregador">
                   <DeliverymanContainer>
-                    <DeliverymanAvatar
-                      source={
-                        order.deliveryman.avatar_url
-                          ? { uri: order.deliveryman.avatar_url }
-                          : noUserAvatarImg
-                      }
-                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleNavigateToUserProfile(order.deliveryman.id);
+                      }}
+                    >
+                      <DeliverymanAvatar
+                        source={
+                          order.deliveryman.avatar_url
+                            ? { uri: order.deliveryman.avatar_url }
+                            : noUserAvatarImg
+                        }
+                      />
+                    </TouchableOpacity>
 
                     <DeliverymanMeta>
                       <DeliverymanTextWrapper>

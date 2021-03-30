@@ -24,6 +24,20 @@ export const LinearGradient = styled(RNLinearGradient)`
   height: ${parseHeightPercentage(160)}px;
 `;
 
+const backButtonSize = parseHeightPercentage(56);
+
+export const BackButton = styled(RectButton)`
+  width: ${backButtonSize}px;
+  height: ${backButtonSize}px;
+  border-radius: ${backButtonSize / 2}px;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
 export const ProfileContainer = styled.View`
   width: ${parseWidthPercentage(312)}px;
   height: ${parseHeightPercentage(160)}px;
