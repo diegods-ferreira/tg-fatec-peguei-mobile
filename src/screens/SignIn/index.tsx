@@ -57,6 +57,10 @@ const SignIn: React.FC = () => {
     navigation.navigate('SignUp');
   }, [navigation]);
 
+  const handleNavigateToPasswordRecovery = useCallback(() => {
+    navigation.navigate('PasswordRecovery');
+  }, [navigation]);
+
   const handleSignIn = useCallback(
     async (data: SignInFormData) => {
       setIsSubmiting(true);
@@ -157,7 +161,7 @@ const SignIn: React.FC = () => {
             </Button>
           </Form>
 
-          <ResetPasswordButton onPress={() => {}}>
+          <ResetPasswordButton onPress={handleNavigateToPasswordRecovery}>
             <ResetPasswordButtonText>
               Esqueci minha senha
             </ResetPasswordButtonText>
