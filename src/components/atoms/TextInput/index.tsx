@@ -6,21 +6,21 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from 'react';
-import { TextInputProps } from 'react-native';
+import { TextInputProps as RNTextInputProps } from 'react-native';
 import { useField } from '@unform/core';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
 import {
   Container,
-  TextInput,
+  RNTextInput,
   Icon,
   ToggleContentVisibilityButton,
   ErrorContainer,
   ErrorLabel,
 } from './styles';
 
-export interface InputProps extends TextInputProps {
+export interface TextInputProps extends RNTextInputProps {
   name: string;
   icon?: string;
   textAlign?: 'left' | 'right' | 'center';
@@ -36,7 +36,7 @@ interface InputRef {
   focus(): void;
 }
 
-const Input: React.RefForwardingComponent<InputRef, InputProps> = (
+const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
   {
     name,
     icon,
@@ -125,7 +125,7 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
           />
         )}
 
-        <TextInput
+        <RNTextInput
           {...rest}
           ref={inputElementRef}
           keyboardAppearance="dark"
@@ -161,4 +161,4 @@ const Input: React.RefForwardingComponent<InputRef, InputProps> = (
   );
 };
 
-export default forwardRef(Input);
+export default forwardRef(TextInput);

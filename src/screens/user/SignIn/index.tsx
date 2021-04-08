@@ -5,7 +5,7 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
+  TextInput as RNTextInput,
   View,
 } from 'react-native';
 import { Form } from '@unform/mobile';
@@ -16,7 +16,7 @@ import * as Yup from 'yup';
 import getValidationErrors from '@utils/getValidationErrors';
 import { useAuth } from '@hooks/auth';
 
-import Input from '@components/atoms/Input';
+import TextInput from '@components/atoms/TextInput';
 import FilledButton from '@components/atoms/FilledButton';
 
 import logoImg from '@assets/Logo.png';
@@ -45,7 +45,7 @@ interface SignInFormData {
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const passwordInputRef = useRef<TextInput>(null);
+  const passwordInputRef = useRef<RNTextInput>(null);
 
   const navigation = useNavigation();
 
@@ -130,7 +130,7 @@ const SignIn: React.FC = () => {
           </LoginContainer>
 
           <Form ref={formRef} onSubmit={handleSignIn}>
-            <Input
+            <TextInput
               name="email"
               icon="mail"
               placeholder="E-mail"
@@ -141,7 +141,7 @@ const SignIn: React.FC = () => {
               onSubmitEditing={() => passwordInputRef.current?.focus()}
             />
 
-            <Input
+            <TextInput
               ref={passwordInputRef}
               name="password"
               icon="lock"

@@ -1,10 +1,10 @@
 import React from 'react';
 
-import Input, { InputProps } from '@components/atoms/Input';
+import TextInput, { TextInputProps } from '@components/atoms/TextInput';
 
 import { Container, Label } from './styles';
 
-interface InputGroupProps extends InputProps {
+interface InputGroupProps extends TextInputProps {
   label: string;
   containerStyle?: {};
   inputContainerStyle?: {};
@@ -20,7 +20,7 @@ const InputGroup: React.FC<InputGroupProps> = ({
   return (
     <Container style={containerStyle}>
       <Label>{label}</Label>
-      <Input containerStyle={inputContainerStyle} {...rest} />
+      <TextInput containerStyle={inputContainerStyle} {...rest} />
       {children}
     </Container>
   );

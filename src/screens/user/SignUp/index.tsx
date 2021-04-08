@@ -4,7 +4,7 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
+  TextInput as RNTextInput,
   View,
 } from 'react-native';
 import { Form } from '@unform/mobile';
@@ -18,7 +18,7 @@ import { useAuth } from '@hooks/auth';
 import getValidationErrors from '@utils/getValidationErrors';
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import Input from '@components/atoms/Input';
+import TextInput from '@components/atoms/TextInput';
 import FilledButton from '@components/atoms/FilledButton';
 
 import backgroundImg from '@assets/bg-image.png';
@@ -35,10 +35,10 @@ interface SignUpFormData {
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const emailInputRef = useRef<TextInput>(null);
-  const usernameInputRef = useRef<TextInput>(null);
-  const passwordInputRef = useRef<TextInput>(null);
-  const passwordConfirmationInputRef = useRef<TextInput>(null);
+  const emailInputRef = useRef<RNTextInput>(null);
+  const usernameInputRef = useRef<RNTextInput>(null);
+  const passwordInputRef = useRef<RNTextInput>(null);
+  const passwordConfirmationInputRef = useRef<RNTextInput>(null);
 
   const navigation = useNavigation();
 
@@ -118,7 +118,7 @@ const SignUp: React.FC = () => {
           </View>
 
           <Form ref={formRef} onSubmit={handleSignUp}>
-            <Input
+            <TextInput
               name="name"
               icon="user-check"
               placeholder="Nome"
@@ -127,7 +127,7 @@ const SignUp: React.FC = () => {
               onSubmitEditing={() => emailInputRef.current?.focus()}
             />
 
-            <Input
+            <TextInput
               ref={emailInputRef}
               name="email"
               icon="mail"
@@ -139,7 +139,7 @@ const SignUp: React.FC = () => {
               onSubmitEditing={() => usernameInputRef.current?.focus()}
             />
 
-            <Input
+            <TextInput
               ref={usernameInputRef}
               name="username"
               icon="user"
@@ -150,7 +150,7 @@ const SignUp: React.FC = () => {
               onSubmitEditing={() => passwordInputRef.current?.focus()}
             />
 
-            <Input
+            <TextInput
               ref={passwordInputRef}
               name="password"
               icon="lock"
@@ -164,7 +164,7 @@ const SignUp: React.FC = () => {
               }}
             />
 
-            <Input
+            <TextInput
               ref={passwordConfirmationInputRef}
               name="password_confirmation"
               icon="key"

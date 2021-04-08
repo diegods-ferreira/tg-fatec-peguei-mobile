@@ -16,7 +16,7 @@ import api from '@services/api';
 import getValidationErrors from '@utils/getValidationErrors';
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import Input from '@components/atoms/Input';
+import TextInput from '@components/atoms/TextInput';
 import FilledButton from '@components/atoms/FilledButton';
 
 import backgroundImg from '@assets/bg-image.png';
@@ -107,7 +107,7 @@ const PasswordRecovery: React.FC = () => {
           </Subtitle>
 
           <Form ref={formRef} onSubmit={handleRecoveryPassword}>
-            <Input
+            <TextInput
               name="email"
               icon="mail"
               placeholder="Seu e-mail"

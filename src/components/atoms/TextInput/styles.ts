@@ -11,7 +11,7 @@ interface ContainerProps {
   isErrored: boolean;
 }
 
-interface TextInputProps {
+interface RNTextInputProps {
   textAlign?: 'left' | 'right' | 'center';
 }
 
@@ -45,7 +45,7 @@ export const Container = styled.View<ContainerProps>`
     `}
 `;
 
-export const TextInput = styled.TextInput<TextInputProps>`
+export const RNTextInput = styled.TextInput<RNTextInputProps>`
   flex: 1;
   color: #ebebeb;
   font-size: ${parseWidthPercentage(16)}px;
