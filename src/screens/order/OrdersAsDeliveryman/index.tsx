@@ -15,10 +15,10 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import TitleBar from '@components/TitleBar';
-import LoadingScreen from '@components/LoadingScreen';
+import TitleBar from '@components/atoms/TitleBar';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 
-import { Order } from '@screens/Orders';
+import { Order } from '@screens/order/Orders';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 

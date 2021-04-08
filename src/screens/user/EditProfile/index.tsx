@@ -30,12 +30,12 @@ import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
-import TitledBox from '@components/TitledBox';
-import InputGroup from '@components/InputGroup';
-import PickerSelectGroup from '@components/PickerSelectGroup';
+import TitledBox from '@components/atoms/TitledBox';
+import InputGroup from '@components/molecules/InputGroup';
+import PickerSelectGroup from '@components/molecules/PickerSelectGroup';
 
 import { Picker } from '@react-native-community/picker';
-import Button from '@components/Button';
+import FilledButton from '@components/atoms/FilledButton';
 
 import {
   Header,
@@ -587,12 +587,12 @@ const EditProfile: React.FC = () => {
               />
             </TitledBox>
 
-            <Button
+            <FilledButton
               onPress={() => formRef.current?.submitForm()}
               showLoadingIndicator={isSubmiting}
             >
               Salvar
-            </Button>
+            </FilledButton>
           </Form>
         </Container>
       </ScrollView>

@@ -7,9 +7,9 @@ import api from '@services/api';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import TitleBar from '@components/TitleBar';
-import TitledBox from '@components/TitledBox';
-import LoadingScreen from '@components/LoadingScreen';
+import TitleBar from '@components/atoms/TitleBar';
+import TitledBox from '@components/atoms/TitledBox';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import noItemImg from '@assets/no-item-image.png';
 

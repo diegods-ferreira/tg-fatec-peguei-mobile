@@ -18,8 +18,8 @@ import { useAuth } from '@hooks/auth';
 import getValidationErrors from '@utils/getValidationErrors';
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
-import Input from '@components/Input';
-import Button from '@components/Button';
+import Input from '@components/atoms/Input';
+import FilledButton from '@components/atoms/FilledButton';
 
 import backgroundImg from '@assets/bg-image.png';
 
@@ -176,12 +176,12 @@ const SignUp: React.FC = () => {
               onSubmitEditing={() => formRef.current?.submitForm()}
             />
 
-            <Button
+            <FilledButton
               onPress={() => formRef.current?.submitForm()}
               showLoadingIndicator={isSubmiting}
             >
               Cadastrar
-            </Button>
+            </FilledButton>
           </Form>
 
           <SignInButton onPress={handleNavigateBack}>

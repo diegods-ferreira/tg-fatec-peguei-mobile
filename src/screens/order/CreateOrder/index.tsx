@@ -26,13 +26,13 @@ import {
 import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 import getValidationErrors from '@utils/getValidationErrors';
 
-import LoadingScreen from '@components/LoadingScreen';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 
-import TitleBar from '@components/TitleBar';
-import TitledBox from '@components/TitledBox';
-import InputGroup from '@components/InputGroup';
-import PickerSelectGroup from '@components/PickerSelectGroup';
-import Button from '@components/Button';
+import TitleBar from '@components/atoms/TitleBar';
+import TitledBox from '@components/atoms/TitledBox';
+import InputGroup from '@components/molecules/InputGroup';
+import PickerSelectGroup from '@components/molecules/PickerSelectGroup';
+import FilledButton from '@components/atoms/FilledButton';
 
 import noOrderItemImg from '@assets/no-order-item-image.png';
 
@@ -800,9 +800,9 @@ const CreateOrder: React.FC = () => {
               </AttachPurchaseInvoiceWrapper>
             </TitledBox>
 
-            <Button onPress={() => formRef.current?.submitForm()}>
+            <FilledButton onPress={() => formRef.current?.submitForm()}>
               Concluir pedido
-            </Button>
+            </FilledButton>
           </Form>
         </Container>
       </ScrollView>

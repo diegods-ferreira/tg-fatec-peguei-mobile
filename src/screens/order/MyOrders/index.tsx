@@ -16,11 +16,11 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import LoadingScreen from '@components/LoadingScreen';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
-import FloatingButton from '@components/FloatingButton';
+import FloatingButton from '@components/atoms/FloatingButton';
 import {
   Container,
   OrdersListContainer,

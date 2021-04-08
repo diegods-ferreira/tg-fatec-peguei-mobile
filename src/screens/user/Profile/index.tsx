@@ -10,8 +10,8 @@ import { useAuth, User } from '@hooks/auth';
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
-import AvaluationCard from '@components/AvaluationCard';
-import LoadingScreen from '@components/LoadingScreen';
+import AvaluationCard from '@components/atoms/AvaluationCard';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 

@@ -4,7 +4,7 @@ import { RectButtonProperties } from 'react-native-gesture-handler';
 
 import { Container, ButtonText } from './styles';
 
-interface ButtonProps extends RectButtonProperties {
+interface FilledButtonProps extends RectButtonProperties {
   showLoadingIndicator?: boolean;
   backgroundColor?: string;
   textColor?: string;
@@ -15,7 +15,7 @@ interface ButtonProps extends RectButtonProperties {
   children: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const FilledButton: React.FC<FilledButtonProps> = ({
   showLoadingIndicator,
   backgroundColor = '#ff8c42',
   textColor = '#312e38',
@@ -44,4 +44,4 @@ const Button: React.FC<ButtonProps> = ({
   </Container>
 );
 
-export default Button;
+export default FilledButton;

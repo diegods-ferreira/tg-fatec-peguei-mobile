@@ -11,9 +11,9 @@ import {
 } from '@utils/screenPercentage';
 import formatCurrencyValue from '@utils/formatCurrencyValue';
 
-import LoadingScreen from '@components/LoadingScreen';
-import TitleBar from '@components/TitleBar';
-import Button from '@components/Button';
+import LoadingScreen from '@components/atoms/LoadingScreen';
+import TitleBar from '@components/atoms/TitleBar';
+import FilledButton from '@components/atoms/FilledButton';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -154,13 +154,13 @@ const SelectDeliveryman: React.FC = () => {
   const pickupOffersListFooterComponent = useMemo(() => {
     if (pickupOffers.length && selectedDeliveryman) {
       return (
-        <Button
+        <FilledButton
           showLoadingIndicator={isSubmiting}
           marginTop={24}
           onPress={handleChooseDeliveryman}
         >
           Escolher
-        </Button>
+        </FilledButton>
       );
     }
 

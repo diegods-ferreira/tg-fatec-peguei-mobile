@@ -22,14 +22,14 @@ import {
 } from '@utils/screenPercentage';
 import getValidationErrors from '@utils/getValidationErrors';
 
-import LoadingScreen from '@components/LoadingScreen';
+import LoadingScreen from '@components/atoms/LoadingScreen';
 import { OrderItem } from '@screens/order/CreateOrder';
 
-import TitleBar from '@components/TitleBar';
-import TitledBox from '@components/TitledBox';
-import InputGroup from '@components/InputGroup';
-import PickerSelectGroup from '@components/PickerSelectGroup';
-import Button from '@components/Button';
+import TitleBar from '@components/atoms/TitleBar';
+import TitledBox from '@components/atoms/TitledBox';
+import InputGroup from '@components/molecules/InputGroup';
+import PickerSelectGroup from '@components/molecules/PickerSelectGroup';
+import FilledButton from '@components/atoms/FilledButton';
 
 import noItemImg from '@assets/no-item-image.png';
 
@@ -578,9 +578,9 @@ const AddItemToOrder: React.FC = () => {
               </PickerSelectGroup>
             </TitledBox>
 
-            <Button onPress={() => formRef.current?.submitForm()}>
+            <FilledButton onPress={() => formRef.current?.submitForm()}>
               Salvar
-            </Button>
+            </FilledButton>
           </Form>
         </Container>
       </ScrollView>

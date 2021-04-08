@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components/native';
+import styled from 'styled-components/native';
 import { Picker } from '@react-native-community/picker';
 import Feather from 'react-native-vector-icons/Feather';
 

@@ -24,17 +24,17 @@ import boxShadowProps from '@utils/boxShadowProps';
 import formatDistanceValue from '@utils/formatDistanceValue';
 import formatCurrencyValue from '@utils/formatCurrencyValue';
 
-import LoadingScreen from '@components/LoadingScreen';
-import TitleBar from '@components/TitleBar';
-import TitledBox from '@components/TitledBox';
-import Button from '@components/Button';
+import LoadingScreen from '@components/atoms/LoadingScreen';
+import TitleBar from '@components/atoms/TitleBar';
+import TitledBox from '@components/atoms/TitledBox';
+import FilledButton from '@components/atoms/FilledButton';
+import OutlinedButton from '@components/atoms/OutlinedButton';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 import noOrderItemImg from '@assets/no-order-item-image.png';
 
 import api from '@services/api';
 
-import OutlinedButton from '@components/OutlinedButton';
 import {
   Container,
   RequesterContainer,
@@ -606,16 +606,16 @@ const OrderDetails: React.FC = () => {
             {user.id !== order.requester.id &&
               order.status === 1 &&
               !offerToPickup.id && (
-                <Button onPress={handleOpenOfferToPickupModal}>
+                <FilledButton onPress={handleOpenOfferToPickupModal}>
                   Me ofereço para buscar
-                </Button>
+                </FilledButton>
               )}
 
             {user.id === order.requester.id && order.status === 1 && (
               <>
-                <Button onPress={handleNavigateToSelectDeliveryman}>
+                <FilledButton onPress={handleNavigateToSelectDeliveryman}>
                   Escolher entregador
-                </Button>
+                </FilledButton>
 
                 <OutlinedButton
                   showLoadingIndicator={isSubmiting}
@@ -689,7 +689,7 @@ const OrderDetails: React.FC = () => {
                 Cancelar
               </OutlinedButton>
 
-              <Button
+              <FilledButton
                 showLoadingIndicator={isSubmiting}
                 backgroundColor="#6ab04c"
                 textColor="#ebebeb"
@@ -699,7 +699,7 @@ const OrderDetails: React.FC = () => {
                 onPress={handleOfferToPickup}
               >
                 Ok
-              </Button>
+              </FilledButton>
             </OfferToPickupButtons>
           )}
 
@@ -716,7 +716,7 @@ const OrderDetails: React.FC = () => {
 
               {offerToPickupValue !== offerToPickup.delivery_value &&
                 offerToPickupValue > 0 && (
-                  <Button
+                  <FilledButton
                     showLoadingIndicator={isSubmiting}
                     backgroundColor="#6ab04c"
                     textColor="#ebebeb"
@@ -726,7 +726,7 @@ const OrderDetails: React.FC = () => {
                     onPress={handleUpdateMyOfferToPickup}
                   >
                     Atualizar
-                  </Button>
+                  </FilledButton>
                 )}
             </OfferToPickupButtons>
           )}

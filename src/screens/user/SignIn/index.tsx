@@ -16,8 +16,8 @@ import * as Yup from 'yup';
 import getValidationErrors from '@utils/getValidationErrors';
 import { useAuth } from '@hooks/auth';
 
-import Input from '@components/Input';
-import Button from '@components/Button';
+import Input from '@components/atoms/Input';
+import FilledButton from '@components/atoms/FilledButton';
 
 import logoImg from '@assets/Logo.png';
 import backgroundImg from '@assets/bg-image.png';
@@ -153,12 +153,12 @@ const SignIn: React.FC = () => {
               onSubmitEditing={() => formRef.current?.submitForm()}
             />
 
-            <Button
+            <FilledButton
               onPress={() => formRef.current?.submitForm()}
               showLoadingIndicator={isSubmiting}
             >
               Entrar
-            </Button>
+            </FilledButton>
           </Form>
 
           <ResetPasswordButton onPress={handleNavigateToPasswordRecovery}>

@@ -1,6 +1,8 @@
 import React from 'react';
 
-import PickerSelect, { PickerSelectProps } from '@components/PickerSelect';
+import PickerSelect, {
+  PickerSelectProps,
+} from '@components/atoms/PickerSelect';
 
 import { Container, Label } from './styles';
 
