@@ -3,8 +3,9 @@ import React from 'react';
 import PickerSelect, {
   PickerSelectProps,
 } from '@components/atoms/PickerSelect';
+import Label from '@components/atoms/Label';
 
-import { Container, Label } from './styles';
+import { Container } from './styles';
 
 interface PickerSelectGroupProps extends PickerSelectProps {
   label?: string;

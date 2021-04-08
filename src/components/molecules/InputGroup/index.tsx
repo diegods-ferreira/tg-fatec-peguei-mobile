@@ -1,8 +1,9 @@
 import React from 'react';
 
 import TextInput, { TextInputProps } from '@components/atoms/TextInput';
+import Label from '@components/atoms/Label';
 
-import { Container, Label } from './styles';
+import { Container } from './styles';
 
 interface InputGroupProps extends TextInputProps {
   label: string;

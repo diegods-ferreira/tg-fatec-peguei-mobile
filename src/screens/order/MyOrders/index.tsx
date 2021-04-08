@@ -17,6 +17,7 @@ import {
 } from '@utils/screenPercentage';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
+import Label from '@components/atoms/Label';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -25,7 +26,6 @@ import {
   Container,
   OrdersListContainer,
   OrdersList,
-  OrdersSectionHeader,
   OrderContainer,
   OrderClickable,
   OrderRequesterAvatar,
@@ -211,7 +211,7 @@ const MyOrders: React.FC = () => {
             showsVerticalScrollIndicator
             refreshControl={refreshIndicator}
             renderSectionHeader={({ section: { title } }) => (
-              <OrdersSectionHeader>{title}</OrdersSectionHeader>
+              <Label marginTop={24}>{title}</Label>
             )}
             ListFooterComponent={() => (
               <View style={{ height: parseHeightPercentage(24) }} />

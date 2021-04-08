@@ -26,13 +26,6 @@ export const OrdersList = styled(SectionList as new () => SectionList<Order>)`
   padding-right: ${parseWidthPercentage(24)}px;
 `;
 
-export const OrdersSectionHeader = styled.Text`
-  color: #ff8c42;
-  font-size: ${parseWidthPercentage(14)}px;
-  margin-bottom: ${parseHeightPercentage(8)}px;
-  margin-top: ${parseHeightPercentage(24)}px;
-`;
-
 export const OrderContainer = styled.View`
   width: 100%;
   height: ${parseHeightPercentage(96)}px;
