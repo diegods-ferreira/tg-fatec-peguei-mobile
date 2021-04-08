@@ -5,9 +5,9 @@ import Feather from 'react-native-vector-icons/Feather';
 import { parseHeightPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
-import Trips from '@screens/Trips';
-import Chats from '@screens/Chats';
-import Profile from '@screens/Profile';
+import Trips from '@screens/trip/Trips';
+import Chats from '@screens/chat/Chats';
+import Profile from '@screens/user/Profile';
 import OrdersTabs from './ordersTopTabs.routes';
 
 export const BottomTab = createBottomTabNavigator();

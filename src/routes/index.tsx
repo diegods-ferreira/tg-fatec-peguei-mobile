@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useAuth } from '@hooks/auth';
 
-import Splash from '@screens/Splash';
+import Splash from '@screens/shared/Splash';
 
 import AuthRoutes from './auth.routes';
 import AppRoutes from './app.routes';

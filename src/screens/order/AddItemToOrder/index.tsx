@@ -23,7 +23,7 @@ import {
 import getValidationErrors from '@utils/getValidationErrors';
 
 import LoadingScreen from '@components/LoadingScreen';
-import { OrderItem } from '@screens/CreateOrder';
+import { OrderItem } from '@screens/order/CreateOrder';
 
 import TitleBar from '@components/TitleBar';
 import TitledBox from '@components/TitledBox';

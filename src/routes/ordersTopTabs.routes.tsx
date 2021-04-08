@@ -1,8 +1,8 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import Orders from '@screens/Orders';
-import MyOrders from '@screens/MyOrders';
+import Orders from '@screens/order/Orders';
+import MyOrders from '@screens/order/MyOrders';
 
 import {
   parseHeightPercentage,

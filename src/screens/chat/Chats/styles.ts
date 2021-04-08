@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components/native';
 import { FlatList } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 
-import { Chat } from '@screens/Chats';
+import { Chat } from '@screens/chat/Chats';
 
 import {
   parseHeightPercentage,

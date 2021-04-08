@@ -1,15 +1,15 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import EditProfile from '@screens/EditProfile';
-import OrderDetails from '@screens/OrderDetails';
-import ItemDetails from '@screens/ItemDetails';
-import CreateOrder from '@screens/CreateOrder';
-import AddItemToOrder from '@screens/AddItemToOrder';
-import OrdersAsDeliveryman from '@screens/OrdersAsDeliveryman';
-import ChatRoom from '@screens/ChatRoom';
-import SelectDeliveryman from '@screens/SelectDeliveryman';
-import Profile from '@screens/Profile';
+import EditProfile from '@screens/user/EditProfile';
+import OrderDetails from '@screens/order/OrderDetails';
+import ItemDetails from '@screens/order/ItemDetails';
+import CreateOrder from '@screens/order/CreateOrder';
+import AddItemToOrder from '@screens/order/AddItemToOrder';
+import OrdersAsDeliveryman from '@screens/order/OrdersAsDeliveryman';
+import ChatRoom from '@screens/chat/ChatRoom';
+import SelectDeliveryman from '@screens/order/SelectDeliveryman';
+import Profile from '@screens/user/Profile';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();

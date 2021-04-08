@@ -37,7 +37,7 @@ import api from '@services/api';
 
 import { useAuth } from '@hooks/auth';
 
-import { User } from '@screens/Chats';
+import { User } from '@screens/chat/Chats';
 
 import LoadingScreen from '@components/LoadingScreen';
 import TitleBar from '@components/TitleBar';
