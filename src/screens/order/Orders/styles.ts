@@ -85,24 +85,6 @@ export const OrdersList = styled(FlatList as new () => FlatList<Order>)`
   padding-right: ${parseWidthPercentage(24)}px;
 `;
 
-export const OrderContainer = styled.View`
-  width: 100%;
-  height: ${parseHeightPercentage(96)}px;
-  background: #312e38;
-  border-radius: 8px;
-  border-color: #ebebeb10;
-  border-width: 1px;
-`;
-
-export const OrderClickable = styled(RectButton)`
-  width: 100%;
-  height: 100%;
-  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
-  border-radius: 8px;
-  flex-direction: row;
-  align-items: center;
-`;
-
 const orderRequesterAvatarSize = parseWidthPercentage(40);
 
 export const OrderRequesterAvatar = styled.Image`

@@ -22,12 +22,12 @@ import Label from '@components/atoms/Label';
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
 import FloatingButton from '@components/atoms/FloatingButton';
+import ListItemCard from '@components/atoms/ListItemCard';
+
 import {
   Container,
   OrdersListContainer,
   OrdersList,
-  OrderContainer,
-  OrderClickable,
   OrderRequesterAvatar,
   OrderMeta,
   OrderTextWrapper,
@@ -233,67 +233,64 @@ const MyOrders: React.FC = () => {
             )}
             keyExtractor={(item, index) => item.id + index}
             renderItem={({ item: order }) => (
-              <OrderContainer>
-                <OrderClickable
-                  rippleColor="#ebebeb10"
-                  onPress={() => handleNavigateToOrderDetails(order.id)}
-                >
-                  <OrderRequesterAvatar
-                    source={
-                      order.requester.avatar_url
-                        ? { uri: order.requester.avatar_url }
-                        : noUserAvatarImg
-                    }
-                  />
+              <ListItemCard
+                onPress={() => handleNavigateToOrderDetails(order.id)}
+              >
+                <OrderRequesterAvatar
+                  source={
+                    order.requester.avatar_url
+                      ? { uri: order.requester.avatar_url }
+                      : noUserAvatarImg
+                  }
+                />
 
-                  <OrderMeta>
+                <OrderMeta>
+                  <OrderTextWrapper>
+                    <OrderRequesterFullName>
+                      {order.requester.name}
+                    </OrderRequesterFullName>
+                    <OrderRequesterUsername>
+                      {`@${order.requester.username}`}
+                    </OrderRequesterUsername>
+                  </OrderTextWrapper>
+
+                  <OrderDeliveryInfo>
                     <OrderTextWrapper>
-                      <OrderRequesterFullName>
-                        {order.requester.name}
-                      </OrderRequesterFullName>
-                      <OrderRequesterUsername>
-                        {`@${order.requester.username}`}
-                      </OrderRequesterUsername>
+                      <Feather
+                        name="package"
+                        size={parseWidthPercentage(12)}
+                        color="#ff8c42"
+                      />
+                      <OrderItensCounter>
+                        {`${order.items.length} ${
+                          order.items.length > 1 ? 'itens' : 'item'
+                        }`}
+                      </OrderItensCounter>
+                      <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
                     </OrderTextWrapper>
 
-                    <OrderDeliveryInfo>
-                      <OrderTextWrapper>
-                        <Feather
-                          name="package"
-                          size={parseWidthPercentage(12)}
-                          color="#ff8c42"
-                        />
-                        <OrderItensCounter>
-                          {`${order.items.length} ${
-                            order.items.length > 1 ? 'itens' : 'item'
-                          }`}
-                        </OrderItensCounter>
-                        <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
-                      </OrderTextWrapper>
+                    <OrderTextWrapper>
+                      <OrderDeliveryLocation>
+                        {`${order.pickup_city}, ${order.pickup_state} ·`}
+                      </OrderDeliveryLocation>
+                      <OrderDeliveryDistance>
+                        {`${order.distance} km`}
+                      </OrderDeliveryDistance>
+                    </OrderTextWrapper>
+                  </OrderDeliveryInfo>
+                </OrderMeta>
 
-                      <OrderTextWrapper>
-                        <OrderDeliveryLocation>
-                          {`${order.pickup_city}, ${order.pickup_state} ·`}
-                        </OrderDeliveryLocation>
-                        <OrderDeliveryDistance>
-                          {`${order.distance} km`}
-                        </OrderDeliveryDistance>
-                      </OrderTextWrapper>
-                    </OrderDeliveryInfo>
-                  </OrderMeta>
-
-                  <OrderItemsCategoriesIconsContainer>
-                    {order.items.slice(0, 4).map(item => (
-                      <OrderItemsCategoryIcon
-                        key={item.id}
-                        name={item.category.icon}
-                        size={parseWidthPercentage(12)}
-                        color="#606060"
-                      />
-                    ))}
-                  </OrderItemsCategoriesIconsContainer>
-                </OrderClickable>
-              </OrderContainer>
+                <OrderItemsCategoriesIconsContainer>
+                  {order.items.slice(0, 4).map(item => (
+                    <OrderItemsCategoryIcon
+                      key={item.id}
+                      name={item.category.icon}
+                      size={parseWidthPercentage(12)}
+                      color="#606060"
+                    />
+                  ))}
+                </OrderItemsCategoriesIconsContainer>
+              </ListItemCard>
             )}
           />
         </OrdersListContainer>

@@ -20,12 +20,11 @@ import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
+import ListItemCard from '@components/atoms/ListItemCard';
 import {
   Container,
   ChatsListContainer,
   ChatsList,
-  ChatContainer,
-  ChatClickable,
   ChatInfoContainer,
   ChatUserAvatar,
   ChatMeta,
@@ -159,73 +158,70 @@ const Chats: React.FC = () => {
             data={chats}
             keyExtractor={chat => chat.id}
             renderItem={({ item: chat }) => (
-              <ChatContainer>
-                <ChatClickable
-                  rippleColor="#ebebeb10"
-                  onPress={() => {
-                    handleJoinChatRoom(chat.id, chat.other_user, chat.order.id);
-                  }}
-                >
-                  <ChatInfoContainer>
-                    <ChatUserAvatar
-                      source={
-                        chat.other_user.avatar_url
-                          ? { uri: chat.other_user.avatar_url }
-                          : noUserAvatarImg
-                      }
-                    />
+              <ListItemCard
+                flexDirection="column"
+                padding={0}
+                height={120}
+                onPress={() => {
+                  handleJoinChatRoom(chat.id, chat.other_user, chat.order.id);
+                }}
+              >
+                <ChatInfoContainer>
+                  <ChatUserAvatar
+                    source={
+                      chat.other_user.avatar_url
+                        ? { uri: chat.other_user.avatar_url }
+                        : noUserAvatarImg
+                    }
+                  />
 
-                    <ChatMeta>
-                      <ChatTextWrapper>
-                        <ChatOtherUserFullName>
-                          {chat.other_user.name}
-                        </ChatOtherUserFullName>
+                  <ChatMeta>
+                    <ChatTextWrapper>
+                      <ChatOtherUserFullName>
+                        {chat.other_user.name}
+                      </ChatOtherUserFullName>
 
-                        <ChatOtherUserUsername>
-                          {`@${chat.other_user.username}`}
-                        </ChatOtherUserUsername>
+                      <ChatOtherUserUsername>
+                        {`@${chat.other_user.username}`}
+                      </ChatOtherUserUsername>
 
-                        {chat.last_message_sent_by && (
-                          <ChatLastMessageSentAt>
-                            {format(
-                              parseISO(chat.last_message_sent_at),
-                              'HH:mm',
-                            )}
-                          </ChatLastMessageSentAt>
-                        )}
-                      </ChatTextWrapper>
+                      {chat.last_message_sent_by && (
+                        <ChatLastMessageSentAt>
+                          {format(parseISO(chat.last_message_sent_at), 'HH:mm')}
+                        </ChatLastMessageSentAt>
+                      )}
+                    </ChatTextWrapper>
 
-                      <ChatTextWrapper marginTop={4}>
-                        {!chat.last_message_sent_by && (
-                          <ChatLastMessageText
-                            numberOfLines={2}
-                            ellipsizeMode="tail"
-                          >
-                            Nenhuma mensagem ainda
-                          </ChatLastMessageText>
-                        )}
+                    <ChatTextWrapper marginTop={4}>
+                      {!chat.last_message_sent_by && (
+                        <ChatLastMessageText
+                          numberOfLines={2}
+                          ellipsizeMode="tail"
+                        >
+                          Nenhuma mensagem ainda
+                        </ChatLastMessageText>
+                      )}
 
-                        {chat.last_message_sent_by && (
-                          <ChatLastMessageText
-                            numberOfLines={2}
-                            ellipsizeMode="tail"
-                          >
-                            {chat.last_message_sent_by === user.id
-                              ? `Você: ${chat.last_message_text}`
-                              : chat.last_message_text}
-                          </ChatLastMessageText>
-                        )}
-                      </ChatTextWrapper>
-                    </ChatMeta>
-                  </ChatInfoContainer>
+                      {chat.last_message_sent_by && (
+                        <ChatLastMessageText
+                          numberOfLines={2}
+                          ellipsizeMode="tail"
+                        >
+                          {chat.last_message_sent_by === user.id
+                            ? `Você: ${chat.last_message_text}`
+                            : chat.last_message_text}
+                        </ChatLastMessageText>
+                      )}
+                    </ChatTextWrapper>
+                  </ChatMeta>
+                </ChatInfoContainer>
 
-                  <ChatOrderIdentifierContainer>
-                    <ChatOrderIdentifierText>
-                      {`Nº do pedido: ${chat.order.number}`}
-                    </ChatOrderIdentifierText>
-                  </ChatOrderIdentifierContainer>
-                </ChatClickable>
-              </ChatContainer>
+                <ChatOrderIdentifierContainer>
+                  <ChatOrderIdentifierText>
+                    {`Nº do pedido: ${chat.order.number}`}
+                  </ChatOrderIdentifierText>
+                </ChatOrderIdentifierContainer>
+              </ListItemCard>
             )}
           />
         </ChatsListContainer>

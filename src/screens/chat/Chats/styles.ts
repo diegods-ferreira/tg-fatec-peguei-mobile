@@ -29,22 +29,6 @@ export const ChatsList = styled(FlatList as new () => FlatList<Chat>)`
   padding-right: ${parseWidthPercentage(24)}px;
 `;
 
-export const ChatContainer = styled.View`
-  width: 100%;
-  height: ${parseHeightPercentage(120)}px;
-  background: #312e38;
-  border-radius: 8px;
-  border-color: #ebebeb10;
-  border-width: 1px;
-`;
-
-export const ChatClickable = styled(RectButton)`
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  justify-content: center;
-`;
-
 export const ChatInfoContainer = styled.View`
   flex: 1;
   padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
