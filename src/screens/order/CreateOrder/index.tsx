@@ -437,7 +437,12 @@ const CreateOrder: React.FC = () => {
           return;
         }
 
-        Alert.alert('Ops...', err.message);
+        console.log(err.toString());
+
+        Alert.alert(
+          'Ops...',
+          'Ocorreu um erro ao tentar salvar o seu pedido, tente novamente mais tarde.',
+        );
       }
     },
     [
