@@ -10,6 +10,7 @@ interface FilledButtonProps extends RectButtonProperties {
   textColor?: string;
   widthPercentage?: number;
   marginTop?: number;
+  marginBottom?: number;
   marginLeft?: number;
   flex?: number;
 }
@@ -20,6 +21,7 @@ const FilledButton: React.FC<FilledButtonProps> = ({
   textColor = '#312e38',
   widthPercentage,
   marginTop = 8,
+  marginBottom = 0,
   marginLeft = 0,
   flex,
   rippleColor = '#00000050',
@@ -30,6 +32,7 @@ const FilledButton: React.FC<FilledButtonProps> = ({
     backgroundColor={backgroundColor}
     widthPercentage={widthPercentage}
     marginTop={marginTop}
+    marginBottom={marginBottom}
     marginLeft={marginLeft}
     flex={flex}
     rippleColor={rippleColor}

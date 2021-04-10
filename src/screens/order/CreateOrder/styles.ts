@@ -72,9 +72,10 @@ export const DateTimePickerValueText = styled.Text`
   margin: ${parseHeightPercentage(16)}px 0px;
 `;
 
-export const CityStateSelectContainer = styled.View`
+export const InputsWrapper = styled.View`
   width: 100%;
   flex-direction: row;
+  align-items: flex-end;
 `;
 
 export const OrderItemContainer = styled.View<OrderItemContainerProps>`
@@ -134,6 +135,27 @@ export const OrderItemImage = styled.Image`
   height: ${orderItemImageSize}px;
   border-radius: 8px;
   margin-left: ${parseWidthPercentage(16)}px;
+`;
+
+export const AddressContainer = styled.View`
+  width: 100%;
+  margin-top: ${parseHeightPercentage(16)}px;
+`;
+
+export const AddressTextContainer = styled.View`
+  width: 100%;
+  min-height: ${parseHeightPercentage(56)}px;
+  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
+  background: #232129;
+  border-radius: 8px;
+  margin-bottom: ${parseHeightPercentage(8)}px;
+  border-width: 2px;
+  border-color: #ebebeb10;
+`;
+
+export const AddressText = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(16)}px;
 `;
 
 export const NoItemTextContainer = styled.View`

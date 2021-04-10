@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -20,21 +14,23 @@ import { CheckBox } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 
 import api from '@services/api';
+import brasilApi from '@services/brasil';
 
 import { useAuth } from '@hooks/auth';
 
-import { parseWidthPercentage } from '@utils/screenPercentage';
+import {
+  parseHeightPercentage,
+  parseWidthPercentage,
+} from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 import getValidationErrors from '@utils/getValidationErrors';
-import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
 import TitledBox from '@components/atoms/TitledBox';
+import Label from '@components/atoms/Label';
 import InputGroup from '@components/molecules/InputGroup';
-import PickerSelectGroup from '@components/molecules/PickerSelectGroup';
 
-import { Picker } from '@react-native-community/picker';
 import FilledButton from '@components/atoms/FilledButton';
 
 import {
@@ -46,9 +42,22 @@ import {
   AvatarImage,
   EditAvatarButton,
   Container,
-  CityStateSelectContainer,
+  InputsWrapper,
   SocialNetworksContainer,
+  AddressContainer,
+  AddressTextContainer,
+  AddressText,
+  ChangeAddressButton,
+  ChangeAddressButtonText,
 } from './styles';
+
+interface BrasilApiAddress {
+  cep: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
+}
 
 interface EditProfileFormData {
   name: string;
@@ -56,6 +65,8 @@ interface EditProfileFormData {
   email: string;
   presentation: string;
   address: string;
+  address_number: string;
+  address_complement: string;
   city: string;
   state: string;
   phone: string;
@@ -70,22 +81,25 @@ interface EditProfileFormData {
   password_confirmation?: string;
 }
 
+interface CepFormData {
+  cep: string;
+}
+
 const EditProfile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const cepFormRef = useRef<FormHandles>(null);
 
   const { user, updateUser } = useAuth();
 
-  const [isSubmiting, setIsSubmiting] = useState(false);
-  const [statesCities, setStatesCities] = useState<IBGEStateCities[]>([]);
-  const [states, setStates] = useState<string[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
+  const [isSubmiting, setIsSubmiting] = useState<
+    'ProfileSave' | 'CepSearch' | null
+  >(null);
 
-  const [selectedState, setSelectedState] = useState(
-    user.state ? user.state : 'UF',
+  const [address, setAddress] = useState<BrasilApiAddress>(
+    {} as BrasilApiAddress,
   );
-  const [selectedCity, setSelectedCity] = useState(
-    user.city ? user.city : 'Cidade',
-  );
+
+  const [changeAddress, setChangeAddress] = useState(false);
   const [showEmail, setShowEmail] = useState(user.show_email);
   const [showPhone, setShowPhone] = useState(user.show_phone);
   const [showFacebook, setShowFacebook] = useState(user.show_facebook);
@@ -93,49 +107,50 @@ const EditProfile: React.FC = () => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    setStatesCities(getStatesCities());
-  }, []);
-
-  useEffect(() => {
-    setStates(statesCities.map(({ initials }) => initials).sort());
-  }, [statesCities]);
-
-  useEffect(() => {
-    const stateCities = statesCities.find(
-      ({ initials }) => initials === selectedState,
-    );
-
-    if (!stateCities) {
-      return;
-    }
-
-    setCities(stateCities.cities);
-  }, [statesCities, selectedState]);
-
-  useEffect(() => {
-    setSelectedCity('Cidade');
-  }, [selectedState]);
-
-  useEffect(() => {
-    setSelectedCity(user.city ? user.city : 'Cidade');
-  }, [user.city]);
-
-  const handleSelectState = useCallback((value: React.ReactText) => {
-    setSelectedState(value.toString());
-  }, []);
-
-  const handleSelectCity = useCallback((value: React.ReactText) => {
-    setSelectedCity(value.toString());
-  }, []);
-
   const handleNavigateBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
+  const handleSearchCep = useCallback(async (data: CepFormData) => {
+    setIsSubmiting('CepSearch');
+
+    try {
+      cepFormRef.current?.setErrors({});
+
+      const schema = Yup.object().shape({
+        cep: Yup.string()
+          .required('Esse campo é obrigatório')
+          .length(8, 'Um CEP deve ter 8 dígitos'),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      const response = await brasilApi.get(`/${data.cep}`);
+
+      setAddress(response.data);
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErrors(err);
+        cepFormRef.current?.setErrors(errors);
+        return;
+      }
+
+      console.log(String(err));
+
+      Alert.alert(
+        'Erro',
+        'Houve um erro ao consultar o CEP informado. Verifique-o e tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(null);
+    }
+  }, []);
+
   const handleSaveProfile = useCallback(
     async (data: EditProfileFormData) => {
-      setIsSubmiting(true);
+      setIsSubmiting('ProfileSave');
 
       try {
         formRef.current?.setErrors({});
@@ -153,7 +168,9 @@ const EditProfile: React.FC = () => {
               'Não utilize acentos ou caracteres especiais',
             ),
           presentation: Yup.string(),
-          address: Yup.string().min(10, 'Mínimo de 10 caracteres'),
+          ...(changeAddress
+            ? { address_number: Yup.string().required('Obrigatório') }
+            : {}),
           phone: Yup.string().min(10, 'Mínimo de 10 caracteres'),
           old_password: Yup.string(),
           password: Yup.string().when('old_password', {
@@ -174,30 +191,41 @@ const EditProfile: React.FC = () => {
           abortEarly: false,
         });
 
-        if (selectedState === 'UF' || selectedCity === 'Cidade') {
-          throw new Error(
-            'Você deve selecionar uma combinação estado/cidade válida.',
-          );
+        if (changeAddress && !address.cep) {
+          throw new Error('Você deve preencher o CEP do seu endereço.');
         }
 
         const formData = {
-          ...data,
-          state: selectedState,
-          city: selectedCity,
-          presentation: data.presentation.length ? data.presentation : null,
-          facebook: data.facebook.length ? data.facebook : null,
-          instagram: data.instagram.length ? data.instagram : null,
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          presentation: data.presentation,
+          ...(!user.address || changeAddress
+            ? {
+                address: `${address.street}, ${address.neighborhood}, ${data.address_number}, ${data.address_complement} - CEP: ${address.cep}`,
+                city: address.city,
+                state: address.state,
+              }
+            : {
+                address: data.address,
+                city: user.city,
+                state: user.state,
+              }),
+          phone: data.phone,
+          facebook: data.facebook,
+          instagram: data.instagram,
           show_email: showEmail,
           show_phone: showPhone,
           show_facebook: showFacebook,
           show_instagram: showInstagram,
+          ...(data.old_password
+            ? {
+                old_password: data.old_password,
+                password: data.password,
+                password_confirmation: data.password_confirmation,
+              }
+            : {}),
         };
-
-        if (!formData.old_password) {
-          delete formData.old_password;
-          delete formData.password;
-          delete formData.password_confirmation;
-        }
 
         const response = await api.put('/profile', formData);
 
@@ -205,11 +233,11 @@ const EditProfile: React.FC = () => {
 
         Alert.alert('Sucesso', 'Seu perfil foi atualizado com sucesso!');
 
-        setIsSubmiting(false);
+        setIsSubmiting(null);
 
         navigation.goBack();
       } catch (err) {
-        setIsSubmiting(false);
+        setIsSubmiting(null);
 
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
@@ -217,13 +245,21 @@ const EditProfile: React.FC = () => {
           return;
         }
 
-        Alert.alert('Erro', err.message);
+        console.log(err);
+
+        Alert.alert(
+          'Erro',
+          'Ocorreu um erro ao tentar salvar seu perfil, tente novamente mais tarde.',
+        );
       }
     },
     [
       navigation,
-      selectedState,
-      selectedCity,
+      address,
+      changeAddress,
+      user.address,
+      user.city,
+      user.state,
       showEmail,
       showPhone,
       showFacebook,
@@ -388,63 +424,119 @@ const EditProfile: React.FC = () => {
                 returnKeyType="done"
               />
 
-              <InputGroup
-                label="Endereço"
-                name="address"
-                icon="map-pin"
-                placeholder="Digite seu endereço"
-                autoCapitalize="words"
-                returnKeyType="done"
-              />
+              {user.address && (
+                <>
+                  <InputGroup
+                    label="Endereço atual"
+                    name="address"
+                    icon="map-pin"
+                    multiline
+                    editable={false}
+                  />
 
-              <CityStateSelectContainer>
-                <PickerSelectGroup
-                  containerStyle={{
-                    width: parseWidthPercentage(112),
-                    marginRight: parseWidthPercentage(8),
-                  }}
-                  label="Estado"
-                  prompt="Selecione um estado"
-                  defaultValue={selectedState}
-                  defaultValueLabel={selectedState}
-                  selectedValue={selectedState}
-                  onValueChange={handleSelectState}
-                >
-                  {states.map(
-                    state =>
-                      state !== selectedState && (
-                        <Picker.Item
-                          key={state}
-                          label={state}
-                          value={state}
-                          color="#2f2f2f"
-                        />
-                      ),
-                  )}
-                </PickerSelectGroup>
+                  <InputsWrapper>
+                    <InputGroup
+                      label="Cidade"
+                      name="city"
+                      editable={false}
+                      containerStyle={{ flex: 1 }}
+                    />
 
-                <PickerSelectGroup
-                  containerStyle={{ flex: 1 }}
-                  label="Cidade"
-                  prompt="Selecione uma cidade"
-                  defaultValue={selectedCity}
-                  defaultValueLabel={selectedCity}
-                  selectedValue={selectedCity}
-                  onValueChange={handleSelectCity}
-                >
-                  {cities.map(
-                    city =>
-                      city !== selectedCity && (
-                        <Picker.Item
-                          key={city}
-                          label={city}
-                          value={city}
-                          color="#2f2f2f"
+                    <InputGroup
+                      label="Estado"
+                      name="state"
+                      editable={false}
+                      containerStyle={{
+                        width: '25%',
+                        marginLeft: parseWidthPercentage(8),
+                      }}
+                    />
+                  </InputsWrapper>
+
+                  <ChangeAddressButton
+                    onPress={() => setChangeAddress(state => !state)}
+                  >
+                    <ChangeAddressButtonText active={changeAddress}>
+                      {!changeAddress ? 'Alterar endereço' : 'Cancelar'}
+                    </ChangeAddressButtonText>
+                  </ChangeAddressButton>
+                </>
+              )}
+
+              {(!user.address || changeAddress) && (
+                <>
+                  <Form ref={cepFormRef} onSubmit={handleSearchCep}>
+                    <InputsWrapper>
+                      <InputGroup
+                        label="CEP"
+                        name="cep"
+                        icon="map-pin"
+                        placeholder="Somente números"
+                        keyboardType="number-pad"
+                        returnKeyType="done"
+                        maxLength={8}
+                        containerStyle={{ flex: 1 }}
+                        onSubmitEditing={() => {
+                          cepFormRef.current?.submitForm();
+                        }}
+                      />
+
+                      <FilledButton
+                        widthPercentage={20}
+                        marginLeft={parseWidthPercentage(8)}
+                        marginBottom={parseHeightPercentage(8)}
+                        backgroundColor="#6f7bae"
+                        textColor="#ebebeb"
+                        showLoadingIndicator={isSubmiting === 'CepSearch'}
+                        onPress={() => cepFormRef.current?.submitForm()}
+                      >
+                        <Feather
+                          name="search"
+                          size={parseWidthPercentage(20)}
+                          color="#ebebeb"
                         />
-                      ),
+                      </FilledButton>
+                    </InputsWrapper>
+                  </Form>
+
+                  {address.cep && (
+                    <>
+                      <AddressContainer>
+                        <Label>Endereço</Label>
+                        <AddressTextContainer>
+                          <AddressText>
+                            {address.cep &&
+                              `${address.street}, ${address.neighborhood}, ${address.city}-${address.state} - CEP: ${address.cep}`}
+                          </AddressText>
+                        </AddressTextContainer>
+                      </AddressContainer>
+
+                      <InputsWrapper>
+                        <InputGroup
+                          label="Número"
+                          name="address_number"
+                          placeholder="N°"
+                          keyboardType="number-pad"
+                          returnKeyType="done"
+                          containerStyle={{ flex: 1 }}
+                        />
+
+                        <InputGroup
+                          label="Complemento"
+                          name="address_complement"
+                          placeholder="Ex: Apto 2"
+                          autoCapitalize="words"
+                          returnKeyType="done"
+                          containerStyle={{
+                            width: '65%',
+                            marginLeft: parseWidthPercentage(8),
+                          }}
+                        />
+                      </InputsWrapper>
+                    </>
                   )}
-                </PickerSelectGroup>
-              </CityStateSelectContainer>
+                </>
+              )}
 
               <InputGroup
                 label="Telefone"
@@ -589,7 +681,7 @@ const EditProfile: React.FC = () => {
 
             <FilledButton
               onPress={() => formRef.current?.submitForm()}
-              showLoadingIndicator={isSubmiting}
+              showLoadingIndicator={isSubmiting === 'ProfileSave'}
             >
               Salvar
             </FilledButton>

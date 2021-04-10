@@ -1,4 +1,4 @@
-import styled from 'styled-components/native';
+import styled, { css } from 'styled-components/native';
 import { RectButton } from 'react-native-gesture-handler';
 import RNLinearGradient from 'react-native-linear-gradient';
 
@@ -6,6 +6,10 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
+
+interface ChangeAddressButtonTextProps {
+  active: boolean;
+}
 
 export const Header = styled.View`
   width: 100%;
@@ -83,14 +87,53 @@ export const Container = styled.View`
   margin-top: -${parseHeightPercentage(56)}px;
 `;
 
-export const CityStateSelectContainer = styled.View`
+export const InputsWrapper = styled.View`
   width: 100%;
   flex-direction: row;
+  align-items: flex-end;
+`;
+
+export const AddressContainer = styled.View`
+  width: 100%;
+  margin-top: ${parseHeightPercentage(16)}px;
+`;
+
+export const AddressTextContainer = styled.View`
+  width: 100%;
+  min-height: ${parseHeightPercentage(56)}px;
+  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
+  background: #232129;
+  border-radius: 8px;
   margin-bottom: ${parseHeightPercentage(8)}px;
+  border-width: 2px;
+  border-color: #ebebeb10;
+`;
+
+export const AddressText = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(16)}px;
 `;
 
 export const SocialNetworksContainer = styled.View`
   width: 100%;
   flex-direction: row;
   justify-content: space-between;
+`;
+
+export const ChangeAddressButton = styled.TouchableOpacity`
+  width: 100%;
+  align-items: flex-end;
+`;
+
+export const ChangeAddressButtonText = styled.Text<
+  ChangeAddressButtonTextProps
+>`
+  color: #6f7bae;
+  font-size: ${parseWidthPercentage(13)}px;
+
+  ${props =>
+    props.active &&
+    css`
+      color: #e74c3c;
+    `}
 `;

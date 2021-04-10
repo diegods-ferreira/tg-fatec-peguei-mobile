@@ -9,12 +9,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
-import { Picker } from '@react-native-community/picker';
 import { ButtonGroup } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import * as Yup from 'yup';
+import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
+import brasilApi from '@services/brasil';
 import { fetchAddressMapbox } from '@services/mapbox';
 
 import { useAuth } from '@hooks/auth';
@@ -23,15 +24,14 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
-import getStatesCities, { IBGEStateCities } from '@utils/getStatesCities';
 import getValidationErrors from '@utils/getValidationErrors';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import TitleBar from '@components/atoms/TitleBar';
 import TitledBox from '@components/atoms/TitledBox';
+import Label from '@components/atoms/Label';
 import InputGroup from '@components/molecules/InputGroup';
-import PickerSelectGroup from '@components/molecules/PickerSelectGroup';
 import FilledButton from '@components/atoms/FilledButton';
 
 import noOrderItemImg from '@assets/no-order-item-image.png';
@@ -44,7 +44,7 @@ import {
   DateTimePickerPressable,
   DateTimePickerValueIcon,
   DateTimePickerValueText,
-  CityStateSelectContainer,
+  InputsWrapper,
   OrderItemContainer,
   OrderItemPressable,
   OrderItemQuantity,
@@ -55,6 +55,9 @@ import {
   OrderItemImage,
   NoItemTextContainer,
   NoItemText,
+  AddressContainer,
+  AddressTextContainer,
+  AddressText,
   AddItemToOrderButtonContainer,
   AddItemToOrderButton,
   AddItemToOrderButtonText,
@@ -92,10 +95,24 @@ interface RouteParams {
   updated_at: number;
 }
 
+interface BrasilApiAddress {
+  cep: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  street: string;
+}
+
 interface CreateOrderFormData {
   pickup_establishment: string;
-  pickup_address: string;
-  delivery_address: string;
+  pickup_number: string;
+  pickup_complement: string;
+  delivery_number: string;
+  delivery_complement: string;
+}
+
+interface CepFormData {
+  cep: string;
 }
 
 interface CreateOrderItemResponse {
@@ -109,6 +126,9 @@ interface CreateOrderResponse {
 
 const CreateOrder: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const pickupCepFormRef = useRef<FormHandles>(null);
+  const deliveryCepFormRef = useRef<FormHandles>(null);
+
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -117,16 +137,20 @@ const CreateOrder: React.FC = () => {
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
+  const [isSubmiting, setIsSubmiting] = useState<
+    'OrderCreation' | 'PickupCepSearch' | 'DeliveryCepSearch' | null
+  >(null);
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickupDate, setPickupDate] = useState(new Date());
-  const [statesCities, setStatesCities] = useState<IBGEStateCities[]>([]);
-  const [states, setStates] = useState<string[]>([]);
-  const [pickupCities, setPickupCities] = useState<string[]>([]);
-  const [selectedPickupState, setSelectedPickupState] = useState('UF');
-  const [selectedPickupCity, setSelectedPickupCity] = useState('Cidade');
-  const [deliveryCities, setDeliveryCities] = useState<string[]>([]);
-  const [selectedDeliveryState, setSelectedDeliveryState] = useState('UF');
-  const [selectedDeliveryCity, setSelectedDeliveryCity] = useState('Cidade');
+
+  const [pickupAddress, setPickupAddress] = useState<BrasilApiAddress>(
+    {} as BrasilApiAddress,
+  );
+  const [deliveryAddress, setDeliveryAddress] = useState<BrasilApiAddress>(
+    {} as BrasilApiAddress,
+  );
+
   const [useMyOrAnotherAddress, setUseMyOrAnotherAddress] = useState(
     !user.address && !user.state && !user.city ? 1 : 0,
   );
@@ -151,46 +175,6 @@ const CreateOrder: React.FC = () => {
     },
     [],
   );
-
-  useEffect(() => {
-    setStatesCities(getStatesCities());
-  }, []);
-
-  useEffect(() => {
-    setStates(statesCities.map(({ initials }) => initials).sort());
-  }, [statesCities]);
-
-  useEffect(() => {
-    const stateCities = statesCities.find(
-      ({ initials }) => initials === selectedPickupState,
-    );
-
-    if (!stateCities) {
-      return;
-    }
-
-    setPickupCities(stateCities.cities);
-  }, [statesCities, selectedPickupState]);
-
-  useEffect(() => {
-    const stateCities = statesCities.find(
-      ({ initials }) => initials === selectedDeliveryState,
-    );
-
-    if (!stateCities) {
-      return;
-    }
-
-    setDeliveryCities(stateCities.cities);
-  }, [statesCities, selectedDeliveryState]);
-
-  useEffect(() => {
-    setSelectedPickupCity('Cidade');
-  }, [selectedPickupState]);
-
-  useEffect(() => {
-    setSelectedDeliveryCity('Cidade');
-  }, [selectedDeliveryState]);
 
   useEffect(() => {
     async function loadData() {
@@ -236,20 +220,78 @@ const CreateOrder: React.FC = () => {
     loadData();
   }, [routeParams]);
 
-  const handleSelectPickupState = useCallback((value: React.ReactText) => {
-    setSelectedPickupState(value.toString());
+  const handleSearchPickupCep = useCallback(async (data: CepFormData) => {
+    setIsSubmiting('PickupCepSearch');
+
+    try {
+      pickupCepFormRef.current?.setErrors({});
+
+      const schema = Yup.object().shape({
+        cep: Yup.string()
+          .required('Esse campo é obrigatório')
+          .length(8, 'Um CEP deve ter 8 dígitos'),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      const response = await brasilApi.get(`/${data.cep}`);
+
+      setPickupAddress(response.data);
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErrors(err);
+        pickupCepFormRef.current?.setErrors(errors);
+        return;
+      }
+
+      console.log(String(err));
+
+      Alert.alert(
+        'Erro',
+        'Houve um erro ao consultar o CEP informado. Verifique-o e tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(null);
+    }
   }, []);
 
-  const handleSelectPickupCity = useCallback((value: React.ReactText) => {
-    setSelectedPickupCity(value.toString());
-  }, []);
+  const handleSearchDeliveryCep = useCallback(async (data: CepFormData) => {
+    setIsSubmiting('DeliveryCepSearch');
 
-  const handleSelectDeliveryState = useCallback((value: React.ReactText) => {
-    setSelectedDeliveryState(value.toString());
-  }, []);
+    try {
+      deliveryCepFormRef.current?.setErrors({});
 
-  const handleSelectDeliveryCity = useCallback((value: React.ReactText) => {
-    setSelectedDeliveryCity(value.toString());
+      const schema = Yup.object().shape({
+        cep: Yup.string()
+          .required('Esse campo é obrigatório')
+          .length(8, 'Um CEP deve ter 8 dígitos'),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      const response = await brasilApi.get(`/${data.cep}`);
+
+      setDeliveryAddress(response.data);
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const errors = getValidationErrors(err);
+        deliveryCepFormRef.current?.setErrors(errors);
+        return;
+      }
+
+      console.log(String(err));
+
+      Alert.alert(
+        'Erro',
+        'Houve um erro ao consultar o CEP informado. Verifique-o e tente novamente mais tarde.',
+      );
+    } finally {
+      setIsSubmiting(null);
+    }
   }, []);
 
   const handleUseMyOrAnotherAddressChangeIndex = useCallback(
@@ -298,6 +340,8 @@ const CreateOrder: React.FC = () => {
 
   const handleSaveOrder = useCallback(
     async (data: CreateOrderFormData) => {
+      setIsSubmiting('OrderCreation');
+
       try {
         formRef.current?.setErrors({});
 
@@ -305,13 +349,9 @@ const CreateOrder: React.FC = () => {
           pickup_establishment: Yup.string()
             .required('Esse campo é obrigatório')
             .min(4, 'Mínimo de 4 caracteres'),
-          pickup_address: Yup.string()
-            .required('Esse campo é obrigatório')
-            .min(10, 'Mínimo de 10 caracteres'),
+          pickup_number: Yup.string().required('Esse campo é obrigatório'),
           ...(useMyOrAnotherAddress === 1 && {
-            delivery_address: Yup.string()
-              .required('Esse campo é obrigatório')
-              .min(10, 'Mínimo de 10 caracteres'),
+            delivery_number: Yup.string().required('Esse campo é obrigatório'),
           }),
         });
 
@@ -319,19 +359,12 @@ const CreateOrder: React.FC = () => {
           abortEarly: false,
         });
 
-        if (selectedPickupState === 'UF' || selectedPickupCity === 'Cidade') {
-          throw new Error(
-            'Você deve selecionar uma combinação estado/cidade válida para o local de retirada.',
-          );
+        if (!pickupAddress.cep) {
+          throw new Error('Você deve preencher o CEP do endereço de retirada.');
         }
 
-        if (
-          useMyOrAnotherAddress === 1 &&
-          (selectedDeliveryState === 'UF' || selectedDeliveryCity === 'Cidade')
-        ) {
-          throw new Error(
-            'Você deve selecionar uma combinação estado/cidade válida para o local de entrega.',
-          );
+        if (useMyOrAnotherAddress === 1 && !deliveryAddress.cep) {
+          throw new Error('Você deve preencher o CEP do endereço de entrega.');
         }
 
         if (items.length === 0) {
@@ -346,7 +379,9 @@ const CreateOrder: React.FC = () => {
           latitude: pickup_latitude,
           longitude: pickup_longitude,
         } = await fetchAddressMapbox(
-          `${data.pickup_address}, ${selectedDeliveryCity}-${selectedDeliveryState}, Brazil`,
+          `${pickupAddress.street} ${pickupAddress.city} - ${
+            pickupAddress.state
+          }, ${pickupAddress.cep.substr(0, 5)}, Brazil`,
         );
 
         const {
@@ -355,26 +390,32 @@ const CreateOrder: React.FC = () => {
         } = await fetchAddressMapbox(
           useMyOrAnotherAddress === 0
             ? `${user.address}, ${user.city}-${user.state}, Brazil`
-            : `${data.delivery_address}, ${selectedDeliveryCity}-${selectedDeliveryState}, Brazil`,
+            : `${deliveryAddress.street} ${deliveryAddress.city} - ${
+                deliveryAddress.state
+              }, ${deliveryAddress.cep.substr(0, 5)}, Brazil`,
         );
 
         const pickup_date = new Date(pickupDate);
         pickup_date.setHours(0);
         pickup_date.setMinutes(0);
 
+        const pickup_address = `${pickupAddress.street}, ${data.pickup_number}, ${data.pickup_complement}, ${pickupAddress.neighborhood} - CEP: ${pickupAddress.cep}`;
+        const delivery_address = `${deliveryAddress.street}, ${data.delivery_number}, ${data.delivery_complement}, ${deliveryAddress.neighborhood} - CEP: ${deliveryAddress.cep}`;
+
         const orderToSave = {
-          ...data,
           pickup_date,
-          pickup_city: selectedPickupCity,
-          pickup_state: selectedPickupState,
+          pickup_establishment: data.pickup_establishment,
+          pickup_address,
+          pickup_city: pickupAddress.city,
+          pickup_state: pickupAddress.state,
           pickup_latitude,
           pickup_longitude,
           delivery_address:
-            useMyOrAnotherAddress === 0 ? user.address : data.pickup_address,
+            useMyOrAnotherAddress === 0 ? user.address : delivery_address,
           delivery_city:
-            useMyOrAnotherAddress === 0 ? user.city : selectedDeliveryCity,
+            useMyOrAnotherAddress === 0 ? user.city : deliveryAddress.city,
           delivery_state:
-            useMyOrAnotherAddress === 0 ? user.state : selectedDeliveryState,
+            useMyOrAnotherAddress === 0 ? user.state : deliveryAddress.state,
           delivery_latitude,
           delivery_longitude,
           items: items.map(item => ({
@@ -427,10 +468,14 @@ const CreateOrder: React.FC = () => {
           await api.patch('/items/image', uploadItemImage);
         });
 
+        setIsSubmiting(null);
+
         Alert.alert('Eba!', 'Seu pedido foi salvo com sucesso.');
 
         navigation.goBack();
       } catch (err) {
+        setIsSubmiting(null);
+
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
           formRef.current?.setErrors(errors);
@@ -447,10 +492,8 @@ const CreateOrder: React.FC = () => {
     },
     [
       pickupDate,
-      selectedPickupState,
-      selectedPickupCity,
-      selectedDeliveryState,
-      selectedDeliveryCity,
+      pickupAddress,
+      deliveryAddress,
       items,
       purchaseInvoiceFile,
       useMyOrAnotherAddress,
@@ -516,63 +559,76 @@ const CreateOrder: React.FC = () => {
                 returnKeyType="done"
               />
 
-              <InputGroup
-                label="Endereço"
-                name="pickup_address"
-                icon="map-pin"
-                placeholder="Onde estão os produtos?"
-                autoCapitalize="words"
-                returnKeyType="done"
-              />
+              <Form ref={pickupCepFormRef} onSubmit={handleSearchPickupCep}>
+                <InputsWrapper>
+                  <InputGroup
+                    label="CEP"
+                    name="cep"
+                    icon="map-pin"
+                    placeholder="Somente números"
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                    maxLength={8}
+                    containerStyle={{ flex: 1 }}
+                    onSubmitEditing={() => {
+                      pickupCepFormRef.current?.submitForm();
+                    }}
+                  />
 
-              <CityStateSelectContainer>
-                <PickerSelectGroup
-                  containerStyle={{
-                    width: parseWidthPercentage(112),
-                    marginRight: parseWidthPercentage(8),
-                  }}
-                  label="Estado"
-                  prompt="Selecione um estado"
-                  defaultValue={selectedPickupState}
-                  defaultValueLabel={selectedPickupState}
-                  selectedValue={selectedPickupState}
-                  onValueChange={handleSelectPickupState}
-                >
-                  {states.map(
-                    state =>
-                      state !== selectedPickupState && (
-                        <Picker.Item
-                          key={state}
-                          label={state}
-                          value={state}
-                          color="#2f2f2f"
-                        />
-                      ),
-                  )}
-                </PickerSelectGroup>
+                  <FilledButton
+                    widthPercentage={20}
+                    marginLeft={parseWidthPercentage(8)}
+                    marginBottom={parseHeightPercentage(8)}
+                    backgroundColor="#6f7bae"
+                    textColor="#ebebeb"
+                    showLoadingIndicator={isSubmiting === 'PickupCepSearch'}
+                    onPress={() => pickupCepFormRef.current?.submitForm()}
+                  >
+                    <Feather
+                      name="search"
+                      size={parseWidthPercentage(20)}
+                      color="#ebebeb"
+                    />
+                  </FilledButton>
+                </InputsWrapper>
+              </Form>
 
-                <PickerSelectGroup
-                  containerStyle={{ flex: 1 }}
-                  label="Cidade"
-                  prompt="Selecione uma cidade"
-                  defaultValue={selectedPickupCity}
-                  defaultValueLabel={selectedPickupCity}
-                  selectedValue={selectedPickupCity}
-                  onValueChange={handleSelectPickupCity}
-                >
-                  {pickupCities.map(
-                    city =>
-                      city !== selectedPickupCity && (
-                        <Picker.Item
-                          key={city}
-                          label={city}
-                          value={city}
-                          color="#2f2f2f"
-                        />
-                      ),
-                  )}
-                </PickerSelectGroup>
-              </CityStateSelectContainer>
+              {pickupAddress.cep && (
+                <>
+                  <AddressContainer>
+                    <Label>Endereço</Label>
+                    <AddressTextContainer>
+                      <AddressText>
+                        {pickupAddress.cep &&
+                          `${pickupAddress.street}, ${pickupAddress.neighborhood}, ${pickupAddress.city}-${pickupAddress.state} - CEP: ${pickupAddress.cep}`}
+                      </AddressText>
+                    </AddressTextContainer>
+                  </AddressContainer>
+
+                  <InputsWrapper>
+                    <InputGroup
+                      label="Número"
+                      name="pickup_number"
+                      placeholder="N°"
+                      keyboardType="number-pad"
+                      returnKeyType="done"
+                      containerStyle={{ flex: 1 }}
+                    />
+
+                    <InputGroup
+                      label="Complemento"
+                      name="pickup_complement"
+                      placeholder="Ex: Apto 2"
+                      autoCapitalize="words"
+                      returnKeyType="done"
+                      containerStyle={{
+                        width: '65%',
+                        marginLeft: parseWidthPercentage(8),
+                      }}
+                    />
+                  </InputsWrapper>
+                </>
+              )}
             </TitledBox>
 
             <TitledBox title="Itens do Pedido">
@@ -685,7 +741,7 @@ const CreateOrder: React.FC = () => {
                     </ItemInfoValueContainer>
                   </ItemInfoWrapper>
 
-                  <CityStateSelectContainer>
+                  <InputsWrapper>
                     <ItemInfoWrapper width={112} marginRight={8}>
                       <ItemInfoLabel>Estado</ItemInfoLabel>
                       <ItemInfoValueContainer borderColor="#6F7BAE">
@@ -711,67 +767,83 @@ const CreateOrder: React.FC = () => {
                         </ItemInfoValueText>
                       </ItemInfoValueContainer>
                     </ItemInfoWrapper>
-                  </CityStateSelectContainer>
+                  </InputsWrapper>
                 </>
               ) : (
                 <>
-                  <InputGroup
-                    label="Endereço"
-                    name="delivery_address"
-                    icon="map-pin"
-                    placeholder="Onde devem ser entregues?"
-                    autoCapitalize="words"
-                    returnKeyType="done"
-                  />
+                  <Form
+                    ref={deliveryCepFormRef}
+                    onSubmit={handleSearchDeliveryCep}
+                  >
+                    <InputsWrapper>
+                      <InputGroup
+                        label="CEP"
+                        name="cep"
+                        icon="map-pin"
+                        placeholder="Somente números"
+                        keyboardType="number-pad"
+                        returnKeyType="done"
+                        maxLength={8}
+                        containerStyle={{ flex: 1 }}
+                        onSubmitEditing={() => {
+                          deliveryCepFormRef.current?.submitForm();
+                        }}
+                      />
 
-                  <CityStateSelectContainer>
-                    <PickerSelectGroup
-                      containerStyle={{
-                        width: parseWidthPercentage(112),
-                        marginRight: parseWidthPercentage(8),
-                      }}
-                      label="Estado"
-                      prompt="Selecione um estado"
-                      defaultValue={selectedDeliveryState}
-                      defaultValueLabel={selectedDeliveryState}
-                      selectedValue={selectedDeliveryState}
-                      onValueChange={handleSelectDeliveryState}
-                    >
-                      {states.map(
-                        state =>
-                          state !== selectedDeliveryState && (
-                            <Picker.Item
-                              key={state}
-                              label={state}
-                              value={state}
-                              color="#2f2f2f"
-                            />
-                          ),
-                      )}
-                    </PickerSelectGroup>
+                      <FilledButton
+                        widthPercentage={20}
+                        marginLeft={parseWidthPercentage(8)}
+                        marginBottom={parseHeightPercentage(8)}
+                        backgroundColor="#6f7bae"
+                        textColor="#ebebeb"
+                        showLoadingIndicator={isSubmiting === 'PickupCepSearch'}
+                        onPress={() => deliveryCepFormRef.current?.submitForm()}
+                      >
+                        <Feather
+                          name="search"
+                          size={parseWidthPercentage(20)}
+                          color="#ebebeb"
+                        />
+                      </FilledButton>
+                    </InputsWrapper>
+                  </Form>
 
-                    <PickerSelectGroup
-                      containerStyle={{ flex: 1 }}
-                      label="Cidade"
-                      prompt="Selecione uma cidade"
-                      defaultValue={selectedDeliveryCity}
-                      defaultValueLabel={selectedDeliveryCity}
-                      selectedValue={selectedDeliveryState}
-                      onValueChange={handleSelectDeliveryCity}
-                    >
-                      {deliveryCities.map(
-                        city =>
-                          city !== selectedDeliveryCity && (
-                            <Picker.Item
-                              key={city}
-                              label={city}
-                              value={city}
-                              color="#2f2f2f"
-                            />
-                          ),
-                      )}
-                    </PickerSelectGroup>
-                  </CityStateSelectContainer>
+                  {deliveryAddress.cep && (
+                    <>
+                      <AddressContainer>
+                        <Label>Endereço</Label>
+                        <AddressTextContainer>
+                          <AddressText>
+                            {deliveryAddress.cep &&
+                              `${deliveryAddress.street}, ${deliveryAddress.neighborhood}, ${deliveryAddress.city}-${deliveryAddress.state} - CEP: ${deliveryAddress.cep}`}
+                          </AddressText>
+                        </AddressTextContainer>
+                      </AddressContainer>
+
+                      <InputsWrapper>
+                        <InputGroup
+                          label="Número"
+                          name="delivery_number"
+                          placeholder="N°"
+                          keyboardType="number-pad"
+                          returnKeyType="done"
+                          containerStyle={{ flex: 1 }}
+                        />
+
+                        <InputGroup
+                          label="Complemento"
+                          name="delivery_complement"
+                          placeholder="Ex: Apto 2"
+                          autoCapitalize="words"
+                          returnKeyType="done"
+                          containerStyle={{
+                            width: '65%',
+                            marginLeft: parseWidthPercentage(8),
+                          }}
+                        />
+                      </InputsWrapper>
+                    </>
+                  )}
                 </>
               )}
             </TitledBox>
@@ -805,7 +877,10 @@ const CreateOrder: React.FC = () => {
               </AttachPurchaseInvoiceWrapper>
             </TitledBox>
 
-            <FilledButton onPress={() => formRef.current?.submitForm()}>
+            <FilledButton
+              showLoadingIndicator={isSubmiting === 'OrderCreation'}
+              onPress={() => formRef.current?.submitForm()}
+            >
               Concluir pedido
             </FilledButton>
           </Form>

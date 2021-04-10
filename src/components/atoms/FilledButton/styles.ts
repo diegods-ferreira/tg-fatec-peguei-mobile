@@ -9,6 +9,7 @@ interface ContainerProps {
   backgroundColor: string;
   widthPercentage?: number;
   marginTop: number;
+  marginBottom: number;
   marginLeft: number;
   flex?: number;
 }
@@ -42,9 +43,10 @@ export const Container = styled(RectButton)<ContainerProps>`
     `}
 
   ${props =>
-    (props.marginLeft || props.marginTop) &&
+    (props.marginLeft || props.marginTop || props.marginBottom) &&
     css`
-      margin: ${parseHeightPercentage(props.marginTop)}px 0px 0px
+      margin: ${parseHeightPercentage(props.marginTop)}px 0px
+        ${parseHeightPercentage(props.marginBottom)}px
         ${parseWidthPercentage(props.marginLeft)}px;
     `}
 `;
