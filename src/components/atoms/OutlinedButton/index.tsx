@@ -9,7 +9,6 @@ interface OutlinedButtonProps extends TouchableOpacityProps {
   widthPercentage?: number;
   marginTop?: number;
   flex?: number;
-  children: string;
 }
 
 const OutlinedButton: React.FC<OutlinedButtonProps> = ({

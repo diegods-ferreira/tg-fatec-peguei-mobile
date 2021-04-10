@@ -12,7 +12,6 @@ interface FilledButtonProps extends RectButtonProperties {
   marginTop?: number;
   marginLeft?: number;
   flex?: number;
-  children: string;
 }
 
 const FilledButton: React.FC<FilledButtonProps> = ({
