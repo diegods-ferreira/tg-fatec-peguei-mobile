@@ -30,6 +30,7 @@ export const Container = styled.View<ContainerProps>`
   border-color: #ebebeb10;
   flex-direction: row;
   align-items: center;
+  position: relative;
 
   ${props =>
     props.isFocused &&
@@ -41,7 +42,6 @@ export const Container = styled.View<ContainerProps>`
     props.isErrored &&
     css`
       border-color: #e74c3c;
-      margin-bottom: ${parseHeightPercentage(2)}px;
     `}
 `;
 
@@ -81,8 +81,10 @@ export const ToggleContentVisibilityButton = styled.TouchableOpacity`
 export const ErrorContainer = styled.View`
   width: 100%;
   flex-direction: row;
-  justify-content: flex-end;
-  margin-bottom: ${parseHeightPercentage(8)}px;
+  justify-content: flex-start;
+  position: absolute;
+  bottom: ${parseHeightPercentage(-16)}px;
+  left: 0;
 `;
 
 export const ErrorLabel = styled.Text`

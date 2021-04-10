@@ -150,13 +150,15 @@ const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
             />
           </ToggleContentVisibilityButton>
         )}
-      </Container>
 
-      {!!error && (
-        <ErrorContainer>
-          <ErrorLabel>{error}</ErrorLabel>
-        </ErrorContainer>
-      )}
+        {!!error && (
+          <ErrorContainer>
+            <ErrorLabel numberOfLines={1} ellipsizeMode="middle">
+              {error}
+            </ErrorLabel>
+          </ErrorContainer>
+        )}
+      </Container>
     </>
   );
 };
