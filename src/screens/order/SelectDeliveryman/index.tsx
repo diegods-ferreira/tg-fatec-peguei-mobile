@@ -101,7 +101,7 @@ const SelectDeliveryman: React.FC = () => {
     setIsSubmiting(true);
 
     try {
-      await api.patch(`/orders/${routeParams.order_id}`, {
+      await api.patch(`/orders/deliveryman/${routeParams.order_id}`, {
         deliveryman_id: selectedDeliveryman,
       });
 
