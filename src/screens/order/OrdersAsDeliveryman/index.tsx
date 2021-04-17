@@ -17,6 +17,7 @@ import {
 
 import TitleBar from '@components/atoms/TitleBar';
 import LoadingScreen from '@components/atoms/LoadingScreen';
+import ListItemCard from '@components/atoms/ListItemCard';
 
 import { Order } from '@screens/order/Orders';
 
@@ -26,8 +27,6 @@ import {
   Container,
   OrdersListContainer,
   OrdersList,
-  OrderContainer,
-  OrderClickable,
   OrderRequesterAvatar,
   OrderMeta,
   OrderTextWrapper,
@@ -42,6 +41,9 @@ import {
   OrderItemsCategoryIcon,
   EmptyOrdersListContainer,
   EmptyOrdersListText,
+  OrderInfoContainer,
+  OrderIdentifierContainer,
+  OrderIdentifierText,
 } from './styles';
 
 const OrdersAsDeliveryman: React.FC = () => {
@@ -140,11 +142,13 @@ const OrdersAsDeliveryman: React.FC = () => {
             data={ordersAsDeliveryman}
             keyExtractor={order => order.id}
             renderItem={({ item: order }) => (
-              <OrderContainer>
-                <OrderClickable
-                  rippleColor="#ebebeb10"
-                  onPress={() => handleNavigateToOrderDetails(order.id)}
-                >
+              <ListItemCard
+                flexDirection="column"
+                padding={0}
+                height={120}
+                onPress={() => handleNavigateToOrderDetails(order.id)}
+              >
+                <OrderInfoContainer>
                   <OrderRequesterAvatar
                     source={
                       order.requester.avatar_url
@@ -199,8 +203,14 @@ const OrdersAsDeliveryman: React.FC = () => {
                       />
                     ))}
                   </OrderItemsCategoriesIconsContainer>
-                </OrderClickable>
-              </OrderContainer>
+                </OrderInfoContainer>
+
+                <OrderIdentifierContainer>
+                  <OrderIdentifierText>
+                    {`Nº do pedido: ${order.number}`}
+                  </OrderIdentifierText>
+                </OrderIdentifierContainer>
+              </ListItemCard>
             )}
           />
         </OrdersListContainer>
