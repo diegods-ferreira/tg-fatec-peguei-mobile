@@ -47,6 +47,9 @@ import {
   EmptyOrdersListText,
   RefreshOrdersListButton,
   RefreshOrdersListButtonText,
+  OrderInfoContainer,
+  OrderIdentifierContainer,
+  OrderIdentifierText,
 } from './styles';
 
 interface Item {
@@ -331,62 +334,73 @@ const Orders: React.FC = () => {
               keyExtractor={order => order.id}
               renderItem={({ item: order }) => (
                 <ListItemCard
+                  flexDirection="column"
+                  padding={0}
+                  height={120}
                   onPress={() => handleNavigateToOrderDetails(order.id)}
                 >
-                  <OrderRequesterAvatar
-                    source={
-                      order.requester.avatar_url
-                        ? { uri: order.requester.avatar_url }
-                        : noUserAvatarImg
-                    }
-                  />
+                  <OrderInfoContainer>
+                    <OrderRequesterAvatar
+                      source={
+                        order.requester.avatar_url
+                          ? { uri: order.requester.avatar_url }
+                          : noUserAvatarImg
+                      }
+                    />
 
-                  <OrderMeta>
-                    <OrderTextWrapper>
-                      <OrderRequesterFullName>
-                        {order.requester.name}
-                      </OrderRequesterFullName>
-                      <OrderRequesterUsername>
-                        {`@${order.requester.username}`}
-                      </OrderRequesterUsername>
-                    </OrderTextWrapper>
-
-                    <OrderDeliveryInfo>
+                    <OrderMeta>
                       <OrderTextWrapper>
-                        <Feather
-                          name="package"
+                        <OrderRequesterFullName>
+                          {order.requester.name}
+                        </OrderRequesterFullName>
+                        <OrderRequesterUsername>
+                          {`@${order.requester.username}`}
+                        </OrderRequesterUsername>
+                      </OrderTextWrapper>
+
+                      <OrderDeliveryInfo>
+                        <OrderTextWrapper>
+                          <Feather
+                            name="package"
+                            size={parseWidthPercentage(12)}
+                            color="#ff8c42"
+                          />
+                          <OrderItensCounter>
+                            {`${order.items.length} ${
+                              order.items.length > 1 ? 'itens' : 'item'
+                            }`}
+                          </OrderItensCounter>
+                          <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
+                        </OrderTextWrapper>
+
+                        <OrderTextWrapper>
+                          <OrderDeliveryLocation>
+                            {`${order.pickup_city}, ${order.pickup_state} ·`}
+                          </OrderDeliveryLocation>
+                          <OrderDeliveryDistance>
+                            {`${order.distance} km`}
+                          </OrderDeliveryDistance>
+                        </OrderTextWrapper>
+                      </OrderDeliveryInfo>
+                    </OrderMeta>
+
+                    <OrderItemsCategoriesIconsContainer>
+                      {order.items.slice(0, 4).map(item => (
+                        <OrderItemsCategoryIcon
+                          key={item.id}
+                          name={item.category.icon}
                           size={parseWidthPercentage(12)}
-                          color="#ff8c42"
+                          color="#606060"
                         />
-                        <OrderItensCounter>
-                          {`${order.items.length} ${
-                            order.items.length > 1 ? 'itens' : 'item'
-                          }`}
-                        </OrderItensCounter>
-                        <OrderCreatedAt>{`· ${order.formatted_created_at}`}</OrderCreatedAt>
-                      </OrderTextWrapper>
+                      ))}
+                    </OrderItemsCategoriesIconsContainer>
+                  </OrderInfoContainer>
 
-                      <OrderTextWrapper>
-                        <OrderDeliveryLocation>
-                          {`${order.pickup_city}, ${order.pickup_state} ·`}
-                        </OrderDeliveryLocation>
-                        <OrderDeliveryDistance>
-                          {`${order.distance} km`}
-                        </OrderDeliveryDistance>
-                      </OrderTextWrapper>
-                    </OrderDeliveryInfo>
-                  </OrderMeta>
-
-                  <OrderItemsCategoriesIconsContainer>
-                    {order.items.slice(0, 4).map(item => (
-                      <OrderItemsCategoryIcon
-                        key={item.id}
-                        name={item.category.icon}
-                        size={parseWidthPercentage(12)}
-                        color="#606060"
-                      />
-                    ))}
-                  </OrderItemsCategoriesIconsContainer>
+                  <OrderIdentifierContainer>
+                    <OrderIdentifierText>
+                      {`Nº do pedido: ${order.number}`}
+                    </OrderIdentifierText>
+                  </OrderIdentifierContainer>
                 </ListItemCard>
               )}
             />

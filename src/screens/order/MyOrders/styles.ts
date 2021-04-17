@@ -26,6 +26,13 @@ export const OrdersList = styled(SectionList as new () => SectionList<Order>)`
   padding-right: ${parseWidthPercentage(24)}px;
 `;
 
+export const OrderInfoContainer = styled.View`
+  flex: 1;
+  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
+  flex-direction: row;
+  align-items: center;
+`;
+
 const orderRequesterAvatarSize = parseWidthPercentage(40);
 
 export const OrderRequesterAvatar = styled.Image`
@@ -98,6 +105,22 @@ export const OrderItemsCategoriesIconsContainer = styled.View`
 export const OrderItemsCategoryIcon = styled(FontAwesome)`
   margin-right: ${parseWidthPercentage(4)}px;
   margin-bottom: ${parseHeightPercentage(4)}px;
+`;
+
+export const OrderIdentifierContainer = styled.View`
+  width: 100%;
+  height: ${parseHeightPercentage(24)}px;
+  padding: 0px ${parseWidthPercentage(16)}px;
+  background-color: #ebebeb05;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  justify-content: center;
+`;
+
+export const OrderIdentifierText = styled.Text`
+  color: #606060;
+  font-size: ${parseWidthPercentage(10)}px;
+  font-style: italic;
 `;
 
 export const EmptyOrdersListContainer = styled.View`
