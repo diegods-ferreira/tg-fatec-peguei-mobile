@@ -116,6 +116,9 @@ interface Order {
   requester: User;
   deliveryman: User;
   created_at: string;
+  chat: {
+    id: string;
+  };
 }
 
 interface OfferToPickup {
@@ -383,6 +386,14 @@ const OrderDetails: React.FC = () => {
     [navigation, user.id],
   );
 
+  const handleJoinChatRoom = useCallback(() => {
+    navigation.navigate('ChatRoom', {
+      chat_id: order.chat.id,
+      recipient: order.deliveryman.id,
+      order_id: order.id,
+    });
+  }, [navigation, order.chat.id, order.id, order.deliveryman.id]);
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -452,17 +463,22 @@ const OrderDetails: React.FC = () => {
               </OrderDeliveryInfo>
             </RequesterInfo>
 
-            <ChatButtonContainer>
-              <ChatButton style={boxShadowProps}>
-                <ChatButtonPressable rippleColor="#00000050">
-                  <Feather
-                    name="message-circle"
-                    size={parseWidthPercentage(24)}
-                    color="#EBEBEB"
-                  />
-                </ChatButtonPressable>
-              </ChatButton>
-            </ChatButtonContainer>
+            {order.deliveryman_id && order.chat && order.chat.id && (
+              <ChatButtonContainer>
+                <ChatButton style={boxShadowProps}>
+                  <ChatButtonPressable
+                    rippleColor="#00000050"
+                    onPress={handleJoinChatRoom}
+                  >
+                    <Feather
+                      name="message-circle"
+                      size={parseWidthPercentage(24)}
+                      color="#EBEBEB"
+                    />
+                  </ChatButtonPressable>
+                </ChatButton>
+              </ChatButtonContainer>
+            )}
           </RequesterContainer>
 
           <OrderInfoContainer>
