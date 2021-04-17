@@ -109,7 +109,7 @@ const SelectDeliveryman: React.FC = () => {
 
       Alert.alert(
         'Oba!',
-        'Seu entregador já foi notificado. Agora, é só aguardar por mais informações!',
+        'Seu entregador já foi notificado. Agora, é só aguardar por mais informações!\n\nUma sala de bate-papo entre você e seu entregador foi criada para que possam se comunicar melhor.',
       );
 
       navigation.navigate('OrderDetails', { id: routeParams.order_id });
