@@ -201,7 +201,7 @@ const ChatRoom: React.FC = () => {
           onSend={sentMessages => handleSendMessage(sentMessages)}
           user={giftedChatUser}
           scrollToBottom
-          onPressAvatar={() => Alert.alert('onPressAvatar', 'Abrir perfil')}
+          onPressAvatar={handleNavigateToUserProfile}
           keyboardShouldPersistTaps="never"
           infiniteScroll
           scrollToBottomStyle={{
