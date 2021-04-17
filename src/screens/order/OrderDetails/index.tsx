@@ -386,13 +386,12 @@ const OrderDetails: React.FC = () => {
     [navigation, user.id],
   );
 
-  const handleJoinChatRoom = useCallback(() => {
-    navigation.navigate('ChatRoom', {
-      chat_id: order.chat.id,
-      recipient: order.deliveryman.id,
-      order_id: order.id,
-    });
-  }, [navigation, order.chat.id, order.id, order.deliveryman.id]);
+  const handleJoinChatRoom = useCallback(
+    (chat_id: string, recipient: User, order_id: string) => {
+      navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
+    },
+    [navigation],
+  );
 
   if (loading) {
     return <LoadingScreen />;
@@ -468,7 +467,13 @@ const OrderDetails: React.FC = () => {
                 <ChatButton style={boxShadowProps}>
                   <ChatButtonPressable
                     rippleColor="#00000050"
-                    onPress={handleJoinChatRoom}
+                    onPress={() => {
+                      handleJoinChatRoom(
+                        order.chat.id,
+                        order.deliveryman,
+                        order.id,
+                      );
+                    }}
                   >
                     <Feather
                       name="message-circle"
