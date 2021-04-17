@@ -371,7 +371,7 @@ const CreateOrder: React.FC = () => {
           throw new Error('Você precisa incluir ao menos 1 item ao pedido.');
         }
 
-        if (purchaseInvoiceFile.uri === '') {
+        if (!purchaseInvoiceFile.uri) {
           throw new Error('Você precisa anexar uma nota fiscal ao pedido.');
         }
 
@@ -486,7 +486,7 @@ const CreateOrder: React.FC = () => {
 
         Alert.alert(
           'Ops...',
-          'Ocorreu um erro ao tentar salvar o seu pedido, tente novamente mais tarde.',
+          `Ocorreu um erro ao tentar salvar o seu pedido, tente novamente mais tarde.\n\n${err.toString()}`,
         );
       }
     },
