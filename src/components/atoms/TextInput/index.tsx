@@ -153,7 +153,7 @@ const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
 
         {!!error && (
           <ErrorContainer>
-            <ErrorLabel numberOfLines={1} ellipsizeMode="middle">
+            <ErrorLabel numberOfLines={1} ellipsizeMode="clip">
               {error}
             </ErrorLabel>
           </ErrorContainer>
