@@ -1,13 +1,12 @@
 import styled from 'styled-components/native';
 import { FlatList } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
-import { Order } from '@screens/Orders';
+import { Order } from '@screens/order/Orders';
 
 export const Container = styled.View`
   flex: 1;
