@@ -62,8 +62,8 @@ import {
   OrderItemName,
   OrderItemPacking,
   OrderItemImage,
-  OfferToPickupIndicatorContainer,
-  OfferToPickupIndicatorText,
+  StatusIndicatorContainer,
+  StatusIndicatorText,
   OfferToPickupModalContainer,
   OfferToPickupInputContainer,
   OfferToPickupInputContainerLabel,
@@ -257,6 +257,8 @@ const OrderDetails: React.FC = () => {
 
               setIsSubmiting(false);
 
+              Alert.alert('Excluído!', 'Pedido excluído com sucesso.');
+
               navigation.goBack();
             } catch (err) {
               Alert.alert('Ops...', err.message);
@@ -401,12 +403,33 @@ const OrderDetails: React.FC = () => {
     <>
       <TitleBar title="Detalhes do Pedido" />
 
-      {offerToPickup.id && (
-        <OfferToPickupIndicatorContainer onPress={handleOpenOfferToPickupModal}>
-          <OfferToPickupIndicatorText>
+      {offerToPickup.id && order.status === 1 && (
+        <StatusIndicatorContainer
+          backgroundColor="#6ab04c"
+          onPress={handleOpenOfferToPickupModal}
+        >
+          <StatusIndicatorText>
             Você já se ofereceu para fazer essa entrega
-          </OfferToPickupIndicatorText>
-        </OfferToPickupIndicatorContainer>
+          </StatusIndicatorText>
+        </StatusIndicatorContainer>
+      )}
+
+      {order.status === 2 && (
+        <StatusIndicatorContainer backgroundColor="#ff8c42">
+          <StatusIndicatorText>Pedido em andamento</StatusIndicatorText>
+        </StatusIndicatorContainer>
+      )}
+
+      {order.status === 3 && (
+        <StatusIndicatorContainer backgroundColor="#3498db">
+          <StatusIndicatorText>Pedido entregue!</StatusIndicatorText>
+        </StatusIndicatorContainer>
+      )}
+
+      {order.status === 4 && (
+        <StatusIndicatorContainer backgroundColor="#EB4D4B">
+          <StatusIndicatorText>Pedido cancelado</StatusIndicatorText>
+        </StatusIndicatorContainer>
       )}
 
       <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>

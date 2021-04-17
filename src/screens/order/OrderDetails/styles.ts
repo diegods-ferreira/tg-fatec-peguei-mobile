@@ -29,6 +29,10 @@ interface OfferToPickupModalTitleProps {
   fontSize?: number;
 }
 
+interface StatusIndicatorContainerProps {
+  backgroundColor: string;
+}
+
 export const Container = styled.View`
   flex: 1;
 `;
@@ -145,6 +149,8 @@ export const OrderInfoWrapper = styled.View<OrderInfoWrapperProps>`
 
 export const OrderInfoText = styled.Text`
   color: #ebebeb;
+  flex: 1;
+  flex-wrap: wrap;
   font-size: ${parseWidthPercentage(14)}px;
   margin-left: ${parseWidthPercentage(16)}px;
 `;
@@ -209,17 +215,24 @@ export const OrderItemImage = styled.Image`
   margin-left: ${parseWidthPercentage(16)}px;
 `;
 
-export const OfferToPickupIndicatorContainer = styled.TouchableOpacity`
+export const StatusIndicatorContainer = styled.TouchableOpacity<
+  StatusIndicatorContainerProps
+>`
   width: 100%;
   height: ${parseHeightPercentage(40)}px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  background-color: #6ab04c;
   justify-content: center;
   align-items: center;
+
+  ${props =>
+    props.backgroundColor &&
+    css`
+      background-color: ${props.backgroundColor};
+    `}
 `;
 
-export const OfferToPickupIndicatorText = styled.Text`
+export const StatusIndicatorText = styled.Text`
   color: #ebebeb;
   font-size: ${parseWidthPercentage(13)}px;
 `;
