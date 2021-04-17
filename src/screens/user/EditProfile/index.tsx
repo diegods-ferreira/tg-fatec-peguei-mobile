@@ -155,6 +155,12 @@ const EditProfile: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
+        if (changeAddress && !address.cep) {
+          Alert.alert('Atenção!', 'Você deve preencher o CEP do seu endereço.');
+          setIsSubmiting(null);
+          return;
+        }
+
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome é obrigatório'),
           email: Yup.string()
@@ -190,10 +196,6 @@ const EditProfile: React.FC = () => {
         await schema.validate(data, {
           abortEarly: false,
         });
-
-        if (changeAddress && !address.cep) {
-          throw new Error('Você deve preencher o CEP do seu endereço.');
-        }
 
         const formData = {
           name: data.name,
@@ -502,7 +504,7 @@ const EditProfile: React.FC = () => {
                   {address.cep && (
                     <>
                       <AddressContainer>
-                        <Label>Endereço</Label>
+                        <Label>Novo Endereço</Label>
                         <AddressTextContainer>
                           <AddressText>
                             {address.cep &&
