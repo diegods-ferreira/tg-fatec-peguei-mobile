@@ -37,7 +37,7 @@ import api from '@services/api';
 
 import { useAuth } from '@hooks/auth';
 
-import { User } from '@screens/chat/Chats';
+import IUser from '@models/User';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
@@ -63,7 +63,7 @@ import {
 
 interface RouteParams {
   chat_id: string;
-  recipient: User;
+  recipient: IUser;
   order_id: string;
 }
 

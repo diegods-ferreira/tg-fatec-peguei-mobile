@@ -10,6 +10,8 @@ import { useLocation } from '@hooks/location';
 
 import api from '@services/api';
 
+import IOrder from '@models/Order';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import FloatingButton from '@components/atoms/FloatingButton';
 import ListItemCard from '@components/atoms/ListItemCard';
@@ -52,30 +54,9 @@ import {
   OrderIdentifierText,
 } from './styles';
 
-interface Item {
-  id: string;
-  category: {
-    icon: string;
-  };
-}
-
-export interface Order {
-  id: string;
-  pickup_city: string;
-  pickup_state: string;
-  pickup_latitude: number;
-  pickup_longitude: number;
-  delivery_value: number;
-  items: Item[];
-  requester: {
-    name: string;
-    username: string;
-    avatar_url: string;
-  };
-  created_at: string;
+export interface IOrderExtended extends IOrder {
   formatted_created_at: string;
   distance: number;
-  number: number;
 }
 
 export interface Distance {
@@ -89,7 +70,7 @@ const Orders: React.FC = () => {
 
   const navigation = useNavigation();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<IOrderExtended[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [distances, setDistances] = useState<Distance[]>([]);
   const [selectedDistance, setSelectedDistance] = useState(10);
@@ -177,25 +158,27 @@ const Orders: React.FC = () => {
             },
           });
 
-          const serializedOrders = response.data.map((order: Order) => ({
-            ...order,
-            formatted_created_at: format(
-              parseISO(order.created_at),
-              'dd/MM/yyyy',
-            ),
-            distance: formatDistanceValue(
-              convertDistance(
-                getDistance(
-                  {
-                    latitude: order.pickup_latitude,
-                    longitude: order.pickup_longitude,
-                  },
-                  location,
-                ),
-                'km',
+          const serializedOrders = response.data.map(
+            (order: IOrderExtended) => ({
+              ...order,
+              formatted_created_at: format(
+                parseISO(order.created_at),
+                'dd/MM/yyyy',
               ),
-            ),
-          }));
+              distance: formatDistanceValue(
+                convertDistance(
+                  getDistance(
+                    {
+                      latitude: order.pickup_latitude,
+                      longitude: order.pickup_longitude,
+                    },
+                    location,
+                  ),
+                  'km',
+                ),
+              ),
+            }),
+          );
 
           if (serializedOrders) {
             setOrders(state =>

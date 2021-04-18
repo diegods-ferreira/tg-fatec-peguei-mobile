@@ -1,8 +1,7 @@
 import styled, { css } from 'styled-components/native';
 import { FlatList } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
 
-import { Chat } from '@screens/chat/Chats';
+import { IChatExtended } from '@screens/chat/Chats';
 
 import {
   parseHeightPercentage,
@@ -23,7 +22,7 @@ export const ChatsListContainer = styled.View`
   width: 100%;
 `;
 
-export const ChatsList = styled(FlatList as new () => FlatList<Chat>)`
+export const ChatsList = styled(FlatList as new () => FlatList<IChatExtended>)`
   width: 100%;
   padding-left: ${parseWidthPercentage(24)}px;
   padding-right: ${parseWidthPercentage(24)}px;

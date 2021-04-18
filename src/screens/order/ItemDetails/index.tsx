@@ -7,6 +7,8 @@ import api from '@services/api';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
+import IOrderItem from '@models/OrderItem';
+
 import TitleBar from '@components/atoms/TitleBar';
 import TitledBox from '@components/atoms/TitledBox';
 import LoadingScreen from '@components/atoms/LoadingScreen';
@@ -31,35 +33,11 @@ interface RouteParams {
   id: string;
 }
 
-interface Item {
-  id: string;
-  name: string;
-  quantity: number;
-  width: number;
-  weight: number;
-  height: number;
-  depth: number;
-  packing: string;
-  description: string;
-  category: {
-    name: string;
-    icon: string;
-  };
-  weight_unit_measure: {
-    initials: string;
-  };
-  dimension_unit_measure: {
-    initials: string;
-    description: string;
-  };
-  image_url: string;
-}
-
 const ItemDetails: React.FC = () => {
   const route = useRoute();
   const routeParams = route.params as RouteParams;
 
-  const [item, setItem] = useState<Item>({} as Item);
+  const [item, setItem] = useState<IOrderItem>({} as IOrderItem);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

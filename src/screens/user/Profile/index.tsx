@@ -5,10 +5,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 import api from '@services/api';
 
-import { useAuth, User } from '@hooks/auth';
+import { useAuth } from '@hooks/auth';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
+
+import IUser from '@models/User';
 
 import AvaluationCard from '@components/atoms/AvaluationCard';
 import LoadingScreen from '@components/atoms/LoadingScreen';
@@ -55,7 +57,7 @@ const Profile: React.FC = () => {
 
   const { user: authUser } = useAuth();
 
-  const [user, setUser] = useState<User>({} as User);
+  const [user, setUser] = useState<IUser>({} as IUser);
   const [showEditProfileButton, setShowEditProfileButton] = useState(false);
   const [showGoBackButton, setShowGoBackButton] = useState(false);
   const [loading, setLoading] = useState(true);

@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
 import { SectionList } from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import {
@@ -8,7 +7,7 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import { Order } from './index';
+import { IOrderExtended } from './index';
 
 export const Container = styled.View`
   flex: 1;
@@ -20,7 +19,9 @@ export const OrdersListContainer = styled.View`
   width: 100%;
 `;
 
-export const OrdersList = styled(SectionList as new () => SectionList<Order>)`
+export const OrdersList = styled(
+  SectionList as new () => SectionList<IOrderExtended>,
+)`
   width: 100%;
   padding-left: ${parseWidthPercentage(24)}px;
   padding-right: ${parseWidthPercentage(24)}px;

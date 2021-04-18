@@ -74,7 +74,7 @@ import {
   AttachPurchaseInvoiceValueText,
 } from './styles';
 
-export interface OrderItem {
+export interface OrderItemToSave {
   id: number;
   name: string;
   description: string;
@@ -154,7 +154,7 @@ const CreateOrder: React.FC = () => {
   const [useMyOrAnotherAddress, setUseMyOrAnotherAddress] = useState(
     !user.address && !user.state && !user.city ? 1 : 0,
   );
-  const [items, setItems] = useState<OrderItem[]>([]);
+  const [items, setItems] = useState<OrderItemToSave[]>([]);
   const [purchaseInvoiceFile, setPurchaseInvoiceFile] = useState<
     DocumentPickerResponse
   >({} as DocumentPickerResponse);
@@ -193,7 +193,7 @@ const CreateOrder: React.FC = () => {
           return;
         }
 
-        const parsedItem = JSON.parse(storagedItem) as OrderItem;
+        const parsedItem = JSON.parse(storagedItem) as OrderItemToSave;
 
         setItems(state => {
           const itemIndex = state.findIndex(

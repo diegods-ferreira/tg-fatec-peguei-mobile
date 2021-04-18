@@ -8,7 +8,7 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import { Distance, Order } from './index';
+import { Distance, IOrderExtended } from './index';
 
 interface DistanceContainerProps {
   isSelected?: boolean;
@@ -79,7 +79,9 @@ export const OrdersListContainer = styled.View`
   width: 100%;
 `;
 
-export const OrdersList = styled(FlatList as new () => FlatList<Order>)`
+export const OrdersList = styled(
+  FlatList as new () => FlatList<IOrderExtended>,
+)`
   width: 100%;
   padding-left: ${parseWidthPercentage(24)}px;
   padding-right: ${parseWidthPercentage(24)}px;

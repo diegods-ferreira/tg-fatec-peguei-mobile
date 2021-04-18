@@ -11,6 +11,8 @@ import {
 } from '@utils/screenPercentage';
 import formatCurrencyValue from '@utils/formatCurrencyValue';
 
+import IRequestPickupOffer from '@models/RequestPickupOffer';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
 import FilledButton from '@components/atoms/FilledButton';
@@ -38,27 +40,16 @@ import {
   EmptyPickupOffersListText,
 } from './styles';
 
-interface Params {
+interface RouteParams {
   order_id: string;
-}
-
-export interface PickupOffer {
-  id: string;
-  delivery_value: number;
-  deliveryman: {
-    id: string;
-    name: string;
-    username: string;
-    avatar_url: string;
-  };
 }
 
 const SelectDeliveryman: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const routeParams = route.params as Params;
+  const routeParams = route.params as RouteParams;
 
-  const [pickupOffers, setPickupOffers] = useState<PickupOffer[]>([]);
+  const [pickupOffers, setPickupOffers] = useState<IRequestPickupOffer[]>([]);
   const [selectedDeliveryman, setSelectedDeliveryman] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);

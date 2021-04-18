@@ -24,6 +24,10 @@ import boxShadowProps from '@utils/boxShadowProps';
 import formatDistanceValue from '@utils/formatDistanceValue';
 import formatCurrencyValue from '@utils/formatCurrencyValue';
 
+import IOrder from '@models/Order';
+import IRequestPickupOffer from '@models/RequestPickupOffer';
+import IUser from '@models/User';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
 import TitledBox from '@components/atoms/TitledBox';
@@ -80,51 +84,11 @@ import {
   DeliverymanAvaluationStars,
 } from './styles';
 
-interface Params {
+interface RouteParams {
   id: string;
 }
 
-interface Item {
-  id: string;
-  name: string;
-  quantity: number;
-  packing: string;
-  image_url: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  username: string;
-  avatar_url: string;
-}
-
-interface Order {
-  id: string;
-  pickup_address: string;
-  pickup_city: string;
-  pickup_state: string;
-  pickup_latitude: number;
-  pickup_longitude: number;
-  pickup_establishment: string;
-  pickup_date: string;
-  deliveryman_id: string;
-  delivery_address: string;
-  purchase_invoice_url: string;
-  status: number;
-  items: Item[];
-  requester: User;
-  deliveryman: User;
-  created_at: string;
-  chat: {
-    id: string;
-  };
-}
-
-interface OfferToPickup {
-  id: string;
-  delivery_value: number;
-  created_at: string;
+interface IRequestPickupOfferExtended extends IRequestPickupOffer {
   formatted_created_at: string;
 }
 
@@ -136,13 +100,13 @@ const OrderDetails: React.FC = () => {
 
   const navigation = useNavigation();
   const route = useRoute();
-  const routeParams = route.params as Params;
+  const routeParams = route.params as RouteParams;
 
-  const [order, setOrder] = useState<Order>({} as Order);
+  const [order, setOrder] = useState<IOrder>({} as IOrder);
   const [loading, setLoading] = useState(true);
-  const [offerToPickup, setOfferToPickup] = useState<OfferToPickup>(
-    {} as OfferToPickup,
-  );
+  const [offerToPickup, setOfferToPickup] = useState<
+    IRequestPickupOfferExtended
+  >({} as IRequestPickupOfferExtended);
   const [offerToPickupInputValue, setOfferToPickupInputValue] = useState('0');
   const [offerToPickupValue, setOfferToPickupValue] = useState(0);
   const [isSubmiting, setIsSubmiting] = useState(false);
@@ -335,7 +299,7 @@ const OrderDetails: React.FC = () => {
     try {
       await api.delete(`/orders/pickup-offers/${offerToPickup.id}`);
 
-      setOfferToPickup({} as OfferToPickup);
+      setOfferToPickup({} as IRequestPickupOfferExtended);
 
       Alert.alert('Excluído!', 'Sua oferta foi excluída com sucesso.');
     } catch {
@@ -389,7 +353,7 @@ const OrderDetails: React.FC = () => {
   );
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient: User, order_id: string) => {
+    (chat_id: string, recipient: IUser, order_id: string) => {
       navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
     },
     [navigation],

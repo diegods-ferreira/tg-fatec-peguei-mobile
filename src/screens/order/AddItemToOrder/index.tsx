@@ -22,8 +22,11 @@ import {
 } from '@utils/screenPercentage';
 import getValidationErrors from '@utils/getValidationErrors';
 
+import IOrderItemUnitMeasure from '@models/OrderItemUnitMeasure';
+import IOrderItemCategory from '@models/OrderItemCategory';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
-import { OrderItem } from '@screens/order/CreateOrder';
+import { OrderItemToSave } from '@screens/order/CreateOrder';
 
 import TitleBar from '@components/atoms/TitleBar';
 import TitledBox from '@components/atoms/TitledBox';
@@ -50,17 +53,6 @@ import {
   StyledPickerSelect,
 } from './styles';
 
-interface UnitMeasure {
-  id: number;
-  initials: string;
-  description: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
-
 interface AddItemToOrderFormData {
   name: string;
   description: string;
@@ -82,20 +74,20 @@ const AddItemToOrder: React.FC = () => {
   const routeParams = route.params as RouteParams;
 
   const [loading, setLoading] = useState(true);
-  const [item, setItem] = useState<OrderItem>({} as OrderItem);
+  const [item, setItem] = useState<OrderItemToSave>({} as OrderItemToSave);
   const [quantity, setQuantity] = useState(1);
   const [weight, setWeight] = useState(0);
   const [weightInputFocused, setWeightInputFocused] = useState(false);
 
-  const [weightUnitsMeasure, setWeightUnitsMeasure] = useState<UnitMeasure[]>(
-    [],
-  );
-
-  const [dimensionUnitsMeasure, setDimensionUnitsMeasure] = useState<
-    UnitMeasure[]
+  const [weightUnitsMeasure, setWeightUnitsMeasure] = useState<
+    IOrderItemUnitMeasure[]
   >([]);
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [dimensionUnitsMeasure, setDimensionUnitsMeasure] = useState<
+    IOrderItemUnitMeasure[]
+  >([]);
+
+  const [categories, setCategories] = useState<IOrderItemCategory[]>([]);
 
   const [selectedWeightUnitMeasure, setSelectedWeightUnitMeasure] = useState(
     -1,
@@ -134,7 +126,7 @@ const AddItemToOrder: React.FC = () => {
           return;
         }
 
-        const parsedItem = JSON.parse(storagedItem) as OrderItem;
+        const parsedItem = JSON.parse(storagedItem) as OrderItemToSave;
 
         setItem(parsedItem);
 

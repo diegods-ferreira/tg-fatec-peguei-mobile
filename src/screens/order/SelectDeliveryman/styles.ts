@@ -6,7 +6,8 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
-import { PickupOffer } from '.';
+
+import IRequestPickupOffer from '@models/RequestPickupOffer';
 
 interface PickupOfferContainerProps {
   isSelected: boolean;
@@ -29,7 +30,7 @@ export const ListHeaderText = styled.Text`
 `;
 
 export const PickupOffersList = styled(
-  FlatList as new () => FlatList<PickupOffer>,
+  FlatList as new () => FlatList<IRequestPickupOffer>,
 )`
   width: 100%;
   padding-left: ${parseWidthPercentage(24)}px;

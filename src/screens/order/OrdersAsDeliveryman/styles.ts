@@ -6,7 +6,7 @@ import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
-import { Order } from '@screens/order/Orders';
+import { IOrderExtended } from '@screens/order/Orders';
 
 export const Container = styled.View`
   flex: 1;
@@ -18,7 +18,9 @@ export const OrdersListContainer = styled.View`
   width: 100%;
 `;
 
-export const OrdersList = styled(FlatList as new () => FlatList<Order>)`
+export const OrdersList = styled(
+  FlatList as new () => FlatList<IOrderExtended>,
+)`
   width: 100%;
   padding-left: ${parseWidthPercentage(24)}px;
   padding-right: ${parseWidthPercentage(24)}px;

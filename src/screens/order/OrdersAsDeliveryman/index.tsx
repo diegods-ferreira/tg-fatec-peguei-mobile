@@ -19,7 +19,7 @@ import TitleBar from '@components/atoms/TitleBar';
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import ListItemCard from '@components/atoms/ListItemCard';
 
-import { Order } from '@screens/order/Orders';
+import { IOrderExtended } from '@screens/order/Orders';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
@@ -51,7 +51,9 @@ const OrdersAsDeliveryman: React.FC = () => {
 
   const navigation = useNavigation();
 
-  const [ordersAsDeliveryman, setOrdersAsDeliveryman] = useState<Order[]>([]);
+  const [ordersAsDeliveryman, setOrdersAsDeliveryman] = useState<
+    IOrderExtended[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ const OrdersAsDeliveryman: React.FC = () => {
           const response = await api.get('/orders/deliveryman');
 
           setOrdersAsDeliveryman(
-            response.data.map((order: Order) => ({
+            response.data.map((order: IOrderExtended) => ({
               ...order,
               formatted_created_at: format(
                 parseISO(order.created_at),

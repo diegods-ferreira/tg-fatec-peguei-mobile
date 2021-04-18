@@ -16,6 +16,8 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
+import IOrder from '@models/Order';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import Label from '@components/atoms/Label';
 
@@ -47,36 +49,14 @@ import {
   OrderInfoContainer,
 } from './styles';
 
-interface Item {
-  id: string;
-  category: {
-    icon: string;
-  };
-}
-
-export interface Order {
-  id: string;
-  pickup_city: string;
-  pickup_state: string;
-  pickup_latitude: number;
-  pickup_longitude: number;
-  delivery_value: number;
-  status: number;
-  items: Item[];
-  requester: {
-    name: string;
-    username: string;
-    avatar_url: string;
-  };
-  created_at: string;
+export interface IOrderExtended extends IOrder {
   formatted_created_at: string;
   distance: number;
-  number: number;
 }
 
 interface Section {
   title: string;
-  data: Order[];
+  data: IOrderExtended[];
 }
 
 const MyOrders: React.FC = () => {
@@ -84,7 +64,7 @@ const MyOrders: React.FC = () => {
 
   const navigation = useNavigation();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<IOrderExtended[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -99,7 +79,7 @@ const MyOrders: React.FC = () => {
         .get('/orders/me')
         .then(response => {
           setOrders(
-            response.data.map((order: Order) => ({
+            response.data.map((order: IOrderExtended) => ({
               ...order,
               formatted_created_at: format(
                 parseISO(order.created_at),

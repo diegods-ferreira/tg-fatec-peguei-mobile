@@ -13,7 +13,8 @@ import {
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import { Order } from '@screens/order/Orders';
+import IChat from '@models/Chat';
+import IUser from '@models/User';
 
 import TitleBar from '@components/atoms/TitleBar';
 import LoadingScreen from '@components/atoms/LoadingScreen';
@@ -39,24 +40,8 @@ import {
   EmptyChatsListText,
 } from './styles';
 
-export interface User {
-  id: string;
-  name: string;
-  username: string;
-  avatar_url: string;
-}
-
-export interface Chat {
-  id: string;
-  order: Order;
-  created_at: string;
-  updated_at: string;
-  requester: User;
-  deliveryman: User;
-  last_message_text: string;
-  last_message_sent_at: string;
-  last_message_sent_by: string;
-  other_user: User;
+export interface IChatExtended extends IChat {
+  other_user: IUser;
 }
 
 const Chats: React.FC = () => {
@@ -64,7 +49,7 @@ const Chats: React.FC = () => {
 
   const navigation = useNavigation();
 
-  const [chats, setChats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<IChatExtended[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -75,7 +60,7 @@ const Chats: React.FC = () => {
       const response = await api.get('/chats');
 
       setChats(
-        response.data.map((chat: Chat) => ({
+        response.data.map((chat: IChatExtended) => ({
           ...chat,
           other_user:
             user.id === chat.requester.id ? chat.deliveryman : chat.requester,
@@ -104,7 +89,7 @@ const Chats: React.FC = () => {
   }, [fetchChatsListFromTheApi]);
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient: User, order_id: string) => {
+    (chat_id: string, recipient: IUser, order_id: string) => {
       navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
     },
     [navigation],

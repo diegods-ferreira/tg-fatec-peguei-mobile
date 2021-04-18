@@ -7,32 +7,11 @@ import React, {
 } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import api from '@services/api';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  facebook: string;
-  instagram: string;
-  phone: string;
-  presentation: string;
-  address: string;
-  city: string;
-  state: string;
-  avatar: string;
-  username: string;
-  show_email: boolean;
-  show_facebook: boolean;
-  show_instagram: boolean;
-  show_phone: boolean;
-  created_at: Date;
-  updated_at: Date;
-  avatar_url: string;
-}
+import IUser from '@models/User';
 
 interface AuthState {
   token: string;
-  user: User;
+  user: IUser;
 }
 
 interface SignInCredentials {
@@ -41,10 +20,10 @@ interface SignInCredentials {
 }
 
 interface AuthContextData {
-  user: User;
+  user: IUser;
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
-  updateUser(user: User): Promise<void>;
+  updateUser(user: IUser): Promise<void>;
   loading: boolean;
 }
 
@@ -93,7 +72,7 @@ const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const updateUser = useCallback(
-    async (user: User) => {
+    async (user: IUser) => {
       await AsyncStorage.setItem('@Peguei!:user', JSON.stringify(user));
 
       setData({
