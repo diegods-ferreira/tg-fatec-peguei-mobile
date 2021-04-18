@@ -10,6 +10,7 @@ import ListItemCard from '@components/atoms/ListItemCard';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
 
+import AvatarImage from '@components/atoms/AvatarImage';
 import {
   OrderRequesterAvatar,
   OrderMeta,
@@ -55,13 +56,7 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
       onPress={() => handleNavigateToOrderDetails(order.id)}
     >
       <OrderInfoContainer>
-        <OrderRequesterAvatar
-          source={
-            order.requester.avatar_url
-              ? { uri: order.requester.avatar_url }
-              : noUserAvatarImg
-          }
-        />
+        <AvatarImage user={order.requester} />
 
         <OrderMeta>
           <OrderTextWrapper>

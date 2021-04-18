@@ -61,14 +61,6 @@ export const PickupOfferClickable = styled(RectButton)`
   align-items: center;
 `;
 
-const pickupOfferUserAvatarSize = parseWidthPercentage(40);
-
-export const PickupOfferUserAvatar = styled.Image`
-  width: ${pickupOfferUserAvatarSize}px;
-  height: ${pickupOfferUserAvatarSize}px;
-  border-radius: ${pickupOfferUserAvatarSize / 2}px;
-`;
-
 export const PickupOfferMeta = styled.View`
   flex: 1;
   margin-left: ${parseWidthPercentage(16)}px;

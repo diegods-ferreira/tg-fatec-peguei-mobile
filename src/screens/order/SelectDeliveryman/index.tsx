@@ -16,8 +16,7 @@ import IRequestPickupOffer from '@models/RequestPickupOffer';
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
 import FilledButton from '@components/atoms/FilledButton';
-
-import noUserAvatarImg from '@assets/no-user-avatar.png';
+import AvatarImage from '@components/atoms/AvatarImage';
 
 import { Rating } from 'react-native-elements';
 import {
@@ -26,7 +25,6 @@ import {
   PickupOffersList,
   PickupOfferContainer,
   PickupOfferClickable,
-  PickupOfferUserAvatar,
   PickupOfferMeta,
   PickupOfferTextWrapper,
   PickupOfferUserFullName,
@@ -199,13 +197,7 @@ const SelectDeliveryman: React.FC = () => {
                   setSelectedDeliveryman(pickupOffer.deliveryman.id);
                 }}
               >
-                <PickupOfferUserAvatar
-                  source={
-                    pickupOffer.deliveryman.avatar_url
-                      ? { uri: pickupOffer.deliveryman.avatar_url }
-                      : noUserAvatarImg
-                  }
-                />
+                <AvatarImage user={pickupOffer.deliveryman} />
 
                 <PickupOfferMeta>
                   <PickupOfferTextWrapper>

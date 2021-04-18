@@ -18,8 +18,7 @@ import IUser from '@models/User';
 
 import TitleBar from '@components/atoms/TitleBar';
 import LoadingScreen from '@components/atoms/LoadingScreen';
-
-import noUserAvatarImg from '@assets/no-user-avatar.png';
+import AvatarImage from '@components/atoms/AvatarImage';
 
 import ListItemCard from '@components/atoms/ListItemCard';
 import {
@@ -27,7 +26,6 @@ import {
   ChatsListContainer,
   ChatsList,
   ChatInfoContainer,
-  ChatUserAvatar,
   ChatMeta,
   ChatTextWrapper,
   ChatOtherUserFullName,
@@ -152,13 +150,7 @@ const Chats: React.FC = () => {
                 }}
               >
                 <ChatInfoContainer>
-                  <ChatUserAvatar
-                    source={
-                      chat.other_user.avatar_url
-                        ? { uri: chat.other_user.avatar_url }
-                        : noUserAvatarImg
-                    }
-                  />
+                  <AvatarImage user={chat.other_user} size={68} />
 
                   <ChatMeta>
                     <ChatTextWrapper>

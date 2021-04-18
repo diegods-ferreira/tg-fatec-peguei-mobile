@@ -5,13 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {
-  Alert,
-  StyleProp,
-  View,
-  ViewStyle,
-  TouchableOpacity,
-} from 'react-native';
+import { Alert, StyleProp, View, ViewStyle } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { io as socketio, Socket } from 'socket.io-client';
 import {
@@ -41,19 +35,17 @@ import IUser from '@models/User';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
+import AvatarImage from '@components/atoms/AvatarImage';
 
 import {
   parseHeightPercentage,
   parseWidthPercentage,
 } from '@utils/screenPercentage';
 
-import noUserAvatarImg from '@assets/no-user-avatar.png';
-
 import {
   Container,
   ComposerContainer,
   ChatEmptyContainer,
-  ChatEmptyUserAvatar,
   ChatEmptyUserName,
   ChatEmptyText,
   ContextMenuModal,
@@ -255,15 +247,11 @@ const ChatRoom: React.FC = () => {
                 transform: [{ rotateY: '180deg' }, { rotateZ: '180deg' }],
               }}
             >
-              <TouchableOpacity onPress={handleNavigateToUserProfile}>
-                <ChatEmptyUserAvatar
-                  source={
-                    routeParams.recipient.avatar_url
-                      ? { uri: routeParams.recipient.avatar_url }
-                      : noUserAvatarImg
-                  }
-                />
-              </TouchableOpacity>
+              <AvatarImage
+                user={routeParams.recipient}
+                size={80}
+                navigateToProfileOnPress
+              />
 
               <ChatEmptyUserName>
                 {routeParams.recipient.name}

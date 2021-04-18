@@ -35,14 +35,6 @@ export const ChatInfoContainer = styled.View`
   align-items: center;
 `;
 
-const chatUserAvatarSize = parseWidthPercentage(68);
-
-export const ChatUserAvatar = styled.Image`
-  width: ${chatUserAvatarSize}px;
-  height: ${chatUserAvatarSize}px;
-  border-radius: ${chatUserAvatarSize / 2}px;
-`;
-
 export const ChatMeta = styled.View`
   flex: 1;
   margin-left: ${parseWidthPercentage(16)}px;

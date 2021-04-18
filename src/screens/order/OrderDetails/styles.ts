@@ -45,17 +45,9 @@ export const RequesterContainer = styled.View`
   align-items: center;
 `;
 
-const requesterAvatarSize = parseHeightPercentage(80);
-
-export const RequesterAvatar = styled.Image`
-  width: ${requesterAvatarSize}px;
-  height: ${requesterAvatarSize}px;
-  border-radius: ${requesterAvatarSize / 2}px;
-  margin-right: ${parseWidthPercentage(16)}px;
-`;
-
 export const RequesterInfo = styled.View`
   flex: 1;
+  margin-left: ${parseWidthPercentage(16)}px;
 `;
 
 export const RequesterFullName = styled.Text`
@@ -336,14 +328,6 @@ export const DeliverymanContainer = styled.View`
   border-color: #6f7bae;
   flex-direction: row;
   align-items: center;
-`;
-
-const pickupOfferUserAvatarSize = parseWidthPercentage(40);
-
-export const DeliverymanAvatar = styled.Image`
-  width: ${pickupOfferUserAvatarSize}px;
-  height: ${pickupOfferUserAvatarSize}px;
-  border-radius: ${pickupOfferUserAvatarSize / 2}px;
 `;
 
 export const DeliverymanMeta = styled.View`

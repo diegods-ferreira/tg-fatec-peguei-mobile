@@ -1,13 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-  Alert,
-  Linking,
-  Platform,
-  ToastAndroid,
-  TouchableOpacity,
-} from 'react-native';
+import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
 import { format, parseISO } from 'date-fns';
 import { convertDistance, getDistance } from 'geolib';
 import { useNavigation } from '@react-navigation/native';
@@ -33,8 +27,8 @@ import TitleBar from '@components/atoms/TitleBar';
 import TitledBox from '@components/atoms/TitledBox';
 import FilledButton from '@components/atoms/FilledButton';
 import OutlinedButton from '@components/atoms/OutlinedButton';
+import AvatarImage from '@components/atoms/AvatarImage';
 
-import noUserAvatarImg from '@assets/no-user-avatar.png';
 import noOrderItemImg from '@assets/no-order-item-image.png';
 
 import api from '@services/api';
@@ -42,7 +36,6 @@ import api from '@services/api';
 import {
   Container,
   RequesterContainer,
-  RequesterAvatar,
   RequesterInfo,
   RequesterFullName,
   RequesterUsername,
@@ -76,7 +69,6 @@ import {
   OfferToPickupDateTime,
   OfferToPickupButtons,
   DeliverymanContainer,
-  DeliverymanAvatar,
   DeliverymanMeta,
   DeliverymanTextWrapper,
   DeliverymanFullName,
@@ -341,17 +333,6 @@ const OrderDetails: React.FC = () => {
     }
   }, [offerToPickup.id, offerToPickupValue]);
 
-  const handleNavigateToUserProfile = useCallback(
-    (requester_id: string) => {
-      if (requester_id !== user.id) {
-        navigation.navigate('UserProfile', { user_id: requester_id });
-      } else {
-        navigation.navigate('Profile');
-      }
-    },
-    [navigation, user.id],
-  );
-
   const handleJoinChatRoom = useCallback(
     (chat_id: string, recipient: IUser, order_id: string) => {
       navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
@@ -399,20 +380,11 @@ const OrderDetails: React.FC = () => {
       <ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
         <Container>
           <RequesterContainer>
-            <TouchableOpacity
-              onPress={() => {
-                handleNavigateToUserProfile(order.requester.id);
-              }}
-            >
-              <RequesterAvatar
-                defaultSource={noUserAvatarImg}
-                source={
-                  order.requester.avatar_url
-                    ? { uri: order.requester.avatar_url }
-                    : noUserAvatarImg
-                }
-              />
-            </TouchableOpacity>
+            <AvatarImage
+              user={order.requester}
+              size={80}
+              navigateToProfileOnPress
+            />
 
             <RequesterInfo>
               <RequesterFullName>{order.requester.name}</RequesterFullName>
@@ -568,19 +540,11 @@ const OrderDetails: React.FC = () => {
               order.deliveryman_id && (
                 <TitledBox title="Entregador">
                   <DeliverymanContainer>
-                    <TouchableOpacity
-                      onPress={() => {
-                        handleNavigateToUserProfile(order.deliveryman.id);
-                      }}
-                    >
-                      <DeliverymanAvatar
-                        source={
-                          order.deliveryman.avatar_url
-                            ? { uri: order.deliveryman.avatar_url }
-                            : noUserAvatarImg
-                        }
-                      />
-                    </TouchableOpacity>
+                    <AvatarImage
+                      user={order.deliveryman}
+                      size={56}
+                      navigateToProfileOnPress
+                    />
 
                     <DeliverymanMeta>
                       <DeliverymanTextWrapper>

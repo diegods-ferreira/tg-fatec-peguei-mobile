@@ -21,15 +21,6 @@ export const ChatEmptyContainer = styled.View`
   padding-bottom: ${parseHeightPercentage(80)}px;
 `;
 
-const chatEmptyUserImageSize = parseHeightPercentage(80);
-
-export const ChatEmptyUserAvatar = styled.Image`
-  width: ${chatEmptyUserImageSize}px;
-  height: ${chatEmptyUserImageSize}px;
-  border-radius: ${chatEmptyUserImageSize / 2}px;
-  margin-bottom: ${parseHeightPercentage(8)}px;
-`;
-
 export const ChatEmptyUserName = styled.Text`
   color: #ebebeb;
   font-size: ${parseWidthPercentage(16)}px;
