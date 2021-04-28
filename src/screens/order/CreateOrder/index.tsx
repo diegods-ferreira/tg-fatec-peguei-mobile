@@ -796,7 +796,9 @@ const CreateOrder: React.FC = () => {
                         marginBottom={parseHeightPercentage(8)}
                         backgroundColor="#6f7bae"
                         textColor="#ebebeb"
-                        showLoadingIndicator={isSubmiting === 'PickupCepSearch'}
+                        showLoadingIndicator={
+                          isSubmiting === 'DeliveryCepSearch'
+                        }
                         onPress={() => deliveryCepFormRef.current?.submitForm()}
                       >
                         <Feather
