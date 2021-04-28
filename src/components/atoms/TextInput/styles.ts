@@ -42,6 +42,7 @@ export const Container = styled.View<ContainerProps>`
     props.isErrored &&
     css`
       border-color: #e74c3c;
+      margin-bottom: ${parseHeightPercentage(16)}px;
     `}
 `;
 
