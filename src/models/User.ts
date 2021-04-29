@@ -19,6 +19,7 @@ export default interface IUser {
   show_facebook: boolean;
   show_instagram: boolean;
   show_phone: boolean;
+  rating_average: number;
   trips: ITrip[];
   created_at: string;
   updated_at: string;

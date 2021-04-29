@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Alert, Linking, Platform, ToastAndroid } from 'react-native';
@@ -8,12 +14,17 @@ import { useNavigation } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import Clipboard from '@react-native-community/clipboard';
 import { Rating } from 'react-native-elements';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useAuth } from '@hooks/auth';
 import { useLocation } from '@hooks/location';
 
-import { parseWidthPercentage } from '@utils/screenPercentage';
+import {
+  parseHeightPercentage,
+  parseWidthPercentage,
+} from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 import formatDistanceValue from '@utils/formatDistanceValue';
 import formatCurrencyValue from '@utils/formatCurrencyValue';
@@ -28,6 +39,7 @@ import TitledBox from '@components/atoms/TitledBox';
 import FilledButton from '@components/atoms/FilledButton';
 import OutlinedButton from '@components/atoms/OutlinedButton';
 import AvatarImage from '@components/atoms/AvatarImage';
+import InputGroup from '@components/molecules/InputGroup';
 
 import noOrderItemImg from '@assets/no-order-item-image.png';
 
@@ -61,19 +73,20 @@ import {
   OrderItemImage,
   StatusIndicatorContainer,
   StatusIndicatorText,
-  OfferToPickupModalContainer,
+  ModalContainer,
   OfferToPickupInputContainer,
   OfferToPickupInputContainerLabel,
   TextInput,
-  OfferToPickupModalTitle,
+  ModalTitle,
   OfferToPickupDateTime,
-  OfferToPickupButtons,
+  ModalButtons,
   DeliverymanContainer,
   DeliverymanMeta,
   DeliverymanTextWrapper,
   DeliverymanFullName,
   DeliverymanUsername,
   DeliverymanAvaluationStars,
+  RatingStarsContainer,
 } from './styles';
 
 interface RouteParams {
@@ -84,8 +97,14 @@ interface IRequestPickupOfferExtended extends IRequestPickupOffer {
   formatted_created_at: string;
 }
 
+interface SendDeliverymanRateFormData {
+  comment: string;
+}
+
 const OrderDetails: React.FC = () => {
   const modalizeRef = useRef<Modalize>(null);
+  const setOrderAsDeliveredModalRef = useRef<Modalize>(null);
+  const setOrderAsDeliveredFormRef = useRef<FormHandles>(null);
 
   const { user } = useAuth();
   const { location } = useLocation();
@@ -101,7 +120,17 @@ const OrderDetails: React.FC = () => {
   >({} as IRequestPickupOfferExtended);
   const [offerToPickupInputValue, setOfferToPickupInputValue] = useState('0');
   const [offerToPickupValue, setOfferToPickupValue] = useState(0);
-  const [isSubmiting, setIsSubmiting] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState<
+    | 'DeleteOrder'
+    | 'MakeOfferToPickup'
+    | 'DeleteMyOfferToPickup'
+    | 'UpdateMyOfferToPickup'
+    | 'DeleteOrder'
+    | 'SetOrderAsDelivered'
+    | 'SendDeliverymanRate'
+    | null
+  >(null);
+  const [deliverymanRate, setDeliverymanRate] = useState(0);
 
   useEffect(() => {
     async function loadOrderData() {
@@ -202,23 +231,24 @@ const OrderDetails: React.FC = () => {
       'Uma vez excluído o pedido, não será possível recuperá-lo. Você poderá criar um outro sem problemas.',
       [
         { text: 'Cancelar', style: 'cancel' },
+        {},
         {
           text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
-            setIsSubmiting(true);
+            setIsSubmiting('DeleteOrder');
 
             try {
               await api.delete(`/orders/${order.id}`);
 
-              setIsSubmiting(false);
+              setIsSubmiting(null);
 
               Alert.alert('Excluído!', 'Pedido excluído com sucesso.');
 
               navigation.goBack();
             } catch (err) {
               Alert.alert('Ops...', err.message);
-              setIsSubmiting(false);
+              setIsSubmiting(null);
             }
           },
         },
@@ -250,7 +280,7 @@ const OrderDetails: React.FC = () => {
   }, []);
 
   const handleOfferToPickup = useCallback(async () => {
-    setIsSubmiting(true);
+    setIsSubmiting('MakeOfferToPickup');
 
     try {
       if (!offerToPickupValue) {
@@ -280,13 +310,13 @@ const OrderDetails: React.FC = () => {
         'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
       );
     } finally {
-      setIsSubmiting(false);
+      setIsSubmiting(null);
       modalizeRef.current?.close();
     }
   }, [offerToPickupValue, order.id]);
 
   const handleDeleteMyOfferToPickup = useCallback(async () => {
-    setIsSubmiting(true);
+    setIsSubmiting('DeleteMyOfferToPickup');
 
     try {
       await api.delete(`/orders/pickup-offers/${offerToPickup.id}`);
@@ -300,13 +330,13 @@ const OrderDetails: React.FC = () => {
         'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
       );
     } finally {
-      setIsSubmiting(false);
+      setIsSubmiting(null);
       modalizeRef.current?.close();
     }
   }, [offerToPickup.id]);
 
   const handleUpdateMyOfferToPickup = useCallback(async () => {
-    setIsSubmiting(true);
+    setIsSubmiting('UpdateMyOfferToPickup');
 
     try {
       await api.put(`/orders/pickup-offers/${offerToPickup.id}`, {
@@ -328,7 +358,7 @@ const OrderDetails: React.FC = () => {
         'Ocorreu um erro ao tentar se oferecer para buscar esses produtos. Tente novamente mais tarde.',
       );
     } finally {
-      setIsSubmiting(false);
+      setIsSubmiting(null);
       modalizeRef.current?.close();
     }
   }, [offerToPickup.id, offerToPickupValue]);
@@ -339,6 +369,129 @@ const OrderDetails: React.FC = () => {
     },
     [navigation],
   );
+
+  const handleSetOrderAsDelivered = useCallback(() => {
+    Alert.alert(
+      'Tem certeza?',
+      'Uma vez confirmado o recebimento dos produtos, o pedido será fechado e marcado como entregue.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {},
+        {
+          text: 'Recebi',
+          onPress: async () => {
+            setIsSubmiting('SetOrderAsDelivered');
+
+            try {
+              const orderToSave = {
+                deliveryman_id: order.deliveryman_id,
+                requester_id: order.requester_id,
+                pickup_date: order.pickup_date,
+                pickup_establishment: order.pickup_establishment,
+                pickup_address: order.pickup_address,
+                pickup_city: order.pickup_city,
+                pickup_state: order.pickup_state,
+                pickup_latitude: order.pickup_latitude,
+                pickup_longitude: order.pickup_longitude,
+                delivery_address: order.delivery_address,
+                delivery_city: order.delivery_city,
+                delivery_state: order.delivery_state,
+                delivery_latitude: order.delivery_latitude,
+                delivery_longitude: order.delivery_longitude,
+                delivery_value: order.delivery_value,
+                trip_id: order.trip_id,
+                status: 3,
+              };
+
+              const response = await api.put(
+                `/orders/${order.id}`,
+                orderToSave,
+              );
+
+              setOrder(response.data);
+
+              setIsSubmiting(null);
+
+              Alert.alert(
+                'Oba!',
+                'Que bom que seu pedido foi entregue! Já atualizamos a situação dele.\n\nNão se esqueça de avaliar o seu entregador, hein!',
+              );
+
+              setOrderAsDeliveredModalRef.current?.open();
+            } catch (err) {
+              Alert.alert(
+                'Erro',
+                `Ocorreu um erro ao tentar alterar o status do pedido. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
+              );
+              setIsSubmiting(null);
+
+              console.log(err.response.data);
+            }
+          },
+        },
+      ],
+    );
+  }, [order]);
+
+  const handleSendDeliverymanRate = useCallback(
+    async (data: SendDeliverymanRateFormData) => {
+      setIsSubmiting('SendDeliverymanRate');
+
+      try {
+        await api.post('/rating', {
+          order_id: order.id,
+          deliveryman_id: order.deliveryman.id,
+          rate: deliverymanRate,
+          comment: data.comment,
+        });
+
+        setIsSubmiting(null);
+
+        Alert.alert(
+          'Valeu!',
+          'Obrigado por avaliar seu entregador, isso conta demais!',
+        );
+
+        navigation.goBack();
+      } catch (err) {
+        Alert.alert(
+          'Erro',
+          `Ocorreu um erro ao tentar enviar a avaliação do entregador. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
+        );
+        setIsSubmiting(null);
+
+        console.log(err.response.data);
+      }
+    },
+    [order, deliverymanRate, navigation],
+  );
+
+  const handleDoNotRateDeliveryman = useCallback(() => {
+    Alert.alert(
+      'Aaaah vai...',
+      'Leva menos de um minuto... Avaliar o seu entregador é muito importante para que ele consiga mais serviços na nossa plataforma.',
+      [
+        {
+          text: 'Não avaliar',
+          style: 'cancel',
+          onPress: () => navigation.goBack(),
+        },
+        {},
+        { text: 'Vou avaliar!' },
+      ],
+    );
+  }, [navigation]);
+
+  const orderItemsCount = useMemo(() => {
+    if (order.id) {
+      return order.items.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.quantity,
+        0,
+      );
+    }
+
+    return 0;
+  }, [order]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -398,8 +551,8 @@ const OrderDetails: React.FC = () => {
                     color="#ff8c42"
                   />
                   <OrderItensCounter>
-                    {`${order.items.length} ${
-                      order.items.length > 1 ? 'itens' : 'item'
+                    {`${orderItemsCount} ${
+                      orderItemsCount > 1 ? 'itens' : 'item'
                     }`}
                   </OrderItensCounter>
                   <OrderCreatedAt>
@@ -563,7 +716,7 @@ const OrderDetails: React.FC = () => {
                         <Rating
                           readonly
                           type="custom"
-                          startingValue={3.5}
+                          startingValue={order.deliveryman.rating_average / 2}
                           ratingBackgroundColor="#606060"
                           ratingColor="#feca57"
                           tintColor="#312e38"
@@ -590,7 +743,7 @@ const OrderDetails: React.FC = () => {
                 </FilledButton>
 
                 <OutlinedButton
-                  showLoadingIndicator={isSubmiting}
+                  showLoadingIndicator={isSubmiting === 'DeleteOrder'}
                   color="#EB4D4B"
                   marginTop={16}
                   onPress={handleDeleteOrder}
@@ -598,6 +751,19 @@ const OrderDetails: React.FC = () => {
                   Excluir pedido
                 </OutlinedButton>
               </>
+            )}
+
+            {order.status === 2 && (
+              <FilledButton
+                backgroundColor="#3498db"
+                textColor="#EBEBEB"
+                showLoadingIndicator={isSubmiting === 'SetOrderAsDelivered'}
+                onPress={handleSetOrderAsDelivered}
+              >
+                {orderItemsCount > 1
+                  ? 'Recebi os produtos'
+                  : 'Recebi o produto'}
+              </FilledButton>
             )}
           </OrderInfoContainer>
         </Container>
@@ -610,13 +776,13 @@ const OrderDetails: React.FC = () => {
         closeOnOverlayTap={!!offerToPickup.id}
         overlayStyle={{ backgroundColor: '#00000090' }}
       >
-        <OfferToPickupModalContainer>
-          <OfferToPickupModalTitle
+        <ModalContainer>
+          <ModalTitle
             fontWeight={offerToPickup.id ? 'normal' : undefined}
             fontSize={offerToPickup.id ? 14 : undefined}
           >
             {offerToPickup.id ? 'Oferta feita em' : 'Quanto você quer cobrar?'}
-          </OfferToPickupModalTitle>
+          </ModalTitle>
 
           {offerToPickup.id && (
             <OfferToPickupDateTime>
@@ -652,7 +818,7 @@ const OrderDetails: React.FC = () => {
           </OfferToPickupInputContainer>
 
           {!offerToPickup.id && (
-            <OfferToPickupButtons>
+            <ModalButtons>
               <OutlinedButton
                 color="#EB4D4B"
                 flex={1}
@@ -662,7 +828,7 @@ const OrderDetails: React.FC = () => {
               </OutlinedButton>
 
               <FilledButton
-                showLoadingIndicator={isSubmiting}
+                showLoadingIndicator={isSubmiting === 'MakeOfferToPickup'}
                 backgroundColor="#6ab04c"
                 textColor="#ebebeb"
                 marginTop={0}
@@ -672,13 +838,13 @@ const OrderDetails: React.FC = () => {
               >
                 Ok
               </FilledButton>
-            </OfferToPickupButtons>
+            </ModalButtons>
           )}
 
           {offerToPickup.id && (
-            <OfferToPickupButtons>
+            <ModalButtons>
               <OutlinedButton
-                showLoadingIndicator={isSubmiting}
+                showLoadingIndicator={isSubmiting === 'DeleteMyOfferToPickup'}
                 color="#EB4D4B"
                 flex={1}
                 onPress={handleDeleteMyOfferToPickup}
@@ -689,7 +855,9 @@ const OrderDetails: React.FC = () => {
               {offerToPickupValue !== offerToPickup.delivery_value &&
                 offerToPickupValue > 0 && (
                   <FilledButton
-                    showLoadingIndicator={isSubmiting}
+                    showLoadingIndicator={
+                      isSubmiting === 'UpdateMyOfferToPickup'
+                    }
                     backgroundColor="#6ab04c"
                     textColor="#ebebeb"
                     marginTop={0}
@@ -700,9 +868,80 @@ const OrderDetails: React.FC = () => {
                     Atualizar
                   </FilledButton>
                 )}
-            </OfferToPickupButtons>
+            </ModalButtons>
           )}
-        </OfferToPickupModalContainer>
+        </ModalContainer>
+      </Modalize>
+
+      <Modalize
+        ref={setOrderAsDeliveredModalRef}
+        adjustToContentHeight
+        keyboardAvoidingBehavior="height"
+        closeOnOverlayTap={false}
+        overlayStyle={{ backgroundColor: '#00000090' }}
+        onClose={handleDoNotRateDeliveryman}
+      >
+        <ModalContainer>
+          <ModalTitle>Avaliar entregador</ModalTitle>
+
+          <Form
+            ref={setOrderAsDeliveredFormRef}
+            onSubmit={handleSendDeliverymanRate}
+          >
+            <RatingStarsContainer>
+              <Rating
+                type="custom"
+                startingValue={2.5}
+                minValue={1}
+                fractions={1}
+                ratingBackgroundColor="#606060"
+                ratingColor="#feca57"
+                tintColor="#312e38"
+                imageSize={parseWidthPercentage(32)}
+                onFinishRating={rating => setDeliverymanRate(rating * 2)}
+              />
+            </RatingStarsContainer>
+
+            <InputGroup
+              label="Escreva um comentário"
+              name="comment"
+              placeholder="Diga o que achou da entrega"
+              multiline
+              numberOfLines={5}
+              autoCapitalize="sentences"
+              returnKeyType="done"
+              containerStyle={{
+                marginTop: parseHeightPercentage(24),
+                marginBottom: 0,
+              }}
+              onSubmitEditing={() => {
+                setOrderAsDeliveredFormRef.current?.submitForm();
+              }}
+            />
+
+            <ModalButtons>
+              <OutlinedButton
+                color="#EB4D4B"
+                flex={1}
+                onPress={handleDoNotRateDeliveryman}
+              >
+                Cancelar
+              </OutlinedButton>
+
+              <FilledButton
+                showLoadingIndicator={isSubmiting === 'SendDeliverymanRate'}
+                backgroundColor="#6ab04c"
+                textColor="#ebebeb"
+                marginTop={0}
+                marginLeft={8}
+                flex={1}
+                onPress={() => setOrderAsDeliveredFormRef.current?.submitForm()}
+              >
+                Enviar
+              </FilledButton>
+            </ModalButtons>
+          </Form>
+        </ModalContainer>
       </Modalize>
     </>
   );

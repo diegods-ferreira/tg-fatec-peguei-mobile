@@ -229,7 +229,7 @@ export const StatusIndicatorText = styled.Text`
   font-size: ${parseWidthPercentage(13)}px;
 `;
 
-export const OfferToPickupModalContainer = styled.View`
+export const ModalContainer = styled.View`
   width: 100%;
   padding: ${parseHeightPercentage(24)}px ${parseWidthPercentage(24)}px;
   background-color: #312e38;
@@ -237,9 +237,7 @@ export const OfferToPickupModalContainer = styled.View`
   border-top-right-radius: 10px;
 `;
 
-export const OfferToPickupModalTitle = styled.Text<
-  OfferToPickupModalTitleProps
->`
+export const ModalTitle = styled.Text<OfferToPickupModalTitleProps>`
   color: #ebebeb;
   font-size: ${parseWidthPercentage(18)}px;
   text-align: center;
@@ -312,7 +310,7 @@ export const TextInput = styled(TextInputMask)<TextInputProps>`
     `}
 `;
 
-export const OfferToPickupButtons = styled.View`
+export const ModalButtons = styled.View`
   margin-top: ${parseHeightPercentage(24)}px;
   flex-direction: row;
   justify-content: space-between;
@@ -358,4 +356,12 @@ export const DeliverymanAvaluationStars = styled.View`
   margin-top: ${parseHeightPercentage(4)}px;
   align-self: flex-start;
   justify-content: flex-end;
+`;
+
+export const RatingStarsContainer = styled.View`
+  width: 100%;
+  height: ${parseHeightPercentage(40)}px;
+  margin-top: ${parseHeightPercentage(24)}px;
+  align-self: center;
+  justify-content: center;
 `;
