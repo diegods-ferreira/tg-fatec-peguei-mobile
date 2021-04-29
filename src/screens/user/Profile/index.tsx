@@ -180,7 +180,11 @@ const Profile: React.FC = () => {
               </DeliveriesCounter>
 
               <AvaluationsRate>
-                <CounterNumber>8.8</CounterNumber>
+                <CounterNumber>
+                  {Intl.NumberFormat('pt-BR', {
+                    maximumFractionDigits: 1,
+                  }).format(user.rating_average)}
+                </CounterNumber>
                 <CounterLabel>avaliação</CounterLabel>
               </AvaluationsRate>
             </ProfileStatistics>
