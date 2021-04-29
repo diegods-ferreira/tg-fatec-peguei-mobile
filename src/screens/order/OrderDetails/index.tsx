@@ -32,6 +32,7 @@ import formatCurrencyValue from '@utils/formatCurrencyValue';
 import IOrder from '@models/Order';
 import IRequestPickupOffer from '@models/RequestPickupOffer';
 import IUser from '@models/User';
+import IUserRate from '@models/UserRate';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
@@ -130,7 +131,10 @@ const OrderDetails: React.FC = () => {
     | 'SendDeliverymanRate'
     | null
   >(null);
-  const [deliverymanRate, setDeliverymanRate] = useState(0);
+  const [deliverymanRateValue, setDeliverymanRateValue] = useState(0);
+  const [deliverymanRate, setDeliverymanRate] = useState<IUserRate>(
+    {} as IUserRate,
+  );
 
   useEffect(() => {
     async function loadOrderData() {
@@ -176,15 +180,34 @@ const OrderDetails: React.FC = () => {
       } catch (err) {
         Alert.alert(
           'Erro',
-          `Ocorreu um erro ao tentar carregar esse pedido. Tente novamente mais tarde, por favor.\n\n${String(
-            err,
-          )}`,
+          `Ocorreu um erro ao tentar carregar esse pedido. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
         );
       }
     }
 
     loadUserDeliverymanForThisOrder();
   }, [order.id, user.id]);
+
+  useEffect(() => {
+    async function loadDeliverymanRate() {
+      if (order.id) {
+        try {
+          const response = await api.get(`/rating/order/${order.id}`);
+
+          if (response.data) {
+            setDeliverymanRate(response.data);
+          }
+        } catch (err) {
+          Alert.alert(
+            'Erro',
+            `Ocorreu um erro ao tentar carregar a avaliação do entregador. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
+          );
+        }
+      }
+    }
+
+    loadDeliverymanRate();
+  }, [order.id]);
 
   const handleNavigateToItemDetails = useCallback(
     (id: string) => {
@@ -441,7 +464,7 @@ const OrderDetails: React.FC = () => {
         await api.post('/rating', {
           order_id: order.id,
           deliveryman_id: order.deliveryman.id,
-          rate: deliverymanRate,
+          rate: deliverymanRateValue,
           comment: data.comment,
         });
 
@@ -463,7 +486,7 @@ const OrderDetails: React.FC = () => {
         console.log(err.response.data);
       }
     },
-    [order, deliverymanRate, navigation],
+    [order, deliverymanRateValue, navigation],
   );
 
   const handleDoNotRateDeliveryman = useCallback(() => {
@@ -753,7 +776,7 @@ const OrderDetails: React.FC = () => {
               </>
             )}
 
-            {order.status === 2 && (
+            {user.id === order.requester.id && order.status === 2 && (
               <FilledButton
                 backgroundColor="#3498db"
                 textColor="#EBEBEB"
@@ -765,6 +788,17 @@ const OrderDetails: React.FC = () => {
                   : 'Recebi o produto'}
               </FilledButton>
             )}
+
+            {user.id === order.requester.id &&
+              order.status === 3 &&
+              !deliverymanRate.rate && (
+                <OutlinedButton
+                  color="#ff8c42"
+                  onPress={() => setOrderAsDeliveredModalRef.current?.open()}
+                >
+                  Avaliar entregador
+                </OutlinedButton>
+              )}
           </OrderInfoContainer>
         </Container>
       </ScrollView>
@@ -898,7 +932,7 @@ const OrderDetails: React.FC = () => {
                 ratingColor="#feca57"
                 tintColor="#312e38"
                 imageSize={parseWidthPercentage(32)}
-                onFinishRating={rating => setDeliverymanRate(rating * 2)}
+                onFinishRating={rating => setDeliverymanRateValue(rating * 2)}
               />
             </RatingStarsContainer>
 
