@@ -22,7 +22,7 @@ import {
 interface AvaluationCardProps extends RectButtonProperties {
   rate: IUserRate;
   getUserInfoFrom: 'requester' | 'deliveryman';
-  ellipsizeText: boolean;
+  ellipsizeText?: boolean;
   smallCard?: boolean;
   onPress?: () => void;
 }
@@ -30,7 +30,7 @@ interface AvaluationCardProps extends RectButtonProperties {
 const AvaluationCard: React.FC<AvaluationCardProps> = ({
   rate,
   getUserInfoFrom,
-  ellipsizeText,
+  ellipsizeText = false,
   smallCard = false,
   onPress,
 }) => {

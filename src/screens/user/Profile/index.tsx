@@ -73,6 +73,10 @@ const Profile: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
+  const handleNavigateToUserRating = useCallback(() => {
+    navigation.navigate('UserRating', { deliveryman_id: user.id });
+  }, [navigation, user.id]);
+
   const fetchUserRatingFromTheApi = useCallback(async (user_id: string) => {
     try {
       const response = await api.get(`/rating/deliveryman/${user_id}`);
@@ -280,6 +284,7 @@ const Profile: React.FC = () => {
               ellipsizeText
               smallCard
               rate={rate}
+              onPress={handleNavigateToUserRating}
             />
           ))}
 
