@@ -11,6 +11,7 @@ import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
 import IUser from '@models/User';
+import IUserRate from '@models/UserRate';
 
 import AvaluationCard from '@components/atoms/AvaluationCard';
 import LoadingScreen from '@components/atoms/LoadingScreen';
@@ -43,6 +44,7 @@ import {
   ContactFormsButtons,
   ContactForm,
   ContactFormText,
+  NoRatingText,
 } from './styles';
 
 interface RouteParams {
@@ -61,6 +63,7 @@ const Profile: React.FC = () => {
   const [showEditProfileButton, setShowEditProfileButton] = useState(false);
   const [showGoBackButton, setShowGoBackButton] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userRating, setUserRating] = useState<IUserRate[]>([]);
 
   const handleEditProfile = useCallback(() => {
     navigation.navigate('EditProfile');
@@ -70,12 +73,28 @@ const Profile: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
+  const fetchUserRatingFromTheApi = useCallback(async (user_id: string) => {
+    try {
+      const response = await api.get(`/rating/deliveryman/${user_id}`);
+
+      if (response.data) {
+        setUserRating(response.data);
+      }
+    } catch (err) {
+      Alert.alert(
+        'Erro',
+        `Ocorreu um erro ao tentar recuperar as avaliações do usuário. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
+      );
+    }
+  }, []);
+
   useEffect(() => {
     async function loadUserData() {
       if (!routeParams) {
         setUser(authUser);
         setShowEditProfileButton(true);
         setShowGoBackButton(false);
+        await fetchUserRatingFromTheApi(authUser.id);
         setLoading(false);
 
         return;
@@ -87,20 +106,19 @@ const Profile: React.FC = () => {
         setUser(response.data);
         setShowEditProfileButton(false);
         setShowGoBackButton(true);
+        await fetchUserRatingFromTheApi(routeParams.user_id);
       } catch (err) {
         Alert.alert(
           'Erro',
-          'Ocorreu um erro ao tentar recuperar os pedidos. Tente novamente mais tarde, por favor.',
+          `Ocorreu um erro ao tentar recuperar os pedidos. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
         );
-
-        console.log(String(err));
       } finally {
         setLoading(false);
       }
     }
 
     loadUserData();
-  }, [routeParams, authUser]);
+  }, [routeParams, authUser, fetchUserRatingFromTheApi]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -252,38 +270,26 @@ const Profile: React.FC = () => {
         <Section>
           <SectionTitleContainer>
             <SectionTitle>Últimas avaliações</SectionTitle>
-            <SectionTitleHelpText>(2)</SectionTitleHelpText>
+            <SectionTitleHelpText>{`(${userRating.length})`}</SectionTitleHelpText>
           </SectionTitleContainer>
 
-          <AvaluationCard
-            ellipsizeText
-            smallCard
-            avaluation={{
-              user: {
-                avatar_url: 'no-avatar',
-                name: 'Thiago Mattos',
-                username: '@mattos_thiago123',
-              },
-              rating: 4,
-              text:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vehicula odio elit, vel volutpat nisi dapibus eget.',
-            }}
-          />
+          {userRating.slice(0, 5).map(rate => (
+            <AvaluationCard
+              key={rate.id}
+              getUserInfoFrom="requester"
+              ellipsizeText
+              smallCard
+              rate={rate}
+            />
+          ))}
 
-          <AvaluationCard
-            ellipsizeText
-            smallCard
-            avaluation={{
-              user: {
-                avatar_url: 'no-avatar',
-                name: 'Melissa Lopes da Silva',
-                username: '@melissinha_lopes',
-              },
-              rating: 4.5,
-              text:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vehicula odio elit, vel volutpat nisi dapibus eget.',
-            }}
-          />
+          {!userRating.length && (
+            <NoRatingText>
+              {`${
+                user.id === authUser.id ? 'Você' : user.name
+              } não possui avaliações ainda`}
+            </NoRatingText>
+          )}
         </Section>
       </Container>
     </ScrollView>

@@ -2,6 +2,8 @@ import React from 'react';
 import { RectButtonProperties } from 'react-native-gesture-handler';
 import { Rating } from 'react-native-elements';
 
+import IUserRate from '@models/UserRate';
+
 import { parseWidthPercentage } from '@utils/screenPercentage';
 
 import noUserAvatarImg from '@assets/no-user-avatar.png';
@@ -17,40 +19,40 @@ import {
   Text,
 } from './styles';
 
-interface Avaluation {
-  user: {
-    name: string;
-    username: string;
-    avatar_url: string;
-  };
-  rating: number;
-  text: string;
-}
-
 interface AvaluationCardProps extends RectButtonProperties {
-  avaluation: Avaluation;
+  rate: IUserRate;
+  getUserInfoFrom: 'requester' | 'deliveryman';
   ellipsizeText: boolean;
-  smallCard: boolean;
+  smallCard?: boolean;
+  onPress?: () => void;
 }
 
 const AvaluationCard: React.FC<AvaluationCardProps> = ({
-  avaluation,
+  rate,
+  getUserInfoFrom,
   ellipsizeText,
-  smallCard,
+  smallCard = false,
+  onPress,
 }) => {
   return (
-    <Container rippleColor="#ebebeb10" smallCard={smallCard}>
+    <Container rippleColor="#ebebeb10" smallCard={smallCard} onPress={onPress}>
       <Header>
-        <UserAvatar source={noUserAvatarImg} />
+        <UserAvatar
+          source={
+            rate[getUserInfoFrom]?.avatar_url
+              ? { uri: rate[getUserInfoFrom]?.avatar_url }
+              : noUserAvatarImg
+          }
+        />
 
         <UserInfo>
-          <UserFullName>{avaluation.user.name}</UserFullName>
-          <Username>{avaluation.user.username}</Username>
+          <UserFullName>{rate[getUserInfoFrom]?.name}</UserFullName>
+          <Username>{rate[getUserInfoFrom]?.username}</Username>
           <Stars>
             <Rating
               readonly
               type="custom"
-              startingValue={avaluation.rating}
+              startingValue={rate.rate / 2}
               ratingBackgroundColor="#606060"
               ratingColor="#feca57"
               tintColor="#312e38"
@@ -65,7 +67,7 @@ const AvaluationCard: React.FC<AvaluationCardProps> = ({
         numberOfLines={ellipsizeText ? 1 : undefined}
         ellipsizeMode={ellipsizeText ? 'tail' : undefined}
       >
-        {avaluation.text}
+        {rate.comment}
       </Text>
     </Container>
   );

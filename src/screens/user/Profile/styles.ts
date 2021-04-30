@@ -202,3 +202,9 @@ export const ContactFormText = styled.Text`
   color: #ebebeb;
   font-size: ${parseWidthPercentage(10)}px;
 `;
+
+export const NoRatingText = styled.Text`
+  color: #ababab;
+  font-size: ${parseWidthPercentage(12)}px;
+  margin-top: ${parseHeightPercentage(4)}px;
+`;
