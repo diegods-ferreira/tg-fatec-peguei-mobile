@@ -45,6 +45,7 @@ import {
   ContactForm,
   ContactFormText,
   NoRatingText,
+  LogoutButton,
 } from './styles';
 
 interface RouteParams {
@@ -57,10 +58,10 @@ const Profile: React.FC = () => {
   const route = useRoute();
   const routeParams = route.params as RouteParams;
 
-  const { user: authUser } = useAuth();
+  const { user: authUser, signOut } = useAuth();
 
   const [user, setUser] = useState<IUser>({} as IUser);
-  const [showEditProfileButton, setShowEditProfileButton] = useState(false);
+  const [showAuthUserOptions, setShowAuthUserOptions] = useState(false);
   const [showGoBackButton, setShowGoBackButton] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userRating, setUserRating] = useState<IUserRate[]>([]);
@@ -92,11 +93,27 @@ const Profile: React.FC = () => {
     }
   }, []);
 
+  const handleUserLogout = useCallback(() => {
+    Alert.alert(
+      'Deseja mesmo sair?',
+      'Você está fazendo o logout da aplicação. Clique em confirmar para continuar.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {},
+        {
+          text: 'Confirmar',
+          style: 'destructive',
+          onPress: () => signOut(),
+        },
+      ],
+    );
+  }, [signOut]);
+
   useEffect(() => {
     async function loadUserData() {
       if (!routeParams) {
         setUser(authUser);
-        setShowEditProfileButton(true);
+        setShowAuthUserOptions(true);
         setShowGoBackButton(false);
         await fetchUserRatingFromTheApi(authUser.id);
         setLoading(false);
@@ -108,7 +125,7 @@ const Profile: React.FC = () => {
         const response = await api.get(`/profile/${routeParams.user_id}`);
 
         setUser(response.data);
-        setShowEditProfileButton(false);
+        setShowAuthUserOptions(false);
         setShowGoBackButton(true);
         await fetchUserRatingFromTheApi(routeParams.user_id);
       } catch (err) {
@@ -161,17 +178,30 @@ const Profile: React.FC = () => {
               />
             </AvatarImageContainer>
 
-            {showEditProfileButton && (
-              <EditProfileButton
-                rippleColor="#ebebeb10"
-                onPress={handleEditProfile}
-              >
-                <Feather
-                  name="edit-3"
-                  size={parseWidthPercentage(20)}
-                  color="#ebebeb"
-                />
-              </EditProfileButton>
+            {showAuthUserOptions && (
+              <>
+                <EditProfileButton
+                  rippleColor="#ebebeb10"
+                  onPress={handleEditProfile}
+                >
+                  <Feather
+                    name="edit-3"
+                    size={parseWidthPercentage(20)}
+                    color="#ebebeb"
+                  />
+                </EditProfileButton>
+
+                <LogoutButton
+                  rippleColor="#ebebeb10"
+                  onPress={handleUserLogout}
+                >
+                  <Feather
+                    name="log-out"
+                    size={parseWidthPercentage(20)}
+                    color="#ebebeb"
+                  />
+                </LogoutButton>
+              </>
             )}
 
             <ProfileName>{user.name}</ProfileName>
@@ -201,7 +231,7 @@ const Profile: React.FC = () => {
                 <CounterLabel>entregas</CounterLabel>
               </DeliveriesCounter>
 
-              <AvaluationsRate>
+              <AvaluationsRate onPress={handleNavigateToUserRating}>
                 <CounterNumber>
                   {Intl.NumberFormat('pt-BR', {
                     maximumFractionDigits: 1,

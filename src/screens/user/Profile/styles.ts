@@ -64,17 +64,28 @@ export const AvatarImage = styled.Image`
   border-radius: ${avatarImageContainerSize / 2}px;
 `;
 
-const editProfileButtonSize = parseWidthPercentage(52);
+const floatingButtonsSize = parseWidthPercentage(52);
 
 export const EditProfileButton = styled(RectButton)`
-  width: ${editProfileButtonSize}px;
-  height: ${editProfileButtonSize}px;
-  border-radius: ${editProfileButtonSize / 2}px;
+  width: ${floatingButtonsSize}px;
+  height: ${floatingButtonsSize}px;
+  border-radius: ${floatingButtonsSize / 2}px;
   align-items: center;
   justify-content: center;
   position: absolute;
   top: 0;
   right: 0;
+`;
+
+export const LogoutButton = styled(RectButton)`
+  width: ${floatingButtonsSize}px;
+  height: ${floatingButtonsSize}px;
+  border-radius: ${floatingButtonsSize / 2}px;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
 `;
 
 export const ProfileName = styled.Text`
