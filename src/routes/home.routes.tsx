@@ -5,10 +5,10 @@ import Feather from 'react-native-vector-icons/Feather';
 import { parseHeightPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
 
-import Trips from '@screens/trip/Trips';
 import Chats from '@screens/chat/Chats';
 import Profile from '@screens/user/Profile';
 import OrdersTabs from './ordersTopTabs.routes';
+import TripsTabs from './tripsTopTabs.routes';
 
 export const BottomTab = createBottomTabNavigator();
 
@@ -23,7 +23,7 @@ const HomeRoutes: React.FC = () => {
 
           if (route.name === 'OrdersTabs') {
             iconName = 'list';
-          } else if (route.name === 'Trips') {
+          } else if (route.name === 'TripsTabs') {
             iconName = 'map';
           } else if (route.name === 'Chats') {
             iconName = 'message-circle';
@@ -52,7 +52,7 @@ const HomeRoutes: React.FC = () => {
       }}
     >
       <BottomTab.Screen name="OrdersTabs" component={OrdersTabs} />
-      <BottomTab.Screen name="Trips" component={Trips} />
+      <BottomTab.Screen name="TripsTabs" component={TripsTabs} />
       <BottomTab.Screen name="Chats" component={Chats} />
       <BottomTab.Screen name="Profile" component={Profile} />
     </BottomTab.Navigator>
