@@ -306,3 +306,53 @@ export const AttachPurchaseInvoiceValueText = styled.Text`
   font-size: ${parseWidthPercentage(16)}px;
   margin: ${parseHeightPercentage(16)}px 0px;
 `;
+
+export const DeliverymanContainer = styled.View`
+  width: 100%;
+  height: ${parseHeightPercentage(96)}px;
+  padding: ${parseHeightPercentage(16)}px ${parseWidthPercentage(16)}px;
+  background: #312e38;
+  border-radius: 8px;
+  border-width: 1px;
+  border-color: #6f7bae;
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const DeliverymanMeta = styled.View`
+  flex: 1;
+  margin-left: ${parseWidthPercentage(16)}px;
+`;
+
+export const DeliverymanTextWrapper = styled.View`
+  flex-direction: column;
+  justify-content: center;
+`;
+
+export const DeliverymanFullName = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(12)}px;
+  font-weight: bold;
+  margin-right: ${parseWidthPercentage(8)}px;
+`;
+
+export const DeliverymanUsername = styled.Text`
+  color: #606060;
+  font-size: ${parseWidthPercentage(10)}px;
+  font-style: italic;
+`;
+
+export const DeliverymanAvaluationStars = styled.View`
+  flex: 1;
+  margin-top: ${parseHeightPercentage(4)}px;
+  align-self: flex-start;
+  justify-content: flex-end;
+`;
+
+export const RatingStarsContainer = styled.View`
+  width: 100%;
+  height: ${parseHeightPercentage(40)}px;
+  margin-top: ${parseHeightPercentage(24)}px;
+  align-self: center;
+  justify-content: center;
+`;

@@ -8,6 +8,7 @@ import React, {
 import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
+import AsyncStorage from '@react-native-community/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
@@ -160,6 +161,18 @@ const TripDetails: React.FC = () => {
     );
   }, [navigation, trip]);
 
+  const handleNavigateToCreateOrder = useCallback(async () => {
+    const asyncStorageKeys = await AsyncStorage.getAllKeys();
+
+    const createOrderItemKeys = asyncStorageKeys.filter(key =>
+      key.includes('@Peguei!:create-order-item-'),
+    );
+
+    await AsyncStorage.multiRemove(createOrderItemKeys);
+
+    navigation.navigate('CreateOrder', { trip });
+  }, [navigation, trip]);
+
   useEffect(() => {
     async function loadTrip() {
       setLoading(true);
@@ -198,7 +211,7 @@ const TripDetails: React.FC = () => {
   }, [routeParams.id]);
 
   const countOfOrdersMadeByAuthUser = useMemo(() => {
-    if (trip.user?.id !== authUser.id || !trip.orders?.length) {
+    if (!trip.orders?.length) {
       return 0;
     }
 
@@ -298,7 +311,9 @@ const TripDetails: React.FC = () => {
             </TitledBox>
 
             {authUser.id !== trip.user.id && trip.status === 1 && (
-              <FilledButton onPress={() => {}}>Fazer pedido</FilledButton>
+              <FilledButton onPress={handleNavigateToCreateOrder}>
+                Fazer pedido
+              </FilledButton>
             )}
 
             {authUser.id === trip.user.id && trip.status === 1 && (

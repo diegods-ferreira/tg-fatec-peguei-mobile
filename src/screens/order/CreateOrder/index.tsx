@@ -11,6 +11,7 @@ import DocumentPicker, {
 } from 'react-native-document-picker';
 import { ButtonGroup } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Rating } from 'react-native-elements';
 import * as Yup from 'yup';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -26,6 +27,8 @@ import {
 } from '@utils/screenPercentage';
 import getValidationErrors from '@utils/getValidationErrors';
 
+import ITrip from '@models/Trip';
+
 import LoadingScreen from '@components/atoms/LoadingScreen';
 
 import TitleBar from '@components/atoms/TitleBar';
@@ -33,6 +36,7 @@ import TitledBox from '@components/atoms/TitledBox';
 import Label from '@components/atoms/Label';
 import InputGroup from '@components/molecules/InputGroup';
 import FilledButton from '@components/atoms/FilledButton';
+import AvatarImage from '@components/atoms/AvatarImage';
 
 import noOrderItemImg from '@assets/no-order-item-image.png';
 
@@ -72,6 +76,12 @@ import {
   AttachPurchaseInvoicePressable,
   AttachPurchaseInvoiceValueIcon,
   AttachPurchaseInvoiceValueText,
+  DeliverymanContainer,
+  DeliverymanMeta,
+  DeliverymanTextWrapper,
+  DeliverymanFullName,
+  DeliverymanUsername,
+  DeliverymanAvaluationStars,
 } from './styles';
 
 export interface OrderItemToSave {
@@ -93,6 +103,7 @@ export interface OrderItemToSave {
 interface RouteParams {
   item_id: number;
   updated_at: number;
+  trip: ITrip;
 }
 
 interface BrasilApiAddress {
@@ -159,6 +170,9 @@ const CreateOrder: React.FC = () => {
     DocumentPickerResponse
   >({} as DocumentPickerResponse);
 
+  const [isAttachedToATrip, setIsAttachedToATrip] = useState(false);
+  const [trip, setTrip] = useState<ITrip>({} as ITrip);
+
   const handleToggleDatePicker = useCallback(() => {
     setShowDatePicker(state => !state);
   }, []);
@@ -176,86 +190,57 @@ const CreateOrder: React.FC = () => {
     [],
   );
 
-  useEffect(() => {
-    async function loadData() {
-      if (routeParams && routeParams.item_id && routeParams.updated_at) {
-        const { item_id } = routeParams;
+  const handleSearchPickupCep = useCallback(
+    async (data: CepFormData) => {
+      setIsSubmiting('PickupCepSearch');
 
-        const storagedItem = await AsyncStorage.getItem(
-          `@Peguei!:create-order-item-${item_id}`,
-        );
+      try {
+        pickupCepFormRef.current?.setErrors({});
 
-        if (!storagedItem) {
+        const schema = Yup.object().shape({
+          cep: Yup.string()
+            .required('Esse campo é obrigatório')
+            .length(8, 'Um CEP deve ter 8 dígitos'),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        const response = await brasilApi.get(`/${data.cep}`);
+
+        if (
+          isAttachedToATrip &&
+          response.data.city !== trip.destination_city &&
+          response.data.state !== trip.destination_state
+        ) {
           Alert.alert(
-            'Erro',
-            'Ocorreu um erro ao tentar recuperar o item que acabou de salvar.',
+            'Atenção',
+            'O CEP informado não pertence à cidade e ao estado de destino da viagem desse usuário. Revise, por favor.',
           );
           return;
         }
 
-        const parsedItem = JSON.parse(storagedItem) as OrderItemToSave;
+        setPickupAddress(response.data);
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          pickupCepFormRef.current?.setErrors(errors);
+          return;
+        }
 
-        setItems(state => {
-          const itemIndex = state.findIndex(
-            findItem => findItem.id === item_id,
-          );
+        console.log(String(err));
 
-          if (itemIndex > -1) {
-            return state.map(item => {
-              if (item.id === item_id) {
-                return parsedItem;
-              }
-
-              return item;
-            });
-          }
-
-          return [...state, parsedItem];
-        });
+        Alert.alert(
+          'Erro',
+          'Houve um erro ao consultar o CEP informado. Verifique-o e tente novamente mais tarde.',
+        );
+      } finally {
+        setIsSubmiting(null);
       }
-
-      setLoading(false);
-    }
-
-    loadData();
-  }, [routeParams]);
-
-  const handleSearchPickupCep = useCallback(async (data: CepFormData) => {
-    setIsSubmiting('PickupCepSearch');
-
-    try {
-      pickupCepFormRef.current?.setErrors({});
-
-      const schema = Yup.object().shape({
-        cep: Yup.string()
-          .required('Esse campo é obrigatório')
-          .length(8, 'Um CEP deve ter 8 dígitos'),
-      });
-
-      await schema.validate(data, {
-        abortEarly: false,
-      });
-
-      const response = await brasilApi.get(`/${data.cep}`);
-
-      setPickupAddress(response.data);
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err);
-        pickupCepFormRef.current?.setErrors(errors);
-        return;
-      }
-
-      console.log(String(err));
-
-      Alert.alert(
-        'Erro',
-        'Houve um erro ao consultar o CEP informado. Verifique-o e tente novamente mais tarde.',
-      );
-    } finally {
-      setIsSubmiting(null);
-    }
-  }, []);
+    },
+    [isAttachedToATrip, trip],
+  );
 
   const handleSearchDeliveryCep = useCallback(async (data: CepFormData) => {
     setIsSubmiting('DeliveryCepSearch');
@@ -406,8 +391,12 @@ const CreateOrder: React.FC = () => {
           pickup_date,
           pickup_establishment: data.pickup_establishment,
           pickup_address,
-          pickup_city: pickupAddress.city,
-          pickup_state: pickupAddress.state,
+          pickup_city: isAttachedToATrip
+            ? trip.destination_city
+            : pickupAddress.city,
+          pickup_state: isAttachedToATrip
+            ? trip.destination_state
+            : pickupAddress.state,
           pickup_latitude,
           pickup_longitude,
           delivery_address:
@@ -431,6 +420,13 @@ const CreateOrder: React.FC = () => {
             weight_unit_id: item.weight_unit_id,
             dimension_unit_id: item.dimension_unit_id,
           })),
+          ...(isAttachedToATrip
+            ? {
+                deliveryman_id: trip.user_id,
+                trip_id: trip.id,
+                status: 5,
+              }
+            : {}),
         };
 
         const createOrderResponse = await api.post<CreateOrderResponse>(
@@ -501,8 +497,61 @@ const CreateOrder: React.FC = () => {
       user.city,
       user.state,
       navigation,
+      isAttachedToATrip,
+      trip,
     ],
   );
+
+  useEffect(() => {
+    async function loadData() {
+      if (routeParams && routeParams.item_id && routeParams.updated_at) {
+        const { item_id } = routeParams;
+
+        const storagedItem = await AsyncStorage.getItem(
+          `@Peguei!:create-order-item-${item_id}`,
+        );
+
+        if (!storagedItem) {
+          Alert.alert(
+            'Erro',
+            'Ocorreu um erro ao tentar recuperar o item que acabou de salvar.',
+          );
+          return;
+        }
+
+        const parsedItem = JSON.parse(storagedItem) as OrderItemToSave;
+
+        setItems(state => {
+          const itemIndex = state.findIndex(
+            findItem => findItem.id === item_id,
+          );
+
+          if (itemIndex > -1) {
+            return state.map(item => {
+              if (item.id === item_id) {
+                return parsedItem;
+              }
+
+              return item;
+            });
+          }
+
+          return [...state, parsedItem];
+        });
+      }
+
+      setLoading(false);
+    }
+
+    loadData();
+  }, [routeParams]);
+
+  useEffect(() => {
+    if (routeParams?.trip) {
+      setIsAttachedToATrip(true);
+      setTrip(routeParams.trip);
+    }
+  }, [routeParams]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -600,7 +649,12 @@ const CreateOrder: React.FC = () => {
                     <AddressTextContainer>
                       <AddressText>
                         {pickupAddress.cep &&
-                          `${pickupAddress.street}, ${pickupAddress.neighborhood}, ${pickupAddress.city}-${pickupAddress.state} - CEP: ${pickupAddress.cep}`}
+                          `${pickupAddress.street}, ${
+                            pickupAddress.neighborhood
+                          }${
+                            !isAttachedToATrip &&
+                            `, ${pickupAddress.city}-${pickupAddress.state}`
+                          } - CEP: ${pickupAddress.cep}`}
                       </AddressText>
                     </AddressTextContainer>
                   </AddressContainer>
@@ -628,6 +682,36 @@ const CreateOrder: React.FC = () => {
                     />
                   </InputsWrapper>
                 </>
+              )}
+
+              {isAttachedToATrip && (
+                <InputsWrapper>
+                  <ItemInfoWrapper width={64} marginRight={8}>
+                    <ItemInfoLabel>Estado</ItemInfoLabel>
+                    <ItemInfoValueContainer borderColor="#6F7BAE">
+                      <ItemInfoValueText
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        color="#6F7BAE"
+                      >
+                        {trip.destination_state}
+                      </ItemInfoValueText>
+                    </ItemInfoValueContainer>
+                  </ItemInfoWrapper>
+
+                  <ItemInfoWrapper flex={1}>
+                    <ItemInfoLabel>Cidade</ItemInfoLabel>
+                    <ItemInfoValueContainer borderColor="#6F7BAE">
+                      <ItemInfoValueText
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        color="#6F7BAE"
+                      >
+                        {trip.destination_city}
+                      </ItemInfoValueText>
+                    </ItemInfoValueContainer>
+                  </ItemInfoWrapper>
+                </InputsWrapper>
               )}
             </TitledBox>
 
@@ -742,7 +826,7 @@ const CreateOrder: React.FC = () => {
                   </ItemInfoWrapper>
 
                   <InputsWrapper>
-                    <ItemInfoWrapper width={112} marginRight={8}>
+                    <ItemInfoWrapper width={64} marginRight={8}>
                       <ItemInfoLabel>Estado</ItemInfoLabel>
                       <ItemInfoValueContainer borderColor="#6F7BAE">
                         <ItemInfoValueText
@@ -878,6 +962,44 @@ const CreateOrder: React.FC = () => {
                 </AttachPurchaseInvoiceValueContainer>
               </AttachPurchaseInvoiceWrapper>
             </TitledBox>
+
+            {isAttachedToATrip && (
+              <TitledBox title="Entregador">
+                <DeliverymanContainer>
+                  <AvatarImage
+                    user={trip.user}
+                    size={56}
+                    navigateToProfileOnPress
+                  />
+
+                  <DeliverymanMeta>
+                    <DeliverymanTextWrapper>
+                      <DeliverymanFullName>
+                        {trip.user.name}
+                      </DeliverymanFullName>
+                      <DeliverymanUsername
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {`@${trip.user.username}`}
+                      </DeliverymanUsername>
+                    </DeliverymanTextWrapper>
+
+                    <DeliverymanAvaluationStars>
+                      <Rating
+                        readonly
+                        type="custom"
+                        startingValue={trip.user.rating_average / 2}
+                        ratingBackgroundColor="#606060"
+                        ratingColor="#feca57"
+                        tintColor="#312e38"
+                        imageSize={parseWidthPercentage(16)}
+                      />
+                    </DeliverymanAvaluationStars>
+                  </DeliverymanMeta>
+                </DeliverymanContainer>
+              </TitledBox>
+            )}
 
             <FilledButton
               showLoadingIndicator={isSubmiting === 'OrderCreation'}
