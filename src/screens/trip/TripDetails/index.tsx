@@ -78,7 +78,7 @@ const TripDetails: React.FC = () => {
         { text: 'Cancelar', style: 'cancel' },
         {},
         {
-          text: 'Finalizar',
+          text: 'Finalizar viagem',
           onPress: async () => {
             setIsSubmiting('FinishTrip');
 
@@ -124,7 +124,7 @@ const TripDetails: React.FC = () => {
         { text: 'Voltar', style: 'cancel' },
         {},
         {
-          text: 'Cancelar',
+          text: 'Cancelar viagem',
           style: 'destructive',
           onPress: async () => {
             setIsSubmiting('CancelTrip');
@@ -365,7 +365,7 @@ const TripDetails: React.FC = () => {
               ) : (
                 <>
                   <Feather
-                    name="check-square"
+                    name="x"
                     color="#EB4D4B"
                     size={parseHeightPercentage(24)}
                   />
