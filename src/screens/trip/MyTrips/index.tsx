@@ -87,7 +87,7 @@ const MyTrips: React.FC = () => {
   }, [fetchTripsFromApi]);
 
   const handleNavigateToCreateTrip = useCallback(async () => {
-    // navigation.navigate('CreateTrip');
+    navigation.navigate('CreateTrip');
   }, [navigation]);
 
   useEffect(() => {

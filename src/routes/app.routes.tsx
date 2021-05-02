@@ -12,6 +12,7 @@ import SelectDeliveryman from '@screens/order/SelectDeliveryman';
 import Profile from '@screens/user/Profile';
 import UserRating from '@screens/user/UserRating';
 import TripDetails from '@screens/trip/TripDetails';
+import CreateTrip from '@screens/trip/CreateTrip';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();
@@ -44,6 +45,7 @@ const AppRoutes: React.FC = () => {
       <Stack.Screen name="ChatRoom" component={ChatRoom} />
 
       <Stack.Screen name="TripDetails" component={TripDetails} />
+      <Stack.Screen name="CreateTrip" component={CreateTrip} />
     </Stack.Navigator>
   );
 };
