@@ -1,5 +1,8 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from '@react-navigation/stack';
 
 import EditProfile from '@screens/user/EditProfile';
 import OrderDetails from '@screens/order/OrderDetails';
@@ -24,6 +27,7 @@ const AppRoutes: React.FC = () => {
       screenOptions={{
         headerShown: false,
         cardStyle: { backgroundColor: '#2b2831' },
+        ...TransitionPresets.SlideFromRightIOS,
       }}
     >
       <Stack.Screen name="Home" component={HomeRoutes} />

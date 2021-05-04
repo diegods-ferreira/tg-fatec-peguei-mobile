@@ -1,5 +1,8 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from '@react-navigation/stack';
 
 import SignIn from '@screens/user/SignIn';
 import SignUp from '@screens/user/SignUp';
@@ -12,6 +15,7 @@ const AuthRoutes: React.FC = () => (
     screenOptions={{
       headerShown: false,
       cardStyle: { backgroundColor: '#2b2831' },
+      ...TransitionPresets.SlideFromRightIOS,
     }}
   >
     <Stack.Screen name="SignIn" component={SignIn} />
