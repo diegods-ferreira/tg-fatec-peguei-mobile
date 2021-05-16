@@ -211,8 +211,8 @@ const CreateOrder: React.FC = () => {
 
         if (
           isAttachedToATrip &&
-          response.data.city !== trip.destination_city &&
-          response.data.state !== trip.destination_state
+          (response.data.city !== trip.destination_city ||
+            response.data.state !== trip.destination_state)
         ) {
           Alert.alert(
             'Atenção',
