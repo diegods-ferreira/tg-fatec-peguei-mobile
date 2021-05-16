@@ -40,7 +40,7 @@ const TripListItem: React.FC<TripListItemProps> = ({ trip }) => {
       onPress={handleNavigateToTripDetails}
     >
       <TripInfoContainer>
-        <AvatarImage user={undefined} />
+        <AvatarImage user={trip.user} />
 
         <TripMeta>
           <TripTextWrapper>
