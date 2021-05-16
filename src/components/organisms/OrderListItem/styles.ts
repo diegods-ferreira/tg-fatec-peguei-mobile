@@ -13,14 +13,6 @@ export const OrderInfoContainer = styled.View`
   align-items: center;
 `;
 
-const orderRequesterAvatarSize = parseWidthPercentage(40);
-
-export const OrderRequesterAvatar = styled.Image`
-  width: ${orderRequesterAvatarSize}px;
-  height: ${orderRequesterAvatarSize}px;
-  border-radius: ${orderRequesterAvatarSize / 2}px;
-`;
-
 export const OrderMeta = styled.View`
   flex: 1;
   margin-left: ${parseWidthPercentage(16)}px;
@@ -94,7 +86,9 @@ export const OrderIdentifierContainer = styled.View`
   background-color: #ebebeb05;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 export const OrderIdentifierText = styled.Text`

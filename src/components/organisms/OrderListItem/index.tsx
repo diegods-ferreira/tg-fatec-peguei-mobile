@@ -8,11 +8,8 @@ import IOrder from '@models/Order';
 
 import ListItemCard from '@components/atoms/ListItemCard';
 
-import noUserAvatarImg from '@assets/no-user-avatar.png';
-
 import AvatarImage from '@components/atoms/AvatarImage';
 import {
-  OrderRequesterAvatar,
   OrderMeta,
   OrderTextWrapper,
   OrderRequesterFullName,
@@ -110,6 +107,12 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
         <OrderIdentifierText>
           {`Nº do pedido: ${order.number}`}
         </OrderIdentifierText>
+
+        {order.trip_id && (
+          <OrderIdentifierText>
+            {`Nº da viagem: ${order.trip.number}`}
+          </OrderIdentifierText>
+        )}
       </OrderIdentifierContainer>
     </ListItemCard>
   );

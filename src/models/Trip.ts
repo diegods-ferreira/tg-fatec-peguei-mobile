@@ -12,6 +12,7 @@ export default interface ITrip {
   return_state: string;
   return_date: string;
   status: number;
+  number: number;
   created_at: string;
   updated_at: string;
   orders: IOrder[];

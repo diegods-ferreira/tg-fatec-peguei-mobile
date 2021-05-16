@@ -30,7 +30,7 @@ export default interface IOrder {
   updated_at: string;
   number: number;
   items: IOrderItem[];
-  trip: ITrip[];
+  trip: ITrip;
   chat: IChat;
   request_pickup_offers: IRequestPickupOffer[];
   purchase_invoice_url: string;
