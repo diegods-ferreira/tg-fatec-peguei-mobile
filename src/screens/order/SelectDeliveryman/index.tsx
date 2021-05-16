@@ -231,7 +231,9 @@ const SelectDeliveryman: React.FC = () => {
                       <Rating
                         readonly
                         type="custom"
-                        startingValue={3.5}
+                        startingValue={
+                          pickupOffer.deliveryman.rating_average / 2
+                        }
                         ratingBackgroundColor="#606060"
                         ratingColor="#feca57"
                         tintColor="#312e38"
