@@ -16,6 +16,7 @@ import Profile from '@screens/user/Profile';
 import UserRating from '@screens/user/UserRating';
 import TripDetails from '@screens/trip/TripDetails';
 import CreateTrip from '@screens/trip/CreateTrip';
+import TripOrders from '@screens/trip/TripOrders';
 import HomeRoutes from './home.routes';
 
 export const Stack = createStackNavigator();
@@ -50,6 +51,7 @@ const AppRoutes: React.FC = () => {
 
       <Stack.Screen name="TripDetails" component={TripDetails} />
       <Stack.Screen name="CreateTrip" component={CreateTrip} />
+      <Stack.Screen name="TripOrders" component={TripOrders} />
     </Stack.Navigator>
   );
 };

@@ -129,6 +129,7 @@ const OrderDetails: React.FC = () => {
     | 'DeleteOrder'
     | 'SetOrderAsDelivered'
     | 'SendDeliverymanRate'
+    | 'RefuseOrder'
     | null
   >(null);
   const [deliverymanRateValue, setDeliverymanRateValue] = useState(0);
@@ -505,6 +506,66 @@ const OrderDetails: React.FC = () => {
     );
   }, [navigation]);
 
+  const handleRefuseOrder = useCallback(() => {
+    Alert.alert(
+      'Tem certeza?',
+      'Uma vez recusado o pedido, você não poderá voltar atrás.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {},
+        {
+          text: 'Recusar',
+          onPress: async () => {
+            setIsSubmiting('RefuseOrder');
+
+            try {
+              const orderToSave = {
+                deliveryman_id: order.deliveryman_id,
+                requester_id: order.requester_id,
+                pickup_date: order.pickup_date,
+                pickup_establishment: order.pickup_establishment,
+                pickup_address: order.pickup_address,
+                pickup_city: order.pickup_city,
+                pickup_state: order.pickup_state,
+                pickup_latitude: order.pickup_latitude,
+                pickup_longitude: order.pickup_longitude,
+                delivery_address: order.delivery_address,
+                delivery_city: order.delivery_city,
+                delivery_state: order.delivery_state,
+                delivery_latitude: order.delivery_latitude,
+                delivery_longitude: order.delivery_longitude,
+                delivery_value: order.delivery_value,
+                trip_id: order.trip_id,
+                status: 7,
+              };
+
+              const response = await api.put(
+                `/orders/${order.id}`,
+                orderToSave,
+              );
+
+              setOrder(response.data);
+
+              setIsSubmiting(null);
+
+              Alert.alert('Conluído!', 'O pedido foi recusado com sucesso!');
+
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert(
+                'Erro',
+                `Ocorreu um erro ao tentar alterar o status do pedido. Tente novamente mais tarde, por favor.\n\n${err.response.data.message}`,
+              );
+              setIsSubmiting(null);
+
+              console.log(err.response.data);
+            }
+          },
+        },
+      ],
+    );
+  }, [order, navigation]);
+
   const orderItemsCount = useMemo(() => {
     if (order.id) {
       return order.items.reduce(
@@ -524,7 +585,7 @@ const OrderDetails: React.FC = () => {
     <>
       <TitleBar title="Detalhes do Pedido" />
 
-      {offerToPickup.id && order.status === 1 && (
+      {offerToPickup.id && (order.status === 1 || order.status === 5) && (
         <StatusIndicatorContainer
           backgroundColor="#6ab04c"
           onPress={handleOpenOfferToPickupModal}
@@ -550,6 +611,18 @@ const OrderDetails: React.FC = () => {
       {order.status === 4 && (
         <StatusIndicatorContainer backgroundColor="#EB4D4B">
           <StatusIndicatorText>Pedido cancelado</StatusIndicatorText>
+        </StatusIndicatorContainer>
+      )}
+
+      {order.status === 6 && (
+        <StatusIndicatorContainer backgroundColor="#6ab04c">
+          <StatusIndicatorText>Pedido aceito!</StatusIndicatorText>
+        </StatusIndicatorContainer>
+      )}
+
+      {order.status === 7 && (
+        <StatusIndicatorContainer backgroundColor="#EB4D4B">
+          <StatusIndicatorText>Pedido recusado</StatusIndicatorText>
         </StatusIndicatorContainer>
       )}
 
@@ -759,22 +832,23 @@ const OrderDetails: React.FC = () => {
                 </FilledButton>
               )}
 
-            {user.id === order.requester.id && order.status === 1 && (
-              <>
-                <FilledButton onPress={handleNavigateToSelectDeliveryman}>
-                  Escolher entregador
-                </FilledButton>
+            {user.id === order.requester.id &&
+              (order.status === 1 || order.status === 5) && (
+                <>
+                  <FilledButton onPress={handleNavigateToSelectDeliveryman}>
+                    Escolher entregador
+                  </FilledButton>
 
-                <OutlinedButton
-                  showLoadingIndicator={isSubmiting === 'DeleteOrder'}
-                  color="#EB4D4B"
-                  marginTop={16}
-                  onPress={handleDeleteOrder}
-                >
-                  Excluir pedido
-                </OutlinedButton>
-              </>
-            )}
+                  <OutlinedButton
+                    showLoadingIndicator={isSubmiting === 'DeleteOrder'}
+                    color="#EB4D4B"
+                    marginTop={16}
+                    onPress={handleDeleteOrder}
+                  >
+                    Excluir pedido
+                  </OutlinedButton>
+                </>
+              )}
 
             {user.id === order.requester.id && order.status === 2 && (
               <FilledButton
@@ -798,6 +872,25 @@ const OrderDetails: React.FC = () => {
                 >
                   Avaliar entregador
                 </OutlinedButton>
+              )}
+
+            {order.trip_id &&
+              order.requester.id !== user.id &&
+              !offerToPickup.id && (
+                <>
+                  <FilledButton onPress={handleOpenOfferToPickupModal}>
+                    Aceitar
+                  </FilledButton>
+
+                  <OutlinedButton
+                    showLoadingIndicator={isSubmiting === 'RefuseOrder'}
+                    color="#EB4D4B"
+                    marginTop={16}
+                    onPress={handleRefuseOrder}
+                  >
+                    Recusar
+                  </OutlinedButton>
+                </>
               )}
           </OrderInfoContainer>
         </Container>

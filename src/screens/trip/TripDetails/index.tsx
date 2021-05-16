@@ -173,6 +173,10 @@ const TripDetails: React.FC = () => {
     navigation.navigate('CreateOrder', { trip });
   }, [navigation, trip]);
 
+  const handleNavigateToTripOrders = useCallback(() => {
+    navigation.navigate('TripOrders', { trip_id: trip.id });
+  }, [navigation, trip]);
+
   useEffect(() => {
     async function loadTrip() {
       setLoading(true);
@@ -336,14 +340,17 @@ const TripDetails: React.FC = () => {
           overlayStyle={{ backgroundColor: '#00000090' }}
         >
           <ContextMenuModal>
-            <ContextMenuOption rippleColor="#ebebeb10" onPress={() => {}}>
+            <ContextMenuOption
+              rippleColor="#ebebeb10"
+              onPress={handleNavigateToTripOrders}
+            >
               <Feather
                 name="truck"
                 color="#ebebeb"
                 size={parseHeightPercentage(24)}
               />
               <ContextMenuOptionText color="#ebebeb">
-                Ver pedidos pendentes
+                Ver pedidos
               </ContextMenuOptionText>
             </ContextMenuOption>
 

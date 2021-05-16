@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { getDistance, convertDistance } from 'geolib';
-import AsyncStorage from '@react-native-community/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 
 import api from '@services/api';
@@ -19,18 +18,21 @@ import {
 import IOrder from '@models/Order';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
+import TitleBar from '@components/atoms/TitleBar';
 import Label from '@components/atoms/Label';
-
-import FloatingButton from '@components/atoms/FloatingButton';
 import OrderListItem from '@components/organisms/OrderListItem';
 
 import {
   Container,
-  OrdersListContainer,
-  OrdersList,
   EmptyOrdersListContainer,
   EmptyOrdersListText,
+  OrdersList,
+  OrdersListContainer,
 } from './styles';
+
+interface RouteParams {
+  trip_id: string;
+}
 
 export interface IOrderExtended extends IOrder {
   formatted_created_at: string;
@@ -42,24 +44,25 @@ interface Section {
   data: IOrderExtended[];
 }
 
-const MyOrders: React.FC = () => {
+const TripOrders: React.FC = () => {
   const { location } = useLocation();
 
-  const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = route.params as RouteParams;
 
   const [orders, setOrders] = useState<IOrderExtended[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrdersFromApi = useCallback(() => {
+  const fetchTripOrdersFromTheApi = useCallback(() => {
     setLoading(true);
 
     const { latitude, longitude } = location;
 
     if (latitude && longitude) {
       api
-        .get('/orders/me')
+        .get(`trips/${routeParams.trip_id}/orders`)
         .then(response => {
           setOrders(
             response.data.map((order: IOrderExtended) => ({
@@ -95,80 +98,44 @@ const MyOrders: React.FC = () => {
           setLoading(false);
         });
     }
-  }, [location]);
+  }, [location, routeParams]);
 
   const onRefreshOrdersList = useCallback(async () => {
     setRefreshing(true);
-    fetchOrdersFromApi();
+    fetchTripOrdersFromTheApi();
     setRefreshing(false);
-  }, [fetchOrdersFromApi]);
-
-  const handleNavigateToCreateOrder = useCallback(async () => {
-    const asyncStorageKeys = await AsyncStorage.getAllKeys();
-
-    const createOrderItemKeys = asyncStorageKeys.filter(key =>
-      key.includes('@Peguei!:create-order-item-'),
-    );
-
-    await AsyncStorage.multiRemove(createOrderItemKeys);
-
-    navigation.navigate('CreateOrder');
-  }, [navigation]);
+  }, [fetchTripOrdersFromTheApi]);
 
   useEffect(() => {
-    const openOrders = orders.filter(order => order.status === 1);
     const inProgressOrders = orders.filter(order => order.status === 2);
-    const deliveredOrders = orders.filter(order => order.status === 3);
-    const canceledOrders = orders.filter(order => order.status === 4);
     const pendingOrders = orders.filter(order => order.status === 5);
     const aprovedOrders = orders.filter(order => order.status === 6);
     const refusedOrders = orders.filter(order => order.status === 7);
 
     const parsedSections: Section[] = [];
 
-    if (openOrders.length > 0) {
-      parsedSections.push({ title: 'Abertos', data: openOrders });
-    }
-
-    if (pendingOrders.length > 0) {
-      parsedSections.push({
-        title: 'Pendentes (Viagens)',
-        data: pendingOrders,
-      });
-    }
-
     if (inProgressOrders.length > 0) {
       parsedSections.push({ title: 'Em andamento', data: inProgressOrders });
     }
 
+    if (pendingOrders.length > 0) {
+      parsedSections.push({ title: 'Pendentes', data: pendingOrders });
+    }
+
     if (aprovedOrders.length > 0) {
-      parsedSections.push({
-        title: 'Aprovados (Viagens)',
-        data: aprovedOrders,
-      });
-    }
-
-    if (deliveredOrders.length > 0) {
-      parsedSections.push({ title: 'Entregues', data: deliveredOrders });
-    }
-
-    if (canceledOrders.length > 0) {
-      parsedSections.push({ title: 'Cancelados', data: canceledOrders });
+      parsedSections.push({ title: 'Aprovados', data: aprovedOrders });
     }
 
     if (refusedOrders.length > 0) {
-      parsedSections.push({
-        title: 'Recusados (Viagens)',
-        data: refusedOrders,
-      });
+      parsedSections.push({ title: 'Recusados', data: refusedOrders });
     }
 
     setSections(parsedSections);
   }, [orders]);
 
   useEffect(() => {
-    fetchOrdersFromApi();
-  }, [fetchOrdersFromApi]);
+    fetchTripOrdersFromTheApi();
+  }, [fetchTripOrdersFromTheApi]);
 
   const refreshIndicator = useMemo(() => {
     return (
@@ -188,6 +155,8 @@ const MyOrders: React.FC = () => {
 
   return (
     <>
+      <TitleBar title="Pedidos da Viagem" />
+
       <Container>
         <OrdersListContainer>
           <OrdersList
@@ -211,7 +180,7 @@ const MyOrders: React.FC = () => {
                   color="#606060"
                 />
                 <EmptyOrdersListText>
-                  Você não fez nenhum pedido ainda!
+                  Ninguém fez um pedido para você ainda!
                 </EmptyOrdersListText>
               </EmptyOrdersListContainer>
             )}
@@ -220,10 +189,8 @@ const MyOrders: React.FC = () => {
           />
         </OrdersListContainer>
       </Container>
-
-      <FloatingButton iconName="plus" onPress={handleNavigateToCreateOrder} />
     </>
   );
 };
 
-export default MyOrders;
+export default TripOrders;
