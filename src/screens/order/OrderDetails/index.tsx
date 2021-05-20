@@ -775,15 +775,17 @@ const OrderDetails: React.FC = () => {
               ))}
             </TitledBox>
 
-            <TitledBox title="Nota Fiscal">
-              <OutlinedButton
-                color="#6f7bae"
-                widthPercentage={100}
-                onPress={handleViewPurchaseInvoice}
-              >
-                Visualizar documento
-              </OutlinedButton>
-            </TitledBox>
+            {order.purchase_invoice && (
+              <TitledBox title="Nota Fiscal">
+                <OutlinedButton
+                  color="#6f7bae"
+                  widthPercentage={100}
+                  onPress={handleViewPurchaseInvoice}
+                >
+                  Visualizar documento
+                </OutlinedButton>
+              </TitledBox>
+            )}
 
             {(order.status === 2 || order.status === 3) &&
               order.deliveryman_id && (

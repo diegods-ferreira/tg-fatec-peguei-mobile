@@ -307,8 +307,8 @@ const CreateOrder: React.FC = () => {
 
       if (DocumentPicker.isCancel(err)) {
         Alert.alert(
-          'Aviso!',
-          'É preciso anexar uma nota fiscal ao pedido ou ele não será salvo.',
+          'Lembre-se!',
+          'Se você possui a nota fiscal dos produtos, sempre é bom anexá-la em seu pedido.',
         );
       } else {
         Alert.alert(
@@ -354,10 +354,6 @@ const CreateOrder: React.FC = () => {
 
         if (items.length === 0) {
           throw new Error('Você precisa incluir ao menos 1 item ao pedido.');
-        }
-
-        if (!purchaseInvoiceFile.uri) {
-          throw new Error('Você precisa anexar uma nota fiscal ao pedido.');
         }
 
         const {
@@ -434,18 +430,20 @@ const CreateOrder: React.FC = () => {
           orderToSave,
         );
 
-        const uploadPurchaseInvoice = new FormData();
+        if (purchaseInvoiceFile.uri) {
+          const uploadPurchaseInvoice = new FormData();
 
-        uploadPurchaseInvoice.append('order_id', createOrderResponse.data.id);
-        uploadPurchaseInvoice.append('purchase_invoice', {
-          type: purchaseInvoiceFile.type,
-          name: `${createOrderResponse.data.id}.${
-            purchaseInvoiceFile.type === 'application/pdf' ? 'pdf' : 'jpg'
-          }`,
-          uri: purchaseInvoiceFile.uri,
-        });
+          uploadPurchaseInvoice.append('order_id', createOrderResponse.data.id);
+          uploadPurchaseInvoice.append('purchase_invoice', {
+            type: purchaseInvoiceFile.type,
+            name: `${createOrderResponse.data.id}.${
+              purchaseInvoiceFile.type === 'application/pdf' ? 'pdf' : 'jpg'
+            }`,
+            uri: purchaseInvoiceFile.uri,
+          });
 
-        await api.patch('/orders/purchase_invoice', uploadPurchaseInvoice);
+          await api.patch('/orders/purchase_invoice', uploadPurchaseInvoice);
+        }
 
         items.forEach(async (item, index) => {
           const uploadItemImage = new FormData();
