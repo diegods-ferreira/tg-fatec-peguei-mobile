@@ -18,36 +18,12 @@ export const LogoImage = styled.Image`
   height: ${logoImageSize}px;
 `;
 
-export const LoginContainer = styled.View`
-  width: 100%;
-  margin-top: ${parseHeightPercentage(16)}px;
-  margin-bottom: ${parseHeightPercentage(32)}px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 export const Title = styled.Text`
   font-weight: bold;
   font-size: ${parseWidthPercentage(24)}px;
   color: #ebebeb;
-`;
-
-export const SocialLoginContainer = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-`;
-
-export const SocialLoginText = styled.Text`
-  font-size: ${parseWidthPercentage(16)}px;
-  color: #ebebeb;
-`;
-
-export const SocialLoginOption = styled.TouchableOpacity`
-  margin-left: ${parseWidthPercentage(8)}px;
-  width: ${parseWidthPercentage(32)}px;
-  height: ${parseHeightPercentage(32)}px;
+  margin-top: ${parseHeightPercentage(16)}px;
+  margin-bottom: ${parseHeightPercentage(32)}px;
 `;
 
 export const ResetPasswordButton = styled.TouchableOpacity`

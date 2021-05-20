@@ -1,12 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
-  Image,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
   TextInput as RNTextInput,
-  View,
 } from 'react-native';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
@@ -21,17 +19,11 @@ import FilledButton from '@components/atoms/FilledButton';
 
 import logoImg from '@assets/Logo.png';
 import backgroundImg from '@assets/bg-image.png';
-import googleLogo from '@assets/google.png';
-import facebookLogo from '@assets/facebook.png';
 
 import {
   Container,
   LogoImage,
-  LoginContainer,
   Title,
-  SocialLoginContainer,
-  SocialLoginText,
-  SocialLoginOption,
   ResetPasswordButton,
   ResetPasswordButtonText,
   SignUpButton,
@@ -113,21 +105,7 @@ const SignIn: React.FC = () => {
         <Container>
           <LogoImage source={logoImg} />
 
-          <LoginContainer>
-            <View>
-              <Title>Faça login</Title>
-            </View>
-
-            <SocialLoginContainer>
-              <SocialLoginText>Usar</SocialLoginText>
-              <SocialLoginOption>
-                <Image source={googleLogo} />
-              </SocialLoginOption>
-              <SocialLoginOption>
-                <Image source={facebookLogo} />
-              </SocialLoginOption>
-            </SocialLoginContainer>
-          </LoginContainer>
+          <Title>Faça login</Title>
 
           <Form ref={formRef} onSubmit={handleSignIn}>
             <TextInput
