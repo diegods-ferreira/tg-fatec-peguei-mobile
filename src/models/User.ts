@@ -20,6 +20,8 @@ export default interface IUser {
   show_telegram: boolean;
   show_phone: boolean;
   rating_average: number;
+  orders_total: number;
+  deliveries_total: number;
   trips: ITrip[];
   created_at: string;
   updated_at: string;

@@ -274,12 +274,12 @@ const Profile: React.FC = () => {
 
             <ProfileStatistics>
               <OrdersCounter>
-                <CounterNumber>10</CounterNumber>
+                <CounterNumber>{user.orders_total}</CounterNumber>
                 <CounterLabel>pedidos</CounterLabel>
               </OrdersCounter>
 
               <DeliveriesCounter>
-                <CounterNumber>6</CounterNumber>
+                <CounterNumber>{user.deliveries_total}</CounterNumber>
                 <CounterLabel>entregas</CounterLabel>
               </DeliveriesCounter>
 
