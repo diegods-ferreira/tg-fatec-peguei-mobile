@@ -6,8 +6,8 @@ export default interface IUser {
   email: string;
   password: string;
   name: string;
-  facebook: string;
-  instagram: string;
+  whatsapp: string;
+  telegram: string;
   phone: string;
   presentation: string;
   address: string;
@@ -16,8 +16,8 @@ export default interface IUser {
   avatar: string;
   username: string;
   show_email: boolean;
-  show_facebook: boolean;
-  show_instagram: boolean;
+  show_whatsapp: boolean;
+  show_telegram: boolean;
   show_phone: boolean;
   rating_average: number;
   trips: ITrip[];

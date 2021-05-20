@@ -14,7 +14,8 @@ import { parseWidthPercentage } from '@utils/screenPercentage';
 import {
   Container,
   RNTextInput,
-  Icon,
+  FeatherIcon,
+  FontAwesomeIcon,
   ToggleContentVisibilityButton,
   ErrorContainer,
   ErrorLabel,
@@ -22,6 +23,7 @@ import {
 
 export interface TextInputProps extends RNTextInputProps {
   name: string;
+  iconGallery?: 'feather' | 'fontawesome';
   icon?: string;
   textAlign?: 'left' | 'right' | 'center';
   toggleContentVisibilityButton?: boolean;
@@ -39,6 +41,7 @@ interface InputRef {
 const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
   {
     name,
+    iconGallery = 'feather',
     icon,
     textAlign = 'left',
     secureTextEntry,
@@ -116,8 +119,17 @@ const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
         isFocused={isFocused}
         isErrored={!!error}
       >
-        {icon && (
-          <Icon
+        {icon && iconGallery === 'feather' && (
+          <FeatherIcon
+            name={icon}
+            size={parseWidthPercentage(20)}
+            color={isFocused || isFilled ? '#6f7bae' : '#606060'}
+            marginRight={16}
+          />
+        )}
+
+        {icon && iconGallery === 'fontawesome' && (
+          <FontAwesomeIcon
             name={icon}
             size={parseWidthPercentage(20)}
             color={isFocused || isFilled ? '#6f7bae' : '#606060'}
@@ -142,7 +154,7 @@ const TextInput: React.RefForwardingComponent<InputRef, TextInputProps> = (
 
         {toggleContentVisibilityButton && (
           <ToggleContentVisibilityButton>
-            <Icon
+            <FeatherIcon
               name={isContentVisible ? 'eye-off' : 'eye'}
               size={parseWidthPercentage(20)}
               color={isFocused || isFilled ? '#6f7bae' : '#606060'}

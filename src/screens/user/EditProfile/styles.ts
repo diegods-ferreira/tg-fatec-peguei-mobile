@@ -114,12 +114,6 @@ export const AddressText = styled.Text`
   font-size: ${parseWidthPercentage(16)}px;
 `;
 
-export const SocialNetworksContainer = styled.View`
-  width: 100%;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
 export const ChangeAddressButton = styled.TouchableOpacity`
   width: 100%;
   align-items: flex-end;

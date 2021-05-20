@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components/native';
 import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 
 import {
   parseHeightPercentage,
@@ -60,7 +61,15 @@ export const RNTextInput = styled.TextInput<RNTextInputProps>`
     `}
 `;
 
-export const Icon = styled(Feather)<IconProps>`
+export const FeatherIcon = styled(Feather)<IconProps>`
+  ${props =>
+    props.marginRight &&
+    css`
+      margin-right: ${parseWidthPercentage(16)}px;
+    `}
+`;
+
+export const FontAwesomeIcon = styled(FontAwesome)<IconProps>`
   ${props =>
     props.marginRight &&
     css`

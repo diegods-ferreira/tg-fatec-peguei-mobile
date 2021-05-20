@@ -43,7 +43,6 @@ import {
   EditAvatarButton,
   Container,
   InputsWrapper,
-  SocialNetworksContainer,
   AddressContainer,
   AddressTextContainer,
   AddressText,
@@ -70,11 +69,11 @@ interface EditProfileFormData {
   city: string;
   state: string;
   phone: string;
-  facebook: string;
-  instagram: string;
+  whatsapp: string;
+  telegram: string;
   show_email: boolean;
-  show_facebook: boolean;
-  show_instagram: boolean;
+  show_whatsapp: boolean;
+  show_telegram: boolean;
   show_phone: boolean;
   old_password?: string;
   password?: string;
@@ -102,8 +101,8 @@ const EditProfile: React.FC = () => {
   const [changeAddress, setChangeAddress] = useState(false);
   const [showEmail, setShowEmail] = useState(user.show_email);
   const [showPhone, setShowPhone] = useState(user.show_phone);
-  const [showFacebook, setShowFacebook] = useState(user.show_facebook);
-  const [showInstagram, setShowInstagram] = useState(user.show_instagram);
+  const [showWhatsapp, setShowWhatsapp] = useState(user.show_whatsapp);
+  const [showTelegram, setShowTelegram] = useState(user.show_telegram);
 
   const navigation = useNavigation();
 
@@ -177,7 +176,9 @@ const EditProfile: React.FC = () => {
           ...(changeAddress
             ? { address_number: Yup.string().required('Obrigatório') }
             : {}),
-          phone: Yup.string().min(10, 'Mínimo de 10 caracteres'),
+          phone: Yup.string().min(8, 'Mínimo de 10 caracteres'),
+          whatsapp: Yup.string().min(9, 'Mínimo de 10 caracteres'),
+          telegram: Yup.string().min(2, 'Mínimo de 2 caracteres'),
           old_password: Yup.string(),
           password: Yup.string().when('old_password', {
             is: val => !!val.length,
@@ -214,12 +215,12 @@ const EditProfile: React.FC = () => {
                 state: user.state,
               }),
           phone: data.phone,
-          facebook: data.facebook,
-          instagram: data.instagram,
+          whatsapp: data.whatsapp,
+          telegram: data.telegram,
           show_email: showEmail,
           show_phone: showPhone,
-          show_facebook: showFacebook,
-          show_instagram: showInstagram,
+          show_whatsapp: showWhatsapp,
+          show_telegram: showTelegram,
           ...(data.old_password
             ? {
                 old_password: data.old_password,
@@ -247,11 +248,9 @@ const EditProfile: React.FC = () => {
           return;
         }
 
-        console.log(err);
-
         Alert.alert(
           'Erro',
-          'Ocorreu um erro ao tentar salvar seu perfil, tente novamente mais tarde.',
+          `Ocorreu um erro ao tentar salvar seu perfil, tente novamente mais tarde.\n\n${err.responde.data.message}`,
         );
       }
     },
@@ -264,8 +263,8 @@ const EditProfile: React.FC = () => {
       user.state,
       showEmail,
       showPhone,
-      showFacebook,
-      showInstagram,
+      showWhatsapp,
+      showTelegram,
       updateUser,
     ],
   );
@@ -306,8 +305,8 @@ const EditProfile: React.FC = () => {
   const parsedUser = useMemo(() => {
     return {
       ...user,
-      facebook: user.facebook || '',
-      instagram: user.instagram || '',
+      whatsapp: user.whatsapp || '',
+      telegram: user.telegram || '',
       presentation: user.presentation || '',
     };
   }, [user]);
@@ -570,80 +569,69 @@ const EditProfile: React.FC = () => {
                   }}
                 />
               </InputGroup>
-            </TitledBox>
 
-            <TitledBox title="Redes sociais">
-              <SocialNetworksContainer>
-                <InputGroup
-                  label="Facebook"
-                  name="facebook"
-                  icon="facebook"
-                  placeholder="Vincular"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  returnKeyType="done"
+              <InputGroup
+                label="Whatsapp"
+                name="whatsapp"
+                iconGallery="fontawesome"
+                icon="whatsapp"
+                placeholder="Digite seu Whatsapp"
+                keyboardType="phone-pad"
+                returnKeyType="done"
+              >
+                <CheckBox
+                  title="Exibir no perfil"
+                  size={parseWidthPercentage(16)}
+                  right
+                  checked={showWhatsapp}
+                  checkedColor="#ff8c42"
+                  uncheckedColor="#606060"
+                  onPress={() => setShowWhatsapp(!showWhatsapp)}
                   containerStyle={{
-                    width: parseWidthPercentage(136),
+                    padding: 0,
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
                   }}
-                >
-                  <CheckBox
-                    title="Exibir no perfil"
-                    size={parseWidthPercentage(16)}
-                    right
-                    checked={showFacebook}
-                    checkedColor="#ff8c42"
-                    uncheckedColor="#606060"
-                    onPress={() => setShowFacebook(!showFacebook)}
-                    containerStyle={{
-                      padding: 0,
-                      backgroundColor: 'transparent',
-                      borderWidth: 0,
-                    }}
-                    textStyle={{
-                      color: '#ededed',
-                      fontWeight: 'normal',
-                      fontSize: parseWidthPercentage(13),
-                      marginLeft: parseWidthPercentage(8),
-                      marginRight: 0,
-                    }}
-                  />
-                </InputGroup>
+                  textStyle={{
+                    color: '#ededed',
+                    fontWeight: 'normal',
+                    fontSize: parseWidthPercentage(13),
+                    marginLeft: parseWidthPercentage(8),
+                    marginRight: 0,
+                  }}
+                />
+              </InputGroup>
 
-                <InputGroup
-                  label="Instagram"
-                  name="instagram"
-                  icon="instagram"
-                  placeholder="Vincular"
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  returnKeyType="done"
+              <InputGroup
+                label="Telegram"
+                name="telegram"
+                iconGallery="fontawesome"
+                icon="telegram-plane"
+                placeholder="Digite seu Telegram"
+                returnKeyType="done"
+              >
+                <CheckBox
+                  title="Exibir no perfil"
+                  size={parseWidthPercentage(16)}
+                  right
+                  checked={showTelegram}
+                  checkedColor="#ff8c42"
+                  uncheckedColor="#606060"
+                  onPress={() => setShowTelegram(!showTelegram)}
                   containerStyle={{
-                    width: parseWidthPercentage(136),
+                    padding: 0,
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
                   }}
-                >
-                  <CheckBox
-                    title="Exibir no perfil"
-                    size={parseWidthPercentage(16)}
-                    right
-                    checked={showInstagram}
-                    checkedColor="#ff8c42"
-                    uncheckedColor="#606060"
-                    onPress={() => setShowInstagram(!showInstagram)}
-                    containerStyle={{
-                      padding: 0,
-                      backgroundColor: 'transparent',
-                      borderWidth: 0,
-                    }}
-                    textStyle={{
-                      color: '#ededed',
-                      fontWeight: 'normal',
-                      fontSize: parseWidthPercentage(13),
-                      marginLeft: parseWidthPercentage(8),
-                      marginRight: 0,
-                    }}
-                  />
-                </InputGroup>
-              </SocialNetworksContainer>
+                  textStyle={{
+                    color: '#ededed',
+                    fontWeight: 'normal',
+                    fontSize: parseWidthPercentage(13),
+                    marginLeft: parseWidthPercentage(8),
+                    marginRight: 0,
+                  }}
+                />
+              </InputGroup>
             </TitledBox>
 
             <TitledBox title="Sua senha">

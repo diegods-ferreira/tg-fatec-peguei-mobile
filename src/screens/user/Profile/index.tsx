@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import api from '@services/api';
@@ -249,8 +250,8 @@ const Profile: React.FC = () => {
 
         {(user.show_phone ||
           user.show_email ||
-          user.show_facebook ||
-          user.show_instagram) && (
+          user.show_whatsapp ||
+          user.show_telegram) && (
           <Section>
             <SectionTitle>Formas de contato</SectionTitle>
             <ContactFormsButtons>
@@ -276,25 +277,25 @@ const Profile: React.FC = () => {
                 </ContactForm>
               )}
 
-              {user.show_facebook && (
+              {user.show_whatsapp && (
                 <ContactForm rippleColor="#ebebeb10">
-                  <Feather
-                    name="facebook"
+                  <FontAwesome
+                    name="whatsapp"
                     size={parseWidthPercentage(18)}
                     color="#ebebeb"
                   />
-                  <ContactFormText>Facebook</ContactFormText>
+                  <ContactFormText>Whatsapp</ContactFormText>
                 </ContactForm>
               )}
 
-              {user.show_instagram && (
+              {user.show_telegram && (
                 <ContactForm rippleColor="#ebebeb10">
-                  <Feather
-                    name="instagram"
+                  <FontAwesome
+                    name="telegram-plane"
                     size={parseWidthPercentage(18)}
                     color="#ebebeb"
                   />
-                  <ContactFormText>Instagram</ContactFormText>
+                  <ContactFormText>Telegram</ContactFormText>
                 </ContactForm>
               )}
             </ContactFormsButtons>
