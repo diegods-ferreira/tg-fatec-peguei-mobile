@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, Linking, ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -109,6 +109,57 @@ const Profile: React.FC = () => {
       ],
     );
   }, [signOut]);
+
+  const handleOpenEmailContactForm = useCallback(async () => {
+    try {
+      const to = !routeParams ? authUser.email : user.email;
+      const subject = 'Peguei! - Vamos conversar';
+      const body = 'Digite sua mensagem aqui...';
+
+      await Linking.openURL(`mailto:${to}?subject=${subject}&body=${body}`);
+    } catch {
+      Alert.alert(
+        'Erro',
+        'Parece que você não tem um cliente de e-mail instalado.',
+      );
+    }
+  }, [routeParams, authUser.email, user.email]);
+
+  const handleOpenPhoneContactForm = useCallback(async () => {
+    try {
+      const phone = !routeParams ? authUser.phone : user.phone;
+
+      await Linking.openURL(`tel:${phone}`);
+    } catch {
+      Alert.alert(
+        'Erro',
+        'Parece que você não tem um cliente de ligações instalado.',
+      );
+    }
+  }, [routeParams, authUser.phone, user.phone]);
+
+  const handleOpenWhatsappContactForm = useCallback(async () => {
+    try {
+      const whatsappNumber = !routeParams ? authUser.whatsapp : user.whatsapp;
+      const text = '*Peguei!* - Vamos conversar...';
+
+      await Linking.openURL(
+        `whatsapp://send?phone=${whatsappNumber}&text=${text}`,
+      );
+    } catch {
+      Alert.alert('Erro', 'Parece que você não tem o Whatsapp instalado.');
+    }
+  }, [routeParams, authUser.whatsapp, user.whatsapp]);
+
+  const handleOpenTelegramContactForm = useCallback(async () => {
+    try {
+      const telegramUsername = !routeParams ? authUser.telegram : user.telegram;
+
+      await Linking.openURL(`tg://resolve?domain=${telegramUsername}`);
+    } catch {
+      Alert.alert('Erro', 'Parece que você não tem o Telegram instalado.');
+    }
+  }, [routeParams, authUser.telegram, user.telegram]);
 
   useEffect(() => {
     async function loadUserData() {
@@ -256,7 +307,10 @@ const Profile: React.FC = () => {
             <SectionTitle>Formas de contato</SectionTitle>
             <ContactFormsButtons>
               {user.show_email && (
-                <ContactForm rippleColor="#ebebeb10">
+                <ContactForm
+                  rippleColor="#ebebeb10"
+                  onPress={handleOpenEmailContactForm}
+                >
                   <Feather
                     name="mail"
                     size={parseWidthPercentage(18)}
@@ -267,7 +321,10 @@ const Profile: React.FC = () => {
               )}
 
               {user.show_phone && (
-                <ContactForm rippleColor="#ebebeb10">
+                <ContactForm
+                  rippleColor="#ebebeb10"
+                  onPress={handleOpenPhoneContactForm}
+                >
                   <Feather
                     name="phone"
                     size={parseWidthPercentage(18)}
@@ -278,7 +335,10 @@ const Profile: React.FC = () => {
               )}
 
               {user.show_whatsapp && (
-                <ContactForm rippleColor="#ebebeb10">
+                <ContactForm
+                  rippleColor="#ebebeb10"
+                  onPress={handleOpenWhatsappContactForm}
+                >
                   <FontAwesome
                     name="whatsapp"
                     size={parseWidthPercentage(18)}
@@ -289,7 +349,10 @@ const Profile: React.FC = () => {
               )}
 
               {user.show_telegram && (
-                <ContactForm rippleColor="#ebebeb10">
+                <ContactForm
+                  rippleColor="#ebebeb10"
+                  onPress={handleOpenTelegramContactForm}
+                >
                   <FontAwesome
                     name="telegram-plane"
                     size={parseWidthPercentage(18)}
