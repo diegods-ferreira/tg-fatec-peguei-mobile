@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, RefreshControl, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { getDistance, convertDistance } from 'geolib';
+import AsyncStorage from '@react-native-community/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useAuth } from '@hooks/auth';
@@ -88,20 +89,44 @@ const Orders: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!user.address && !user.state && !user.city) {
-      Alert.alert(
-        'Aviso!',
-        'Há informações do seu perfil pendentes de preenchimento.\n\nRecomendamos que você atualize o seu perfil o quanto antes.',
-        [
-          { text: 'Agora não', style: 'cancel' },
-          {
-            text: 'Vamos lá!',
-            style: 'default',
-            onPress: () => navigation.navigate('EditProfile'),
-          },
-        ],
+    async function showMissingUserInfoAlert() {
+      const displayMissingUserInfoAlert = await AsyncStorage.getItem(
+        '@Peguei!:display-missing-user-info-alert',
       );
+
+      const parsedDisplayMissingUserInfoAlert = displayMissingUserInfoAlert
+        ? JSON.parse(displayMissingUserInfoAlert)
+        : true;
+
+      if (
+        !user.address &&
+        !user.state &&
+        !user.city &&
+        parsedDisplayMissingUserInfoAlert
+      ) {
+        Alert.alert(
+          'Aviso!',
+          'Há informações do seu perfil pendentes de preenchimento.\n\nRecomendamos que você atualize o seu perfil o quanto antes.',
+          [
+            { text: 'Agora não', style: 'cancel' },
+            {
+              text: 'Vamos lá!',
+              style: 'default',
+              onPress: async () => {
+                await AsyncStorage.setItem(
+                  '@Peguei!:display-missing-user-info-alert',
+                  'false',
+                );
+
+                navigation.navigate('EditProfile');
+              },
+            },
+          ],
+        );
+      }
     }
+
+    showMissingUserInfoAlert();
   }, [user, navigation]);
 
   useEffect(() => {
