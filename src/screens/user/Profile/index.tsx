@@ -112,7 +112,7 @@ const Profile: React.FC = () => {
 
   const handleOpenEmailContactForm = useCallback(async () => {
     try {
-      const to = !routeParams ? authUser.email : user.email;
+      const to = user.email;
       const subject = 'Peguei! - Vamos conversar';
       const body = 'Digite sua mensagem aqui...';
 
@@ -123,11 +123,11 @@ const Profile: React.FC = () => {
         'Parece que você não tem um cliente de e-mail instalado.',
       );
     }
-  }, [routeParams, authUser.email, user.email]);
+  }, [user.email]);
 
   const handleOpenPhoneContactForm = useCallback(async () => {
     try {
-      const phone = !routeParams ? authUser.phone : user.phone;
+      const { phone } = user;
 
       await Linking.openURL(`tel:${phone}`);
     } catch {
@@ -136,30 +136,30 @@ const Profile: React.FC = () => {
         'Parece que você não tem um cliente de ligações instalado.',
       );
     }
-  }, [routeParams, authUser.phone, user.phone]);
+  }, [user]);
 
   const handleOpenWhatsappContactForm = useCallback(async () => {
     try {
-      const whatsappNumber = !routeParams ? authUser.whatsapp : user.whatsapp;
+      const whatsapp = user.whatsapp.startsWith('55')
+        ? user.whatsapp
+        : `55${user.whatsapp}`;
       const text = '*Peguei!* - Vamos conversar...';
 
-      await Linking.openURL(
-        `whatsapp://send?phone=${whatsappNumber}&text=${text}`,
-      );
+      await Linking.openURL(`whatsapp://send?phone=${whatsapp}&text=${text}`);
     } catch {
       Alert.alert('Erro', 'Parece que você não tem o Whatsapp instalado.');
     }
-  }, [routeParams, authUser.whatsapp, user.whatsapp]);
+  }, [user]);
 
   const handleOpenTelegramContactForm = useCallback(async () => {
     try {
-      const telegramUsername = !routeParams ? authUser.telegram : user.telegram;
+      const { telegram } = user;
 
-      await Linking.openURL(`tg://resolve?domain=${telegramUsername}`);
+      await Linking.openURL(`tg://resolve?domain=${telegram}`);
     } catch {
       Alert.alert('Erro', 'Parece que você não tem o Telegram instalado.');
     }
-  }, [routeParams, authUser.telegram, user.telegram]);
+  }, [user]);
 
   useEffect(() => {
     async function loadUserData() {
