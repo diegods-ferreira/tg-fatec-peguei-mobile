@@ -16,6 +16,7 @@ import IOrder from '@models/Order';
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import FloatingButton from '@components/atoms/FloatingButton';
 import OrderListItem from '@components/organisms/OrderListItem';
+import EndOfListLabel from '@components/atoms/EndOfListLabel';
 
 import {
   parseHeightPercentage,
@@ -34,8 +35,6 @@ import {
   OrdersList,
   EmptyOrdersListContainer,
   EmptyOrdersListText,
-  RefreshOrdersListButton,
-  RefreshOrdersListButtonText,
 } from './styles';
 
 export interface IOrderExtended extends IOrder {
@@ -282,19 +281,7 @@ const Orders: React.FC = () => {
                 }
 
                 if (orders.length > 0 && refreshButtonVisible) {
-                  return (
-                    <RefreshOrdersListButton
-                      onPress={handleRefreshOrdersList}
-                      rippleColor="#00000050"
-                    >
-                      <RefreshOrdersListButtonText>
-                        Hmm... Parece que acabou a lista.
-                      </RefreshOrdersListButtonText>
-                      <RefreshOrdersListButtonText>
-                        Clique aqui para carregar novos pedidos!
-                      </RefreshOrdersListButtonText>
-                    </RefreshOrdersListButton>
-                  );
+                  return <EndOfListLabel onPress={handleRefreshOrdersList} />;
                 }
 
                 return <View style={{ height: parseHeightPercentage(24) }} />;

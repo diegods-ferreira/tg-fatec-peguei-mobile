@@ -39,19 +39,3 @@ export const EmptyTripsListText = styled.Text`
   text-align: center;
   margin-top: ${parseHeightPercentage(24)}px;
 `;
-
-export const RefreshTripsListButton = styled(RectButton)`
-  width: 100%;
-  padding: ${parseHeightPercentage(16)}px 0px;
-  margin: ${parseHeightPercentage(24)}px 0px;
-  background: #ff8c42;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const RefreshTripsListButtonText = styled.Text`
-  color: #312e38;
-  font-size: ${parseWidthPercentage(16)}px;
-  font-weight: bold;
-`;

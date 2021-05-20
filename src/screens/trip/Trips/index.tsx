@@ -14,6 +14,7 @@ import ITrip from '@models/Trip';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TripListItem from '@components/organisms/TripListItem';
+import EndOfListLabel from '@components/atoms/EndOfListLabel';
 
 import {
   Container,
@@ -21,8 +22,6 @@ import {
   TripsList,
   EmptyTripsListContainer,
   EmptyTripsListText,
-  RefreshTripsListButton,
-  RefreshTripsListButtonText,
 } from './styles';
 
 export interface ITripExtended extends ITrip {
@@ -138,19 +137,7 @@ const Trips: React.FC = () => {
             }
 
             if (trips.length > 0 && refreshButtonVisible) {
-              return (
-                <RefreshTripsListButton
-                  onPress={handleRefreshTripsList}
-                  rippleColor="#00000050"
-                >
-                  <RefreshTripsListButtonText>
-                    Hmm... Parece que acabou a lista.
-                  </RefreshTripsListButtonText>
-                  <RefreshTripsListButtonText>
-                    Clique aqui para carregar novas viagens!
-                  </RefreshTripsListButtonText>
-                </RefreshTripsListButton>
-              );
+              return <EndOfListLabel onPress={handleRefreshTripsList} />;
             }
 
             return <View style={{ height: parseHeightPercentage(24) }} />;
