@@ -607,7 +607,7 @@ const EditProfile: React.FC = () => {
                 name="telegram"
                 iconGallery="fontawesome"
                 icon="telegram-plane"
-                placeholder="Digite seu Telegram"
+                placeholder="Digite seu Telegram sem @"
                 returnKeyType="done"
               >
                 <CheckBox
