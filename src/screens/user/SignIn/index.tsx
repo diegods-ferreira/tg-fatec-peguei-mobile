@@ -12,7 +12,9 @@ import { useNavigation } from '@react-navigation/native';
 import * as Yup from 'yup';
 
 import getValidationErrors from '@utils/getValidationErrors';
+
 import { useAuth } from '@hooks/auth';
+import { useNotification } from '@hooks/notification';
 
 import TextInput from '@components/atoms/TextInput';
 import FilledButton from '@components/atoms/FilledButton';
@@ -44,6 +46,7 @@ const SignIn: React.FC = () => {
   const [isSubmiting, setIsSubmiting] = useState(false);
 
   const { signIn } = useAuth();
+  const { subscribePushNotifications } = useNotification();
 
   const handleNavigateToSignUp = useCallback(() => {
     navigation.navigate('SignUp');
@@ -71,6 +74,8 @@ const SignIn: React.FC = () => {
           abortEarly: false,
         });
 
+        subscribePushNotifications();
+
         setIsSubmiting(false);
 
         await signIn({
@@ -92,7 +97,7 @@ const SignIn: React.FC = () => {
         );
       }
     },
-    [signIn],
+    [signIn, subscribePushNotifications],
   );
 
   return (

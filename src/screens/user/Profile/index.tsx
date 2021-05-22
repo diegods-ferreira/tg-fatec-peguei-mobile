@@ -7,6 +7,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import api from '@services/api';
 
 import { useAuth } from '@hooks/auth';
+import { useNotification } from '@hooks/notification';
 
 import { parseWidthPercentage } from '@utils/screenPercentage';
 import boxShadowProps from '@utils/boxShadowProps';
@@ -60,6 +61,7 @@ const Profile: React.FC = () => {
   const routeParams = route.params as RouteParams;
 
   const { user: authUser, signOut } = useAuth();
+  const { unsubscribePushNotifications } = useNotification();
 
   const [user, setUser] = useState<IUser>({} as IUser);
   const [showAuthUserOptions, setShowAuthUserOptions] = useState(false);
@@ -104,11 +106,15 @@ const Profile: React.FC = () => {
         {
           text: 'Confirmar',
           style: 'destructive',
-          onPress: () => signOut(),
+          onPress: async () => {
+            unsubscribePushNotifications();
+
+            signOut();
+          },
         },
       ],
     );
-  }, [signOut]);
+  }, [signOut, unsubscribePushNotifications]);
 
   const handleOpenEmailContactForm = useCallback(async () => {
     try {
