@@ -23,7 +23,11 @@ const TitleBar: React.FC<TitleBarProps> = ({
   const navigation = useNavigation();
 
   const handleNavigateBack = useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('Home');
+    }
   }, [navigation]);
 
   return (

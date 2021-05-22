@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { Alert, Linking } from 'react-native';
 import OneSignal, { OpenedEvent } from 'react-native-onesignal';
 
 import { ONE_SIGNAL_APP_ID } from '@env';
@@ -18,6 +19,10 @@ interface NotificationContextData {
   notification: Notification;
   subscribePushNotifications: () => void;
   unsubscribePushNotifications: () => void;
+}
+
+interface NotificationAdditionalData {
+  deep_link?: string;
 }
 
 const NotificationContext = createContext<NotificationContextData>(
@@ -50,9 +55,20 @@ const NotificationProvider: React.FC = ({ children }) => {
   }, []);
 
   const handleOnSignalNotificationOpened = useCallback(
-    (notificationParam: OpenedEvent) => {
-      console.log('Mensagem: ', notificationParam.notification.body);
-      console.log('Notification: ', notificationParam);
+    async (notificationParam: OpenedEvent) => {
+      const { deep_link } = notificationParam.notification
+        .additionalData as NotificationAdditionalData;
+
+      if (deep_link) {
+        try {
+          await Linking.openURL(deep_link);
+        } catch {
+          Alert.alert(
+            'Erro!',
+            'Ocorreu um erro ao tentar abrir essa notificação.',
+          );
+        }
+      }
     },
     [],
   );

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import Feather from 'react-native-vector-icons/Feather';
 
@@ -38,6 +38,10 @@ import {
   EmptyChatsListText,
 } from './styles';
 
+interface RouteParams {
+  chat_id: string;
+}
+
 export interface IChatExtended extends IChat {
   other_user: IUser;
 }
@@ -46,6 +50,8 @@ const Chats: React.FC = () => {
   const { user } = useAuth();
 
   const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = route.params as RouteParams;
 
   const [chats, setChats] = useState<IChatExtended[]>([]);
   const [loading, setLoading] = useState(false);
@@ -92,6 +98,18 @@ const Chats: React.FC = () => {
     },
     [navigation],
   );
+
+  useEffect(() => {
+    if (routeParams?.chat_id) {
+      const chat = chats.find(
+        currentChat => currentChat.id === routeParams.chat_id,
+      );
+
+      if (chat) {
+        handleJoinChatRoom(chat.id, chat.other_user, chat.order_id);
+      }
+    }
+  }, [routeParams, navigation, handleJoinChatRoom, chats]);
 
   const refreshIndicator = useMemo(() => {
     return (
