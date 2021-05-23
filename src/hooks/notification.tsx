@@ -56,17 +56,19 @@ const NotificationProvider: React.FC = ({ children }) => {
 
   const handleOnSignalNotificationOpened = useCallback(
     async (notificationParam: OpenedEvent) => {
-      const { deep_link } = notificationParam.notification
-        .additionalData as NotificationAdditionalData;
+      if (notificationParam.notification.additionalData) {
+        const { deep_link } = notificationParam.notification
+          .additionalData as NotificationAdditionalData;
 
-      if (deep_link) {
-        try {
-          await Linking.openURL(deep_link);
-        } catch {
-          Alert.alert(
-            'Erro!',
-            'Ocorreu um erro ao tentar abrir essa notificação.',
-          );
+        if (deep_link) {
+          try {
+            await Linking.openURL(deep_link);
+          } catch {
+            Alert.alert(
+              'Erro!',
+              'Ocorreu um erro ao tentar abrir essa notificação.',
+            );
+          }
         }
       }
     },
