@@ -132,7 +132,7 @@ const OrderDetails: React.FC = () => {
     | 'RefuseOrder'
     | null
   >(null);
-  const [deliverymanRateValue, setDeliverymanRateValue] = useState(0);
+  const [deliverymanRateValue, setDeliverymanRateValue] = useState(5);
   const [deliverymanRate, setDeliverymanRate] = useState<IUserRate>(
     {} as IUserRate,
   );
