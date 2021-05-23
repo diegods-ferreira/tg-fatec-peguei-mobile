@@ -99,3 +99,24 @@ export const EmptyOrdersListText = styled.Text`
   text-align: center;
   margin-top: ${parseHeightPercentage(24)}px;
 `;
+
+export const ModalContainer = styled.View`
+  width: 100%;
+  padding: ${parseHeightPercentage(24)}px ${parseWidthPercentage(24)}px;
+  background-color: #312e38;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+`;
+
+export const ModalTitle = styled.Text`
+  color: #ebebeb;
+  font-size: ${parseWidthPercentage(18)}px;
+  text-align: center;
+  font-weight: bold;
+`;
+
+export const ModalButtons = styled.View`
+  margin-top: ${parseHeightPercentage(24)}px;
+  flex-direction: row;
+  justify-content: space-between;
+`;

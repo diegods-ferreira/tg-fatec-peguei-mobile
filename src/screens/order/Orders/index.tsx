@@ -1,9 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ActivityIndicator, Alert, RefreshControl, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { format, parseISO } from 'date-fns';
 import { getDistance, convertDistance } from 'geolib';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Modalize } from 'react-native-modalize';
+import { Form } from '@unform/mobile';
+import { FormHandles } from '@unform/core';
 import Feather from 'react-native-vector-icons/Feather';
 
 import { useAuth } from '@hooks/auth';
@@ -17,6 +26,9 @@ import LoadingScreen from '@components/atoms/LoadingScreen';
 import FloatingButton from '@components/atoms/FloatingButton';
 import OrderListItem from '@components/organisms/OrderListItem';
 import EndOfListLabel from '@components/atoms/EndOfListLabel';
+import InputGroup from '@components/molecules/InputGroup';
+import OutlinedButton from '@components/atoms/OutlinedButton';
+import FilledButton from '@components/atoms/FilledButton';
 
 import {
   parseHeightPercentage,
@@ -35,6 +47,9 @@ import {
   OrdersList,
   EmptyOrdersListContainer,
   EmptyOrdersListText,
+  ModalContainer,
+  ModalTitle,
+  ModalButtons,
 } from './styles';
 
 export interface IOrderExtended extends IOrder {
@@ -44,10 +59,17 @@ export interface IOrderExtended extends IOrder {
 
 export interface Distance {
   value: number;
-  label: string;
+  label: string | React.ReactNode;
+}
+
+interface AddCustomDistanceFormData {
+  distance: string;
 }
 
 const Orders: React.FC = () => {
+  const addCustomDistanceModalRef = useRef<Modalize>(null);
+  const addCustomDistanceFormRef = useRef<FormHandles>(null);
+
   const { user } = useAuth();
   const { location } = useLocation();
 
@@ -62,6 +84,10 @@ const Orders: React.FC = () => {
   const [page, setPage] = useState(1);
   const [endOfList, setEndOfList] = useState(false);
   const [refreshButtonVisible, setRefreshButtonVisible] = useState(false);
+  const [
+    isAddCustomDistanceModalOpen,
+    setIsAddCustomDistanceModalOpen,
+  ] = useState(false);
 
   const fetchNextPageOrdersFromApi = useCallback(async () => {
     if (!endOfList && !loadingOrders) {
@@ -86,6 +112,65 @@ const Orders: React.FC = () => {
     setEndOfList(false);
     setRefreshButtonVisible(false);
   }, []);
+
+  const handleOpenAddCustomDistanceModal = useCallback(() => {
+    addCustomDistanceModalRef.current?.open();
+    setIsAddCustomDistanceModalOpen(true);
+  }, []);
+
+  const handleAddCustomDistance = useCallback((distance: number) => {
+    setDistances(prevState => {
+      const newState = prevState;
+      const addCustomDistanceButtonElement = newState.pop();
+
+      newState.push({ value: distance, label: `${distance} km` });
+
+      if (addCustomDistanceButtonElement) {
+        newState.push(addCustomDistanceButtonElement);
+      }
+
+      return newState;
+    });
+
+    addCustomDistanceModalRef.current?.close();
+
+    setSelectedDistance(distance);
+  }, []);
+
+  const handleAddCustomDistanceFormSubmit = useCallback(
+    (data: AddCustomDistanceFormData) => {
+      const distance = Number(data.distance);
+
+      if (distance <= 150) {
+        Alert.alert(
+          'Atenção!',
+          'O valor da distância precisa ser maior que 150 km.',
+        );
+
+        return;
+      }
+
+      if (distance > 9999) {
+        Alert.alert(
+          'Tem certeza?',
+          'Uma pesquisa com uma distância tão grande assim pode demorar bastante para finalizar.',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {},
+            {
+              text: 'Continuar',
+              onPress: () => handleAddCustomDistance(distance),
+            },
+          ],
+        );
+
+        return;
+      }
+
+      handleAddCustomDistance(distance);
+    },
+    [handleAddCustomDistance],
+  );
 
   useEffect(() => {
     async function showMissingUserInfoAlert() {
@@ -138,6 +223,16 @@ const Orders: React.FC = () => {
       { value: 75, label: '75 km' },
       { value: 100, label: '100 km' },
       { value: 150, label: '150 km' },
+      {
+        value: 0,
+        label: (
+          <Feather
+            name="plus"
+            size={parseWidthPercentage(16)}
+            color="#606060"
+          />
+        ),
+      },
     ]);
   }, []);
 
@@ -246,7 +341,13 @@ const Orders: React.FC = () => {
               >
                 <DistanceChoosable
                   rippleColor="#ebebeb10"
-                  onPress={() => handleSelectDistance(distance.value)}
+                  onPress={() => {
+                    if (distance.value) {
+                      handleSelectDistance(distance.value);
+                    } else {
+                      handleOpenAddCustomDistanceModal();
+                    }
+                  }}
                 >
                   <DistanceText
                     isSelected={selectedDistance === distance.value}
@@ -311,10 +412,67 @@ const Orders: React.FC = () => {
         )}
       </Container>
 
-      <FloatingButton
-        iconName="truck"
-        onPress={handleNavigateToOrdersAsDeliveryman}
-      />
+      {!isAddCustomDistanceModalOpen && (
+        <FloatingButton
+          iconName="truck"
+          onPress={handleNavigateToOrdersAsDeliveryman}
+        />
+      )}
+
+      <Modalize
+        ref={addCustomDistanceModalRef}
+        adjustToContentHeight
+        keyboardAvoidingBehavior="height"
+        overlayStyle={{ backgroundColor: '#00000090' }}
+        onClose={() => setIsAddCustomDistanceModalOpen(false)}
+      >
+        <ModalContainer>
+          <ModalTitle>Adicionar distância</ModalTitle>
+
+          <Form
+            ref={addCustomDistanceFormRef}
+            onSubmit={handleAddCustomDistanceFormSubmit}
+          >
+            <InputGroup
+              label="Digite a distância"
+              name="distance"
+              placeholder="Em km"
+              keyboardType="number-pad"
+              returnKeyType="done"
+              containerStyle={{
+                marginTop: parseHeightPercentage(24),
+                marginBottom: 0,
+              }}
+              onSubmitEditing={() => {
+                addCustomDistanceFormRef.current?.submitForm();
+              }}
+            />
+
+            <ModalButtons>
+              <OutlinedButton
+                color="#EB4D4B"
+                flex={1}
+                onPress={() => {
+                  addCustomDistanceModalRef.current?.close();
+                }}
+              >
+                Cancelar
+              </OutlinedButton>
+
+              <FilledButton
+                backgroundColor="#6ab04c"
+                textColor="#ebebeb"
+                marginTop={0}
+                marginLeft={8}
+                flex={1}
+                onPress={() => addCustomDistanceFormRef.current?.submitForm()}
+              >
+                Adicionar
+              </FilledButton>
+            </ModalButtons>
+          </Form>
+        </ModalContainer>
+      </Modalize>
     </>
   );
 };
