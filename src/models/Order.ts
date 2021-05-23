@@ -20,8 +20,6 @@ export default interface IOrder {
   delivery_address: string;
   delivery_city: string;
   delivery_state: string;
-  delivery_latitude: number;
-  delivery_longitude: number;
   delivery_value: number;
   purchase_invoice: string;
   trip_id: string;

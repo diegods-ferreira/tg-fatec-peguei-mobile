@@ -365,17 +365,6 @@ const CreateOrder: React.FC = () => {
           }, ${pickupAddress.cep.substr(0, 5)}, Brazil`,
         );
 
-        const {
-          latitude: delivery_latitude,
-          longitude: delivery_longitude,
-        } = await fetchAddressMapbox(
-          useMyOrAnotherAddress === 0
-            ? `${user.address}, ${user.city}-${user.state}, Brazil`
-            : `${deliveryAddress.street} ${deliveryAddress.city} - ${
-                deliveryAddress.state
-              }, ${deliveryAddress.cep.substr(0, 5)}, Brazil`,
-        );
-
         const pickup_date = new Date(pickupDate);
         pickup_date.setHours(0);
         pickup_date.setMinutes(0);
@@ -401,8 +390,6 @@ const CreateOrder: React.FC = () => {
             useMyOrAnotherAddress === 0 ? user.city : deliveryAddress.city,
           delivery_state:
             useMyOrAnotherAddress === 0 ? user.state : deliveryAddress.state,
-          delivery_latitude,
-          delivery_longitude,
           items: items.map(item => ({
             name: item.name,
             description: item.description,
