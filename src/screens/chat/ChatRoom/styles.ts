@@ -16,6 +16,19 @@ export const ComposerContainer = styled.View`
   background-color: #232129;
 `;
 
+export const ComposerContainerDisabled = styled.View`
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ComposerContainerDisabledText = styled.Text`
+  color: #606060;
+  font-size: ${parseWidthPercentage(16)}px;
+  font-weight: bold;
+`;
+
 export const ChatEmptyContainer = styled.View`
   align-items: center;
   padding-bottom: ${parseHeightPercentage(80)}px;

@@ -31,6 +31,7 @@ import api from '@services/api';
 
 import { useAuth } from '@hooks/auth';
 
+import IChat from '@models/Chat';
 import IUser from '@models/User';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
@@ -45,6 +46,8 @@ import {
 import {
   Container,
   ComposerContainer,
+  ComposerContainerDisabled,
+  ComposerContainerDisabledText,
   ChatEmptyContainer,
   ChatEmptyUserName,
   ChatEmptyText,
@@ -54,7 +57,7 @@ import {
 } from './styles';
 
 interface RouteParams {
-  chat_id: string;
+  chat: IChat;
   recipient: IUser;
   order_id: string;
 }
@@ -79,7 +82,7 @@ const ChatRoom: React.FC = () => {
 
       try {
         const response = await api.get(
-          `/chats/previous-messages/${routeParams.chat_id}`,
+          `/chats/previous-messages/${routeParams.chat.id}`,
         );
 
         setMessages(previousMessages =>
@@ -98,7 +101,7 @@ const ChatRoom: React.FC = () => {
     }
 
     loadPreviousMessages();
-  }, [routeParams.chat_id]);
+  }, [routeParams.chat.id]);
 
   useEffect(() => {
     const newSocket = socketio(API_URL, {
@@ -106,9 +109,9 @@ const ChatRoom: React.FC = () => {
     });
 
     setTimeout(() => {
-      const { chat_id } = routeParams;
+      const { chat } = routeParams;
 
-      newSocket.emit('join-room', chat_id);
+      newSocket.emit('join-room', chat.id);
 
       newSocket.on('receive-message', (receiveMessages: IMessage[]) => {
         setMessages(previousMessages =>
@@ -195,6 +198,7 @@ const ChatRoom: React.FC = () => {
           scrollToBottom
           onPressAvatar={handleNavigateToUserProfile}
           keyboardShouldPersistTaps="never"
+          disableComposer={!routeParams.chat.active}
           infiniteScroll
           scrollToBottomStyle={{
             backgroundColor: '#6F7BAE',
@@ -210,14 +214,28 @@ const ChatRoom: React.FC = () => {
             <Day {...props} dateFormat="DD/MM/YYYY" />
           )}
           renderComposer={(props: ComposerProps) => (
-            <ComposerContainer>
-              <Composer
-                {...props}
-                placeholder="Escreva uma mensagem"
-                placeholderTextColor="#606060"
-                textInputStyle={{ color: '#EBEBEB' }}
-              />
-            </ComposerContainer>
+            <>
+              {routeParams.chat.active && (
+                <ComposerContainer>
+                  <Composer
+                    {...props}
+                    placeholder="Escreva uma mensagem"
+                    placeholderTextColor="#606060"
+                    textInputStyle={{ color: '#EBEBEB' }}
+                  />
+                </ComposerContainer>
+              )}
+
+              {!routeParams.chat.active && (
+                <ComposerContainer>
+                  <ComposerContainerDisabled>
+                    <ComposerContainerDisabledText>
+                      Pedido finalizado
+                    </ComposerContainerDisabledText>
+                  </ComposerContainerDisabled>
+                </ComposerContainer>
+              )}
+            </>
           )}
           renderSend={(props: SendProps<IMessage>) => (
             <Send {...props} containerStyle={sendContainerStyle}>

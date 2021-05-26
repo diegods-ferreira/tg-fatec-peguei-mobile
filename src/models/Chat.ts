@@ -6,6 +6,7 @@ export default interface IChat {
   order_id: string;
   deliveryman_id: string;
   requerter_id: string;
+  active: boolean;
   created_at: string;
   updated_at: string;
   last_message_text: string;

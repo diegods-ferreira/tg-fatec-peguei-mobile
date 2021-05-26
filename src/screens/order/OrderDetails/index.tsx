@@ -33,6 +33,7 @@ import IOrder from '@models/Order';
 import IRequestPickupOffer from '@models/RequestPickupOffer';
 import IUser from '@models/User';
 import IUserRate from '@models/UserRate';
+import IChat from '@models/Chat';
 
 import LoadingScreen from '@components/atoms/LoadingScreen';
 import TitleBar from '@components/atoms/TitleBar';
@@ -388,8 +389,8 @@ const OrderDetails: React.FC = () => {
   }, [offerToPickup.id, offerToPickupValue]);
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient: IUser, order_id: string) => {
-      navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
+    (chat: IChat, recipient: IUser, order_id: string) => {
+      navigation.navigate('ChatRoom', { chat, recipient, order_id });
     },
     [navigation],
   );
@@ -673,7 +674,7 @@ const OrderDetails: React.FC = () => {
                     rippleColor="#00000050"
                     onPress={() => {
                       handleJoinChatRoom(
-                        order.chat.id,
+                        order.chat,
                         order.deliveryman,
                         order.id,
                       );

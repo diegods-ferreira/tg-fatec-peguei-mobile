@@ -93,8 +93,8 @@ const Chats: React.FC = () => {
   }, [fetchChatsListFromTheApi]);
 
   const handleJoinChatRoom = useCallback(
-    (chat_id: string, recipient: IUser, order_id: string) => {
-      navigation.navigate('ChatRoom', { chat_id, recipient, order_id });
+    (chat: IChat, recipient: IUser, order_id: string) => {
+      navigation.navigate('ChatRoom', { chat, recipient, order_id });
     },
     [navigation],
   );
@@ -106,7 +106,7 @@ const Chats: React.FC = () => {
       );
 
       if (chat) {
-        handleJoinChatRoom(chat.id, chat.other_user, chat.order_id);
+        handleJoinChatRoom(chat, chat.other_user, chat.order_id);
       }
     }
   }, [routeParams, navigation, handleJoinChatRoom, chats]);
@@ -164,7 +164,7 @@ const Chats: React.FC = () => {
                 padding={0}
                 height={120}
                 onPress={() => {
-                  handleJoinChatRoom(chat.id, chat.other_user, chat.order.id);
+                  handleJoinChatRoom(chat, chat.other_user, chat.order.id);
                 }}
               >
                 <ChatInfoContainer>
